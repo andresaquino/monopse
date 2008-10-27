@@ -1,0 +1,203 @@
+MONOPSE
+Monitor de Operaciones y Servicios
+___________________________________________________________________________
+(c) 2008 NEXTEL DE MEXICO
+
+Aplicacion para iniciar y  detener las distintas aplicaciones existentes en 
+los servidores de NEXTEL.
+
+
+Hasta el momento lo he probado con:
+	* WebLogic 10
+	* WebLogic 9.2
+	* WebLogic 8.1
+	* WebLogic 6
+
+
+TODOs
+	* Ejecutar los procesos de iniciar y detener por aplicación, en base a su
+		archivo de configuración
+	* Verificar que el proceso realmente sea dado de baja verificando los PID's
+		de cada aplicación
+	* Generar los archivos de PID's por proceso, de log, de error y de bloqueo
+		para cada proceso de ejecución
+	* Generar archivo de respaldo de los archivos de datos generados por la app
+	* Verificar que sea el usuario asignado en el archivo de configuración quien
+		realmente ejecute el proceso
+	* Verificar los tamaños asignados en HD antes de ejecutar la aplicación
+		para no quedarse sin espacio para la ejecución del proceso
+
+
+REUNION 20080519
+   * El día de ayer 20080518 se lanzaron JOB's y estos se quedaron colgados en
+      el SO, considerar si hay algun problema con el Control-M ó si fue falla
+      del operador; el objetivo es que no suceda nuevamente
+         - qué fue lo que sucedio ?
+         - cómo se puede evitar ?
+   * Se inician las pruebas con VISION (que se compone de mas o menos 6 modulos)
+      el día Miércoles 20080521 reunión de capacitación para SisOps (VISION), 
+      posteriormente hacer los cambios 20080522 a las 05.00
+   * Puntos de Acuerdo
+      - Mier.21 18.00   : Vision review
+      - Luns.19 19.00   : Lista JOBs Control-M
+      - Mier.21 18.00   : Revisión Control-M
+      - Vier.23 18.00   : Usar APPManager para evaluar si las aplicaciones se 
+                           encuentran activas y operando.
+      -                 : wtf OLA ?
+
+
+Usando MONOPSE
+   * web8sp6@192.168.120.120
+      +nextel_oe
+      +scv_p
+
+   * web8sp6@10.103.2.52
+      +nextel_oe
+      +sis_vis
+
+   * weblogi8@10.103.2.52
+      +SCV
+      +cci
+      +ccischeduler
+      +med_P
+      +pisweb_P
+      +puc_P
+      +sirane_P
+      +wl_ATM
+      +nextel_oe_service [/opt/web8sp60/bea/user_projects/domains]
+
+   * web8sp6@10.103.12.58
+      +serva_autom
+
+   * aqua9@10.103.12.58
+      +serva_autom_ALSB
+
+   * fuego@10.103.12.63
+      +fuegoAct
+
+
+LOGDAY (20080522)
+   VISION (Fuego & Resin: pvision, aplicaciones,consulta,activa,11000,11001,11002,11005)
+   ==
+      USER: fuego
+      HOST: 10.103.2.81
+      PATH: /opt/vision/bin
+      APPS: startengine.sh | stopengine.sh
+      LOGS: /tmp/activaciones.start
+ 
+   VISION (OE1 Fuego & Resin)
+   ==
+      USER: fuego
+      HOST: 10.103.12.63 [mexhpoe1]
+      PATH: /opt/vision/bin (fuego
+      PATH: /opt/vision/resin/resin_pvision_211/bin (resin
+      APPS: startengine.sh | stopengine.sh
+      LOGS: /tmp/activaciones.start
+ 
+   FUEGO Reemplazos 
+   ==
+      USER: fuegoree
+      HOST: 10.103.2.81 [mexhpfg1]
+      PATH: /opt/fuego/fuegoree/fuego4.2/bin
+      APPS: startengineReemplazosEmergency.sh | startengineReemplazos.sh | stopengineReemplazos.sh
+      LOGS: /opt/fuego/fuegoree/fuego4.2/log/EngineUp/reemplazo
+      
+   RESIN Reemplazos 
+   ==
+      USER: resinree
+      HOST: 10.103.2.81 [mexhpfg1]
+      PATH: /opt/resinree/resin-2.1.11/bin
+      APPS: startResin.sh | stopResins.sh
+      LOGS: /opt/resinree/resin-2.1.11/log/resinAlone.out
+      
+   VISIONAC 
+   ==
+      USER: visionac
+      HOST: 10.103.2.81 [mexhpfg1]
+      PATH: /opt/vision/visionac/enterprise/bin
+      APPS: nohup startwebconsole.sh & | stopwebconsole.sh
+      LOGS: nohup.out
+      
+   NEXINDE *
+   ==
+      USER: nexinde
+      HOST: 10.103.2.81 [mexhpfg1]
+      PATH: /opt/vision/nexinde/enterprise/bin
+      APPS: nohup startwebconsole.sh & | stopwebconsole.sh
+      LOGS: nohup.out
+   
+   RESIN_PVISION
+   ==
+      USER: resin1
+      HOST: 10.103.2.81 [mexhpfg1]
+      PATH: /opt/vision/resin/resin_pvision_211/bin
+      APPS: sh startResin1.sh | stopResins.sh
+      LOGS: /opt/vision/resin/resin_pvision_211/log/resinAlone1.out
+
+LOGDAY(20080528)
+   ==
+      CNAM: CCI DESARROLLO
+      USER: web8sp4
+      HOST: 10.103.12.60 [mexhpds1]
+      PATH: /opt/weblogisp4/bea/user_projects/domains/cci_D
+      APPS: sh startWeblogic.sh | sh stopWebLogic.sh
+      LOGS: 
+
+VISION
+(que madres es VISION?)
+--
+Modulos:
+   pvision, Aplica, Consulta, Activa
+   11000, 11001, 11002, 11005
+
+Aplicacion:
+   FUEGO & RESINS
+
+Procedimiento BAJA:
+   1- ssh fuego@10.103.2.81
+   2- cd /opt/vision/bin
+   3- Orden
+      sh stopengine.sh
+      sh stopengineAplicaciones.sh
+      sh stopengineConsulta.sh
+      sh stopengineActiva.sh
+   4- ssh resin1@10.103.2.81
+   5- cd /opt/vision/resin/resin_pvision_211/bin
+   6- sh stopResins.sh
+
+Procedimiento ALTA:
+   1- ssh fuego@10.103.2.81
+   2- cd /opt/vision/bin
+   3- Orden
+      sh startengineEmergency.sh
+      sh startengineAplicacionesEmergency.sh
+      sh startengineConsultaEmergency.sh
+      sh startengineActivaEmergency.sh
+
+Modulos:
+   OE1
+
+Aplicacion:
+   FUEGO & RESINS
+
+Procedimiento BAJA:
+   1- ssh fuego@10.103.12.63
+   2- cd /opt/vision/bin
+   3- sh stopengine.sh
+   4- cd /opt/vision/resin/resin_pvision_211/bin
+   5- sh stopResin.sh
+
+Procedimiento ALTA:
+   1- ssh fuego@10.103.12.63
+   2- cd /opt/vision/bin
+   3- sh startengineEmergency.sh
+   4- cd /opt/vision/resin/resin_pvision_211/bin
+   5- sh startResin.sh
+
+
+De momento lo pidieron en SH, pero es posible crecerlo a PERL ya que HP/UX
+trae por defecto un PERL 5.0.0; solo es cuestión de checar los modulos con
+los que cuenta para poder "jugarle"
+
+# $Id: README 155 2008-06-13 07:36:39Z andresaquino $
+# vim: set ts=3 et sw=3 sts=3 si ai:
