@@ -44,6 +44,6 @@ alias domains='cd ~/bea/user_projects/domains'
 MANPATH=$HOME/monopse:$MANPATH
 
 # agregar el bin al PATH
-PATH=$HOME/bin:$PATH
+PATH=$HOME/bin:/usr/local/bin:$PATH
 
 #
