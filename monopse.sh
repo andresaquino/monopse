@@ -82,7 +82,7 @@ log_backup () {
    # por que HP/UX tiene que ser taaan soso = estupido ? ? 
    # backup de log | err | pid para análisis
    # tar archivos | gzip -c > file-log
-   $aptar cvf "${LOG}_${DAYOF}.tar" "${DAYOF}" > /dev/null 2>&1
+   $aptar -cvf "${LOG}_${DAYOF}.tar" "${DAYOF}" > /dev/null 2>&1
    $apzip -c "${LOG}_${DAYOF}.tar" > "${LOG}_${DAYOF}.tar.gz"
    LOGSIZE=`du -sk ${LOG}_${DAYOF}.tar.gz | cut -f1`
    log_action "INFO" "Creating ${LOG}_${DAYOF}.tar.gz file with ${LOGSIZE}M of size"
