@@ -18,32 +18,30 @@ stty stop '^S'
 stty susp '^Z'
 stty werase '^W'
 
-# colores
-FORE=`tput smso`
-UNDR=`tput smul`
-NORM=`tput sgr0`
-
-# datos del host
+# about host
 HOSTNAME="`hostname`"
 IPLAN=`/usr/sbin/ping ${HOSTNAME} -n1 | awk '/bytes from/{gsub(":","",$4);print $4}'`
 [ "$SSH_CONNECTION" != "" ] && IPLAN=`echo $SSH_CONNECTION | cut -f3 -d" "`
 HOST=`hostname | tr "[:upper:]" "[:lower:]" | sed -e "s/m.*hp//g`
 
-# PS1
-export PS1='[${USER}@${IPLAN} ${FORE}${HOST}${NORM}] ${PWD##*/}$ '
+# command line _eye candy_
+export PS1="$(echo "\033[01;33m${USER}\033[01;37m@${IPLAN}(\033[01;31m${HOST}\033[01;37m)") \${PWD##*/}$ "
+export TERM="xterm"
+export PROFILE="applications"
 
-# alias
-alias ll='ls -l -F'
-alias la='ls -l -a -F'
-alias lt='ls -l -F -t'
-alias lr='ls -l -F -r -t'
-alias p='pwd'
+# common alias
+alias ls='ls -F'
+alias ll='ls -l'
+alias la='ll -a'
+alias lt='la -t'
+alias lr='lt -r'
+alias pw='pwd'
 alias domains='cd ~/bea/user_projects/domains'
 
-# manuales de aplicaciones propias
+# man 
 MANPATH=$HOME/monopse:$MANPATH
 
-# agregar el bin al PATH
+# binary path
 PATH=$HOME/bin:/usr/local/bin:$PATH
 
 #
