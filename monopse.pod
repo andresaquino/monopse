@@ -139,11 +139,11 @@ DOMINIOS
 
 =head1 AUTHOR
 
- v1.92
+ monopse v2.50
  Copyright (C) 2008 Nextel de Mexico
-
- Andres Aquino <cesar.aquino@nextel.com.mx>
- Devil's Dance -- Metallica
+ 
+ Incognito - Enigma
+ Written by Andres Aquino <andres.aquino@gmail.com>
 
 =head1 BUGS
 
