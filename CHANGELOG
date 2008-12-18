@@ -6,4 +6,10 @@
      6	f609360d51410934aa31faa73f3780a6a870e412 actualizar información de correos y radios
      7	dd9f24fdde2d172fbdd1eb9470312e2a4c0129ca (refs/remotes/origin/v2.5stable) cambios en tar -cvf...
      8	62c855b7d90de3a5ea839a556b8605b525443a00 cambios en alias para ls
-     9	ab414f82a91a7c5de5509754a18e6f6ac5c63004 (refs/heads/v2.5stable) version en manual de ayuda
+     9	ab414f82a91a7c5de5509754a18e6f6ac5c63004 version en manual de ayuda
+    10	6378ea9b2a82a70f4943010258db602eef217703 historial de cambios, despues de usar SVN
+    11	7d59a5bda01cc0c375d747e3786fa90c2ffc1329 informacion inutil :)
+    12	a6f3a12877f6fb4797aa2bfc3df2038919b0a3d2  * eliminar directorios no usados  * limpiar log  * quitar shells que no van aqui
+    13	aeb0490ee80daca9aa0f2974b7e970a9552151cb estos DOCS son unos crones, los movemos al playground para revisarlos..
+    14	1f6245ad86621a4bb6b1aff51d25e1ac64384b27 Se agrega documento (INSTALL) para instalar aplicacion
+    15	d98ddc65494945b1b0e7032390150c4c56c46ba3 (refs/heads/v2.5stable) quitar paja y arreglar el readme ...
