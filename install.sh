@@ -8,6 +8,7 @@
 # César Andrés Aquino <cesar.aquino@nextel.com.mx>
 
 mkdir -p ~/bin
+mv ~/monopse.git ~/monopse
 chmod 0750 ~/monopse/monopse.sh
 ln -sf ~/monopse/monopse.sh ~/bin/monopse
 PATH=$HOME/bin:$PATH

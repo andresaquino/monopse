@@ -12,4 +12,7 @@
     12	a6f3a12877f6fb4797aa2bfc3df2038919b0a3d2  * eliminar directorios no usados  * limpiar log  * quitar shells que no van aqui
     13	aeb0490ee80daca9aa0f2974b7e970a9552151cb estos DOCS son unos crones, los movemos al playground para revisarlos..
     14	1f6245ad86621a4bb6b1aff51d25e1ac64384b27 Se agrega documento (INSTALL) para instalar aplicacion
-    15	d98ddc65494945b1b0e7032390150c4c56c46ba3 (refs/heads/v2.5stable) quitar paja y arreglar el readme ...
+    15	d98ddc65494945b1b0e7032390150c4c56c46ba3 quitar paja y arreglar el readme ...
+    16	f144b209103044c59d516165708a7eacf9feec82 el test no es necesario tenerlo trabajando
+    17	d11f5e1c1531e38c94bbad23f158a1f82611f45d * agregar cambios al CHANGELOG * se quito el test-monopse.conf por no estar configurado por defecto en * una nueva instalacion
+    18	6f7c83501cc6fab41e1fdbddef2b4a2d5b835a2c (refs/heads/v2.5stable) agregar install

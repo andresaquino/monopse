@@ -17,6 +17,13 @@ Bajar el paquete monopse-v2.5Stable
  $ wget http://10.103.22.44/applications/monopse-v2.5Stable.tar.gz 
 
 
+Ejecuta el script install.sh
+-
+ $ sh monopse.git/install.sh
+
+ó el procedimiento manual:
+
+
 Descomprimir
 -
  $ cd $HOME
