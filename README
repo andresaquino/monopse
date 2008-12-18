@@ -1,8 +1,11 @@
-MONOPSE
-Monitor de Operaciones y Servicios
-___________________________________________________________________________
-(c) 2008 NEXTEL DE MEXICO
 
+Monitor de Operaciones y Servicios
+ _ __  ___ _ _  ___ _ __ ___ ___ 
+| '  \/ _ \ ' \/ _ \ '_ (_-</ -_) 
+|_|_|_\___/_||_\___/ .__/__/\___|
+                   |_| 
+
+=-=
 Aplicacion para iniciar y  detener las distintas aplicaciones existentes en 
 los servidores de NEXTEL.
 
@@ -12,9 +15,11 @@ Hasta el momento lo he probado con:
 	* WebLogic 9.2
 	* WebLogic 8.1
 	* WebLogic 6
+   * Targys (install screen)
+   * otras aplicaciones
 
 
-TODOs
+TODO
 	* Ejecutar los procesos de iniciar y detener por aplicación, en base a su
 		archivo de configuración
 	* Verificar que el proceso realmente sea dado de baja verificando los PID's
