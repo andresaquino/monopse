@@ -938,9 +938,9 @@ else
       if [ ${APPLICATION} = "NONSETUP" ]
       then
          # si no se da el parametro --application, se busca en el monopse los .conf y se consulta su estado
-         cd $HOME
-         ls -l monopse/*-monopse.conf 2>/dev/null
-         [ $? != "0" ] && echo "Cannot access any config file! " && exit 1
+         cd ${HOME}
+         ls -l ${HOME}/${NAMEAPP}/*-monopse.conf > /dev/null 2>&1
+         [ "$?" != "0" ] && echo "Cannot access any config file! " && exit 1
 
          for app in monopse/*-monopse.conf
          do
@@ -990,22 +990,21 @@ else
       appuser=`id -u -n`
       # checando el estado de las aplicaciones
       ~/bin/monopse --status > /dev/null 2>&1
-      ls -l /home/andresaquino/monopse/*-monopse.conf 2>/dev/null
+      ls -l ${HOME}/${NAMEAPP}/*-monopse.conf > /dev/null 2>&1
       [ $? != "0" ] && echo "Cannot access any config file! " && exit 1
 
       echo "\n"
       echo "${apphost}"
       echo "${appipmc}"
-      echo "SERVER:EXECUTED:PID:STATS:FILESYSTEM" | 
+      echo "SERVER:EXECUTED:PID:STATS" | 
          awk 'BEGIN{FS=":";OFS="| "}
                {
                   print substr($1"              ",1,14),
                         substr($2"              ",1,14),
                         substr($3"              ",1,6),
-                        substr($4"              ",1,6),
-                        substr($5"                                         ",1,32)
+                        substr($4"              ",1,6)
                }'
-      echo "--------------+---------------+-------+-------+---------------------------"
+      echo "--------------+---------------+-------+-------"
       for app in monopse/*-monopse.conf
       do
          appname=`basename ${app%-monopse.*}`
@@ -1022,18 +1021,19 @@ else
          
          # calcular cuanto espacio ocupa el dominio en el filesystem
          cd $apppath
-         appsize=`du -sk . 2>/dev/null | awk '{print ($1/1024)}' | sed -e "s/\.[0-9]*//g"`
-         appfsiz=`${bdf} . | awk '/dev/{print "/ "int($4/1024)"/ "int($2/1024)" Mb "}' | sed -e "s/\.[0-9]*//g"`
+         #appsize=`du -sk . 2>/dev/null | awk '{print ($1/1024)}' | sed -e "s/\.[0-9]*//g"`
+         appsize="0"
+         #appfsiz=`${bdf} . | awk '/dev/{print "/ "int($4/1024)"/ "int($2/1024)" Mb "}' | sed -e "s/\.[0-9]*//g"`
+         appfsiz="0"
 
          cd $HOME
-         echo "${appname}:${appdate}:${apppidn}:${appstat}:${appsize}${appfsiz}" | 
+         echo "${appname}:${appdate}:${apppidn}:${appstat}" | 
             awk 'BEGIN{FS=":";OFS="| "}
                {
                   print substr($1"              ",1,14),
                         substr($2"              ",1,14),
                         substr($3"              ",1,6),
-                        substr($4"              ",1,6),
-                        substr($5"                                         ",1,32)
+                        substr($4"              ",1,6)
                }'
  
       done
