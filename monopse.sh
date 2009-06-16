@@ -890,11 +890,12 @@ else
       if [ "${LASTSTATUS}" -ne "0" ]
       then
          # si el stop es con FORCED, y es una aplicacion JAVA enviar FTD
-         if [ "$FILTERLANG" = "java" ]
+         if [ ${FILTERLANG} = "java" -a ${THREADDUMP} ]
          then
-            # TODO: es necesario que sean HC(HardCode) o las dejamos en el archivo de configuracion
-            log_action "INFO" "before kill the baby, we sending 3 FTD's between 8 secs"
-            ~/bin/monopse --application=${APPLICATION} --threaddump=3,8
+            # monopse -a=app stop -f -t=3,10
+            # se aplica un fullthreaddump de 3 muestras cada 10 segundos antes de detener el proceso de manera forzada. 
+            log_action "INFO" "before kill the baby, we send 3 FTD's between 8 secs"
+            ~/bin/monopse --application=${APPLICATION} --threaddump=${MAXSAMPLES},${MAXSLEEP}
          fi
 
          log_action "WARN" "time to using the secret weapon baby: _KILL'EM ALL_ !"
