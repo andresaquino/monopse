@@ -545,7 +545,7 @@ do
          ERROR=false
          ;;
          
-      -t=*|--threaddump|--threaddump=*)
+      -t=*|--threaddump=*)
          THREADDUMP=true
          ERROR=false
          MAXVALUES=`echo "$1" | sed 's/^--[a-z-]*=//'`
@@ -560,7 +560,18 @@ do
             ERROR=true
          fi
          ;;
-         
+
+      -t|--threaddump)
+         THREADDUMP=true
+         ERROR=false
+         MAXSAMPLES=3
+         MAXSLEEP=10
+         if ${START} || ${CHECKCONFIG}
+         then
+            ERROR=true
+         fi
+         ;;
+
       --mailto=*)
          MAILACCOUNTS=`echo "$1" | sed 's/^--[a-z-]*=//'`
          ERROR=false
@@ -988,7 +999,7 @@ else
       appipmc=`echo $SSH_CONNECTION | cut -f3 -d" "`
       appuser=`id -u -n`
       # checando el estado de las aplicaciones
-      ~/bin/monopse --status > /dev/null 2>&1
+      #~/bin/monopse --status > /dev/null 2>&1
       ls -l ${HOME}/${NAMEAPP}/*-monopse.conf > /dev/null 2>&1
       [ $? != "0" ] && echo "Cannot access any config file! " && exit 1
 
@@ -998,16 +1009,17 @@ else
       echo "SERVER:EXECUTED:PID:STATS" | 
          awk 'BEGIN{FS=":";OFS="| "}
                {
-                  print substr($1"              ",1,14),
+                  print substr($1"                             ",1,20),
                         substr($2"              ",1,14),
                         substr($3"              ",1,6),
                         substr($4"              ",1,6)
                }'
-      echo "--------------+---------------+-------+-------"
+      echo "--------------------+---------------+-------+-------"
       for app in monopse/*-monopse.conf
       do
          appname=`basename ${app%-monopse.*}`
          apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
+         ~/bin/monopse --application=$appname --status > /dev/null 2>&1
          
          # verificar que exista el PID del usuario
          touch "${apppath}/monopse/${appname}.pid"
@@ -1029,7 +1041,7 @@ else
          echo "${appname}:${appdate}:${apppidn}:${appstat}" | 
             awk 'BEGIN{FS=":";OFS="| "}
                {
-                  print substr($1"              ",1,14),
+                  print substr($1"                               ",1,20),
                         substr($2"              ",1,14),
                         substr($3"              ",1,6),
                         substr($4"              ",1,6)
