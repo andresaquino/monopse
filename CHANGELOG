@@ -1,18 +1,68 @@
-     1	61e0755892063a89e8c84884e0a561c97f21a66f first commit of README
-     2	76efc1f0b3bd27501fc6f748ea55afd190c8bc0f (refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master) upload files of project
-     3	37cc0060bc7661721de046952cb048189cca72a3 Version 2.5 stable (produccion)
-     4	3bcce503252d0e1716bf58a76bd67e546de0a275 agregar manual de ayuda: man monopse
-     5	6587996613b3490928dcf398e4b2d1c223e4af70 modificaciones a personal.profile
-     6	f609360d51410934aa31faa73f3780a6a870e412 actualizar información de correos y radios
-     7	dd9f24fdde2d172fbdd1eb9470312e2a4c0129ca (refs/remotes/origin/v2.5stable) cambios en tar -cvf...
-     8	62c855b7d90de3a5ea839a556b8605b525443a00 cambios en alias para ls
-     9	ab414f82a91a7c5de5509754a18e6f6ac5c63004 version en manual de ayuda
-    10	6378ea9b2a82a70f4943010258db602eef217703 historial de cambios, despues de usar SVN
-    11	7d59a5bda01cc0c375d747e3786fa90c2ffc1329 informacion inutil :)
-    12	a6f3a12877f6fb4797aa2bfc3df2038919b0a3d2  * eliminar directorios no usados  * limpiar log  * quitar shells que no van aqui
-    13	aeb0490ee80daca9aa0f2974b7e970a9552151cb estos DOCS son unos crones, los movemos al playground para revisarlos..
-    14	1f6245ad86621a4bb6b1aff51d25e1ac64384b27 Se agrega documento (INSTALL) para instalar aplicacion
-    15	d98ddc65494945b1b0e7032390150c4c56c46ba3 quitar paja y arreglar el readme ...
-    16	f144b209103044c59d516165708a7eacf9feec82 el test no es necesario tenerlo trabajando
-    17	d11f5e1c1531e38c94bbad23f158a1f82611f45d * agregar cambios al CHANGELOG * se quito el test-monopse.conf por no estar configurado por defecto en * una nueva instalacion
-    18	6f7c83501cc6fab41e1fdbddef2b4a2d5b835a2c (refs/heads/v2.5stable) agregar install
+· 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
+     se modifico el --report, ya no calcula el filesystem space
+
+· 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
+     se adecuo el output en la opcion --report
+
+· 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
+     - se actualizo el personal.profile
+
+· 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
+     - se adecuo el kill para que no ejecute el threaddump cuanso es un fast
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     Documentacion final
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     agregar install
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     * agregar cambios al CHANGELOG
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     el test no es necesario tenerlo trabajando
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     quitar paja y arreglar el readme ...
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     Se agrega documento (INSTALL) para instalar aplicacion
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     estos DOCS son unos crones, los movemos al playground para revisarlos..
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+      * eliminar directorios no usados
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     informacion inutil :)
+
+· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     historial de cambios, despues de usar SVN
+
+· 2008-12-10 Andres Aquino <cesar.aquino@nextel.com.mx>
+     version en manual de ayuda
+
+· 2008-12-05 Andres Aquino <cesar.aquino@nextel.com.mx>
+     cambios en alias para ls
+
+· 2008-11-09 Andres Aquino <cesar.aquino@nextel.com.mx>
+     cambios en tar -cvf...
+
+· 2008-11-04 Andres Aquino <cesar.aquino@nextel.com.mx>
+     actualizar información de correos y radios
+
+· 2008-10-29 Andres Aquino <cesar.aquino@nextel.com.mx>
+     modificaciones a personal.profile
+
+· 2008-10-29 Andres Aquino <cesar.aquino@nextel.com.mx>
+     agregar manual de ayuda: man monopse
+
+· 2008-10-28 Andres Aquino <cesar.aquino@nextel.com.mx>
+     Version 2.5 stable (produccion)
+
+· 2008-10-27 Andres Aquino <cesar.aquino@nextel.com.mx>
+     upload files of project
+
+· 2008-10-27 GIT User for Development <git@pulgosa.nextelmx.net>
+     first commit of README

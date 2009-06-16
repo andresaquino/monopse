@@ -555,7 +555,7 @@ do
             MAXSAMPLES=`echo $MAXVALUES | sed 's/\,.*//'`
             MAXSLEEP=`echo "$1" | sed 's/.*\,//'`
          fi
-         if ${START} || ${STOP} || ${CHECKCONFIG}
+         if ${START} || ${CHECKCONFIG}
          then
             ERROR=true
          fi
@@ -661,16 +661,6 @@ else
          echo "Usage: ${NAMEAPP} --application=[cci|puc|...] [--start|--stop|--status] [--help]"
          exit 1
       fi
-   fi
-
-   #
-   # hacer un full thread dump a un proceso X
-   if ${THREADDUMP}
-   then
-      cd ${PATHAPP}
-      mkdir -p "${NAMEAPP}"
-      make_fullthreaddump
-      exit 0
    fi
 
    #
@@ -896,6 +886,7 @@ else
             # se aplica un fullthreaddump de 3 muestras cada 10 segundos antes de detener el proceso de manera forzada. 
             log_action "INFO" "before kill the baby, we send 3 FTD's between 8 secs"
             ~/bin/monopse --application=${APPLICATION} --threaddump=${MAXSAMPLES},${MAXSLEEP}
+            THREADDUMP=false
          fi
 
          log_action "WARN" "time to using the secret weapon baby: _KILL'EM ALL_ !"
@@ -928,9 +919,17 @@ else
       report_status "${STRSTATUS}" "${LASTSTATUS}"
    fi
    
-   
-   
-   
+
+   #
+   # hacer un full thread dump a un proceso X
+   if ${THREADDUMP}
+   then
+      cd ${PATHAPP}
+      mkdir -p "${NAMEAPP}"
+      make_fullthreaddump
+   fi
+
+
    #
    # Verificar el status de la aplicación
    if ${STATUS} 
