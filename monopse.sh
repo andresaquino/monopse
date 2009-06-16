@@ -358,12 +358,12 @@ show_version () {
    # como ya cambie de SVN a GIT, no puedo usar el Id keyword, entonces ... a pensar en otra opcion ! ! ! 
    IDAPP='$Id$'
    
-   #VERSIONAPP=`echo $IDAPP | awk '{print $3}'`
    VERSIONAPP="250"
    UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
    LWVERSION=`echo ${VERSIONAPP} | sed -e "s/^.//g"`
+   RLVERSION=`awk '/· 200/{t=substr($2,4,7);gsub("-","",t);print t}' ${HOME}/${NAMEAPP}/CHANGELOG | head -n1`
    LASTSONG="Incognito - Enigma"
-   echo "${NAMEAPP} v${UPVERSION}.${LWVERSION}"
+   echo "${NAMEAPP} v${UPVERSION}.${LWVERSION}.${RLVERSION}"
    echo "Copyright (C) 2008 Nextel de Mexico\n"
 
    # como a mi jefe le caga que en los logs anexe mi correo, pues se lo quitamos 
@@ -890,7 +890,7 @@ else
       if [ "${LASTSTATUS}" -ne "0" ]
       then
          # si el stop es con FORCED, y es una aplicacion JAVA enviar FTD
-         if [ ${FILTERLANG} = "java" -a ${THREADDUMP} ]
+         if [ ${FILTERLANG} = "java" -a ${THREADDUMP} = true ]
          then
             # monopse -a=app stop -f -t=3,10
             # se aplica un fullthreaddump de 3 muestras cada 10 segundos antes de detener el proceso de manera forzada. 
@@ -939,6 +939,9 @@ else
       then
          # si no se da el parametro --application, se busca en el monopse los .conf y se consulta su estado
          cd $HOME
+         ls -l monopse/*-monopse.conf 2>/dev/null
+         [ $? != "0" ] && echo "Cannot access any config file! " && exit 1
+
          for app in monopse/*-monopse.conf
          do
             app=`basename ${app%-monopse.*}`
@@ -987,6 +990,9 @@ else
       appuser=`id -u -n`
       # checando el estado de las aplicaciones
       ~/bin/monopse --status > /dev/null 2>&1
+      ls -l /home/andresaquino/monopse/*-monopse.conf 2>/dev/null
+      [ $? != "0" ] && echo "Cannot access any config file! " && exit 1
+
       echo "\n"
       echo "${apphost}"
       echo "${appipmc}"
