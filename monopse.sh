@@ -358,12 +358,11 @@ show_version () {
    # como ya cambie de SVN a GIT, no puedo usar el Id keyword, entonces ... a pensar en otra opcion ! ! ! 
    IDAPP='$Id$'
    
-   VERSIONAPP="250"
+   VERSIONAPP="2"
    UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
-   LWVERSION=`echo ${VERSIONAPP} | sed -e "s/^.//g"`
-   RLVERSION=`awk '/· 200/{t=substr($2,4,7);gsub("-","",t);print t}' ${HOME}/${NAMEAPP}/CHANGELOG | head -n1`
+   RLVERSION=`awk '/200/{t=substr($2,7,7);gsub("-",".",t);print t}' ${HOME}/${NAMEAPP}/CHANGELOG | head -n1`
    LASTSONG="Incognito - Enigma"
-   echo "${NAMEAPP} v${UPVERSION}.${LWVERSION}.${RLVERSION}"
+   echo "${NAMEAPP} v${UPVERSION}.${RLVERSION}"
    echo "Copyright (C) 2008 Nextel de Mexico\n"
 
    # como a mi jefe le caga que en los logs anexe mi correo, pues se lo quitamos 
