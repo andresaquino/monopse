@@ -1,68 +1,62 @@
-· 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
-     se modifico el --report, ya no calcula el filesystem space
+* 2009-06-17 Andres Aquino <cesar.aquino@nextel.com.mx>
+     f993fe7: 2.6stable: correccion filtros y version
 
-· 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
-     se adecuo el output en la opcion --report
+* 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
+     65745c7: se habilita la opcion threaddump por defecto con 3 muestras cada 10
 
-· 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
-     - se actualizo el personal.profile
+     53d8c22: cambios al stop forced con threaddump
 
-· 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
-     - se adecuo el kill para que no ejecute el threaddump cuanso es un fast
+     5ac7f39: se modifico el --report, ya no calcula el filesystem space
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     Documentacion final
+     dbaf37b: se adecuo el output en la opcion --report
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     agregar install
+     82833a1: - se actualizo el personal.profile
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     * agregar cambios al CHANGELOG
+     da5189c: - se adecuo el kill para que no ejecute el threaddump cuanso es un fast
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     el test no es necesario tenerlo trabajando
+* 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
+     a2a59bd: Documentacion final
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     quitar paja y arreglar el readme ...
+     6f7c835: agregar install
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     Se agrega documento (INSTALL) para instalar aplicacion
+     d11f5e1: * agregar cambios al CHANGELOG
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     estos DOCS son unos crones, los movemos al playground para revisarlos..
+     f144b20: el test no es necesario tenerlo trabajando
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-      * eliminar directorios no usados
+     d98ddc6: quitar paja y arreglar el readme ...
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     informacion inutil :)
+     1f6245a: Se agrega documento (INSTALL) para instalar aplicacion
 
-· 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     historial de cambios, despues de usar SVN
+     aeb0490: estos DOCS son unos crones, los movemos al playground para revisarlos..
 
-· 2008-12-10 Andres Aquino <cesar.aquino@nextel.com.mx>
-     version en manual de ayuda
+     a6f3a12:  * eliminar directorios no usados
 
-· 2008-12-05 Andres Aquino <cesar.aquino@nextel.com.mx>
-     cambios en alias para ls
+     7d59a5b: informacion inutil :)
 
-· 2008-11-09 Andres Aquino <cesar.aquino@nextel.com.mx>
-     cambios en tar -cvf...
+     6378ea9: historial de cambios, despues de usar SVN
 
-· 2008-11-04 Andres Aquino <cesar.aquino@nextel.com.mx>
-     actualizar información de correos y radios
+* 2008-12-10 Andres Aquino <cesar.aquino@nextel.com.mx>
+     ab414f8: version en manual de ayuda
 
-· 2008-10-29 Andres Aquino <cesar.aquino@nextel.com.mx>
-     modificaciones a personal.profile
+* 2008-12-05 Andres Aquino <cesar.aquino@nextel.com.mx>
+     62c855b: cambios en alias para ls
 
-· 2008-10-29 Andres Aquino <cesar.aquino@nextel.com.mx>
-     agregar manual de ayuda: man monopse
+* 2008-11-09 Andres Aquino <cesar.aquino@nextel.com.mx>
+     dd9f24f: cambios en tar -cvf...
 
-· 2008-10-28 Andres Aquino <cesar.aquino@nextel.com.mx>
-     Version 2.5 stable (produccion)
+* 2008-11-04 Andres Aquino <cesar.aquino@nextel.com.mx>
+     f609360: actualizar información de correos y radios
 
-· 2008-10-27 Andres Aquino <cesar.aquino@nextel.com.mx>
-     upload files of project
+* 2008-10-29 Andres Aquino <cesar.aquino@nextel.com.mx>
+     6587996: modificaciones a personal.profile
 
-· 2008-10-27 GIT User for Development <git@pulgosa.nextelmx.net>
-     first commit of README
+     3bcce50: agregar manual de ayuda: man monopse
+
+* 2008-10-28 Andres Aquino <cesar.aquino@nextel.com.mx>
+     37cc006: Version 2.5 stable (produccion)
+
+* 2008-10-27 Andres Aquino <cesar.aquino@nextel.com.mx>
+     76efc1f: upload files of project
+
+* 2008-10-27 GIT User for Development <git@pulgosa.nextelmx.net>
+     61e0755: first commit of README
