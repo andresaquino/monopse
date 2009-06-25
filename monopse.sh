@@ -362,7 +362,7 @@ show_version () {
    UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
    RLVERSION=`awk '/200/{t=substr($2,7,7);gsub("-",".",t);print t}' ${HOME}/${NAMEAPP}/CHANGELOG | head -n1`
    echo "${NAMEAPP} v${UPVERSION}.${RLVERSION}"
-   echo "(c) 2009 Nextel de México S.A. de C.V.\n"
+   echo "(c) 2009 Nextel de Mexico S.A. de C.V.\n"
 
    # como a mi jefe le caga que en los logs anexe mi correo, pues se lo quitamos 
    if ${SVERSION}

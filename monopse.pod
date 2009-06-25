@@ -4,56 +4,71 @@ monopse - start up or stop applications like WebLogic, Fuego, Resin, etc
 
 =head1 SYNOPSIS
 
-Mandatory arguments in long format or short format
+Usage: monopse [OPTION]...
+start up or stop applications like WebLogic, Fuego, Resin, etc.
 
-   -[-a]pplication=[cci|puc|etc...]          set application to activate/desactivate, required
-   -[-a]pp... --[start] [-[-u]nique-log]     start application with unique log (not err stdout)
-   -[-a]pp... --[stop] [-[-f]orced]          stop application and backup logs
-   -[-a]pp... [--status|-v]                  verify the status of domain
-   -[-a]pp... -[-t]hreaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL
-   -[-a]pp... -[-d]ebug                      debug logs and processes in the system
-   -[-a]pp... -[-c]heck-config               check config application (see app-monopse.conf)
-   [--status|-v]                             verify the status of domains
-   -[-r]eport                                show an small report about domains
-   -[-l]og                                   log history of application
-   -[-m]aintenance                           execute maintenance routines
-   ... [ --mailreport | mailto=usr@dom ]     send output to mail accounts or specified mail
-   ... [ -[-q]uiet ]                         don't send output to terminal
-   [--version|-V]                            give app version
-   -[-]help                                  give this help
-   -[-r]eport                                show an small report about domains
+Mandatory arguments in long format.
+   -a, --application=APPNAME         use this appName, required 
+       --start                       start appName 
+       --stop                        stop appName 
+   -t, --threaddump=COUNT,INTERVAL   send a 3 signal via kernel, COUNT times between INTERVAL 
+   -d, --debug                       debug logs and processes in the system 
+   -c, --check-config                check config application (see monopse-monopse.conf) 
+   -s, --status                      verify the status of appName 
+   -r, --report                      show an small report about domains 
+   -m, --mail                        send output to mail accounts configured in monopse.conf 
+       --mailto=user@mail.com        send output to mail accounts or specified mail 
+   -q, --quiet                       don't send output to terminal 
+   -v, --version                     show version 
+   -h, --help                        show help
+ 
+Each APPLIST refers to one application on the server.
+In case of threaddump options, COUNT refers to times sending kill -3 signal between 
+INTERVAL time in seconds
 
-monopse --application=[cci | puc_p | .. ] [ --start | --stop ]
-
-monopse --application=[cci | puc_p | .. ] --threaddump=xSamples,xSleep 
-
-monopse --application=[cci | puc_p | .. ] [ --check-config | --status | --debug ]
-
-monopse --help
+Report bugs to <andres.aquino@gmail.com>
 
 =head1 OPTIONS
 
 =over 4
 
-=item B<--application=*>
+=item B<--application=appName [--start | --stop]>
 
-Especifica sobre que aplicacion se pueden 
+Especifica sobre que aplicacion _appName_ se realizara la accion: iniciar o detener el proceso.
 
-=item B<--start>
+=item B<--threaddump[=COUNT,INTERVAL]>
 
-Ejecuta la aplicacion como demonio, esta se alojara en segundo plano registrando el 
-archivo monopse.pid con el pid asignado por el sistema operativo.
+Se busca el PID del proceso o aplicación indicado en _appName_ y sobre este mismo se envia una señal -3
+que la maquina virtual de JAVA (caso especifico) interpretara como bandera para general un core o volcado
+de los procesos internos en ejecucion.
 
-=item B<--stop>
+=item B<--debug>
 
-Si la aplicacion se esta ejecutando, entonces se busca su PID y se termina
-la aplicacion.
+_debug_
+
+=item B<--check-config>
+
+_check-config_
+
+=item B<--status>
+
+_status_
+
+=item B<--report>
+
+_report_
+
+=item B<--quiet>
+
+_quiet_
 
 =item B<--help>
 
-Muestra la ayuda
+_help_
 
 =item B<--version>
+
+_version_
 
 =back
 
@@ -139,11 +154,11 @@ DOMINIOS
 
 =head1 AUTHOR
 
- monopse v2.50
- Copyright (C) 2008 Nextel de Mexico
+ monopse v2.6.25
+ (c) 2009 Nextel de Mexico S.A. de C.V.
  
- Incognito - Enigma
- Written by Andres Aquino <andres.aquino@gmail.com>
+ Written by
+ Andres Aquino <andres.aquino@gmail.com>
 
 =head1 BUGS
 
