@@ -361,15 +361,14 @@ show_version () {
    VERSIONAPP="2"
    UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
    RLVERSION=`awk '/200/{t=substr($2,7,7);gsub("-",".",t);print t}' ${HOME}/${NAMEAPP}/CHANGELOG | head -n1`
-   LASTSONG="Incognito - Enigma"
    echo "${NAMEAPP} v${UPVERSION}.${RLVERSION}"
-   echo "Copyright (C) 2008 Nextel de Mexico\n"
+   echo "(c) 2009 Nextel de México S.A. de C.V.\n"
 
    # como a mi jefe le caga que en los logs anexe mi correo, pues se lo quitamos 
    if ${SVERSION}
    then
-      echo "${LASTSONG}"
-      echo "Written by Andres Aquino <andres.aquino@gmail.com>\n"
+      echo "Written by"
+      echo "Andres Aquino <andres.aquino@gmail.com>"
    fi
 
 }
@@ -617,23 +616,26 @@ do
          then
             ERROR=true
          else
-            echo "Usage: ${NAMEAPP} [OPTION]..."
-            echo "start up or stop applications like WebLogic, Fuego, Resin, etc\n"
-            echo "Mandatory arguments in long format."
-            echo "   -[-a]pplication=[cci|puc|etc...]         set application to activate/desactivate, required"
-            echo "   -[-a]pp... --[start] [-[-u]nique-log]    start application with unique log (not err stdout)"
-            echo "   -[-a]pp... --[stop] [-[-f]orced]         stop application and backup logs"
-            echo "   -[-a]pp... [--status|-v]                 verify the status of domain"
-            echo "   -[-a]pp... -[-t]hreaddump=COUNT,INTERVAL send a 3 signal via kernel, COUNT times between INTERVAL"
-            echo "   -[-a]pp... -[-d]ebug                     debug logs and processes in the system"
-            echo "   -[-a]pp... -[-c]heck-config              check config application (see app-monopse.conf)"
-            echo "   [--status|-v]                            verify the status of domains"
-            echo "   -[-r]eport                               show an small report about domains"
-            echo "   ... [ --mailreport | mailto=usr@dom ]    send output to mail accounts or specified mail"
-            echo "   ... [ -[-q]uiet ]                        don't send output to terminal"
-            echo "   [--version|-V]                           give app version"
-            echo "   -[-]help                                 give this help\n"
-            echo "Report bugs to <cesar.aquino@nextel.com.mx>"
+             echo "Usage: ${NAMEAPP} [OPTION]..."
+             echo "start up or stop applications like WebLogic, Fuego, Resin, etc.\n"
+             echo "Mandatory arguments in long format."
+             echo "\t-a, --application=APPLIST         use this application, required "
+             echo "\t    --start                       start application "
+             echo "\t    --stop                        stop application "
+             echo "\t-s, --status                      verify the status of domain"
+             echo "\t-t, --threaddump=COUNT,INTERVAL   send a 3 signal via kernel, COUNT times between INTERVAL"
+             echo "\t-d, --debug                       debug logs and processes in the system"
+             echo "\t-c, --check-config                check config application (see app-${NAMEAPP}.conf)"
+             echo "\t-r, --report                      show an small report about domains"
+             echo "\t-m, --mail                        send output to mail accounts configured in ${NAMEAPP}.conf"
+             echo "\t    --mailto=user@mail.com        send output to mail accounts or specified mail"
+             echo "\t-q, --quiet                       don't send output to terminal"
+             echo "\t-v, --version                     show version"
+             echo "\t-h, --help                        show help\n"
+             echo "Each APPLIST refers to one application on the server."
+             echo "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
+             echo "INTERVAL time in seconds\n"
+             echo "Report bugs to <andres.aquino@gmail.com>"
          fi
          exit 0
          ;;
