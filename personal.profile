@@ -1,11 +1,12 @@
-#!/bin/sh
-# vim: set ts=3 sw=3 sts=3 et si ai: 
-# 
+#!/bin/sh 
+# vim: set ts=2 sw=2 sts=2 et si ai: 
+
 # personal.profile -- profile unix de aplicaciones
-# --------------------------------------------------------------------
-# (c) 2008 NEXTEL DE MEXICO
+# ----------------------------------------------------------------------------
+# (c) 2009 Nextel de México S.A. de C.V.
+# Andrés Aquino Morales <andres.aquino@gmail.com>
+# All rights reserved.
 # 
-# César Andrés Aquino <cesar.aquino@nextel.com.mx>
 
 # input mode
 set -o vi
@@ -50,8 +51,22 @@ java12 () {
    PATH=/opt/java1.2/bin:${LOCALPATH}
 }
 
-apache20 () {
-   [ -d /opt/hpws/apache/bin ] && LOCALPATH=/opt/hpws/apache/bin:${LOCALPATH}
+localpaths () {
+   LPATH=
+
+   # for apache use
+   [ -d /opt/hpws/apache/bin ] && LPATH=/opt/hpws/apache/bin:${LPATH}
+
+   # for LHS applications
+   [ -d /bscs/bscs_sys/shared_tools ] && LPATH=/bscs/bscs_sys/shared_tools:${LPATH}
+
+   # binaries
+   [ -d /usr/local/bin ] && LPATH=/usr/local/bin:${LPATH}
+
+   # otros
+   [ -d ${BSCS_WORK}/PABLITO/SCRIPTS ] && LPATH=${BSCS_WORK}/PABLITO/SCRIPTS:${LPATH}
+
+   PATH=${LPATH}:${LOCALPATH}
 }
 
 newstyle () {
@@ -69,10 +84,6 @@ oldstyle () {
    export PS2=" > "
 }
 
-#TODO
-# esto en HPUX se apendeja, probrecito sistema mierda:
-# cuando encolas dos procesos en una llamada se atonteja y se tarda en responder
-# JUAR JUAR JUAR JUAR ! ! ! !
 search () {
    STRING=$1
    FORE=`tput smso`
@@ -81,10 +92,6 @@ search () {
    
    grep ${STRING} | sed -e "s/${STRING}/${FORE}${STRING}${NORM}/g" | grep -v sed
 }
-
-# PATH
-# para ejecución de aplicaciones
-LOCALPATH=$HOME/bin:/usr/sbin:$PATH:/usr/local/bin:.
 
 # common alias
 alias ls='ls -F'
@@ -98,15 +105,26 @@ alias domains='cd ~/bea/user_projects/domains'
 # terminal type
 export EDITOR=vi
 export TERM="xterm"
+export LANG=C
+
 # history file
 export HISTSIZE=500
 export HISTCONTROL=ignoredups
+
 # otros
-export PATH=${LOCALPATH}
+export HOSTNAME=`hostname`
 export HOST=`hostname | tr "[:upper:]" "[:lower:]" | sed -e "s/m.*hp//g"`
 export MANPATH=$HOME/monopse:$MANPATH
 
 unset USERNAME
+
+# specific host enviroment
+[ -e ~/${HOSTNAME}.profile ] && . ~/${HOSTNAME}.profile
+
+# PATH
+LOCALPATH=${HOME}/bin:/usr/sbin:${PATH}:.
+
+export PATH=${LOCALPATH}
 
 # get IP Address
 MYIP=`/usr/sbin/ping $(hostname) -c1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' `
@@ -115,7 +133,7 @@ MYIP=`/usr/sbin/ping $(hostname) -c1 2> /dev/null | awk '/bytes from/{gsub(":","
 [ "x$MYIP" = "x" ] && MYIP=`/usr/sbin/ifconfig lan1 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
 
 # Cursor and profile
-apache20
 java14
 oldstyle
+localpaths
 
