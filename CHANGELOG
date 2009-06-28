@@ -1,47 +1,34 @@
+
+* 2009-06-26 Andres Aquino <cesar.aquino@nextel.com.mx>
+     bb9815e: correciones varias al personal.profile, se anexa un profile especifico por host
+
 * 2009-06-25 Andres Aquino <cesar.aquino@nextel.com.mx>
      d52cdf0: Adecuacion en la documentacion
-
      7f08501: Adecuaciones al (-h), errores sintaxis
-
      98e441e: Mejora en ayuda (-h)
 
 * 2009-06-17 Andres Aquino <cesar.aquino@nextel.com.mx>
      45c4eac: log de cambios
-
      f993fe7: 2.6stable: correccion filtros y version
 
 * 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
      65745c7: se habilita la opcion threaddump por defecto con 3 muestras cada 10
-
      53d8c22: cambios al stop forced con threaddump
-
      5ac7f39: se modifico el --report, ya no calcula el filesystem space
-
      dbaf37b: se adecuo el output en la opcion --report
-
      82833a1: - se actualizo el personal.profile
-
      da5189c: - se adecuo el kill para que no ejecute el threaddump cuanso es un fast
 
 * 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
      a2a59bd: Documentacion final
-
      6f7c835: agregar install
-
      d11f5e1: * agregar cambios al CHANGELOG
-
      f144b20: el test no es necesario tenerlo trabajando
-
      d98ddc6: quitar paja y arreglar el readme ...
-
      1f6245a: Se agrega documento (INSTALL) para instalar aplicacion
-
      aeb0490: estos DOCS son unos crones, los movemos al playground para revisarlos..
-
      a6f3a12:  * eliminar directorios no usados
-
      7d59a5b: informacion inutil :)
-
      6378ea9: historial de cambios, despues de usar SVN
 
 * 2008-12-10 Andres Aquino <cesar.aquino@nextel.com.mx>
@@ -58,7 +45,6 @@
 
 * 2008-10-29 Andres Aquino <cesar.aquino@nextel.com.mx>
      6587996: modificaciones a personal.profile
-
      3bcce50: agregar manual de ayuda: man monopse
 
 * 2008-10-28 Andres Aquino <cesar.aquino@nextel.com.mx>
