@@ -24,15 +24,15 @@ then
 	stty werase '^W'
 	
 	# command line _eye candy_
-	CCLEAR="\033[00m"; CWHITE="\033[01;37m"
-	CRED="\033[01;31m"; CYELLOW="\033[01;33m"
-	CBLUE="\033[01;34m"; CGRAY="\033[01;30m"
+	cClear="\033[00m"; cWhite="\033[01;37m"
+	cRed="\033[01;31m"; cYellow="\033[01;33m"
+	cBlue="\033[01;34m"; cGray="\033[01;30m"
 
 else
 	# command line _eye candy_
-	CCLEAR=""; CWHITE=""
-	CRED=""; CYELLOW=""
-	CBLUE=""; CGRAY=""
+	cClear=""; cWhite=""
+	cRed=""; cYellow=""
+	cBlue=""; cGray=""
 
 fi
 
@@ -72,12 +72,12 @@ localpaths () {
 }
 
 newstyle () {
-	export PS1="$(echo "${CBLUE}${USER}${CCLEAR}@[${CGRAY}${MYIP}(${HOST}${CCLEAR})]") \${PWD##*/} $> "
+	export PS1="$(echo "${cBlue}${USER}${cClear}@[${cGray}${MYIP}(${HOST}${cClear})]") \${PWD##*/} $> "
 	export PS2=" > "
 }
 
 oldstyle () {
-	export PS1="$(echo "${CCLEAR}\n[${CGRAY}${MYIP}(${HOST})${CCLEAR}]:${CWHITE}\${PWD}\n${CBLUE}${USER}${CCLEAR} $> ")"
+	export PS1="$(echo "${cClear}\n[${cGray}${MYIP}(${HOST})${cClear}]:${cWhite}\${PWD}\n${cBlue}${USER}${cClear} $> ")"
 	export PS2=" > "
 }
 
