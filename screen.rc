@@ -1,0 +1,36 @@
+# .screenrc 
+# vim: set ts=3 et sw=3 sts=3 si ai: 
+# 
+# .screenrc -- screen rc file configuration
+# -------------------------------------------------------------------------
+# (c) 2009 NEXTEL DE MEXICO
+# 
+# Andrés Aquino Morales <cesar.aquino@nextel.com.mx>
+
+#
+# let's override 
+startup_message off
+vbell off
+msgwait 1
+hardstatus alwayslastline
+termcapinfo xterm* ti@:te@
+altscreen on
+
+#
+# Log 10000 lines
+defscrollback 10000
+
+# keybindings
+bindkey -k k3 prev								# F3  | Previous Window
+bindkey -k k4 next								# F4  | Next Window
+register r "^a:source $HOME/.screenrc"		#     | Goes with F5 definition
+bindkey -k k5 process r							# F5  | Reload profile
+bindkey -k k6 detach								# F6  | Detach from this session
+
+# Window tabs, second to last line
+caption always "%{Kw}%?%-Lw%?%{kw}%n*%f%t%?(%u)%?%{Kw}%?%+Lw%?%= %{= wk}%110`%109`%H"
+
+#
+# Status string, last line
+hardstatus string '%{wk}SOI::%{.R}NEXTEL DE MEXICO %{= wk} %100`%120`%= %100`%120`%Y%m%d %0c:%s'
+
