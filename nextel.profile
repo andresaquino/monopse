@@ -59,14 +59,15 @@ localpaths () {
 	# for apache use
 	[ -d /opt/hpws/apache/bin ] && LPATH=/opt/hpws/apache/bin:${LPATH}
 
-	# for LHS applications
-	[ -d /bscs/bscs_sys/shared_tools ] && LPATH=/bscs/bscs_sys/shared_tools:${LPATH}
-
 	# binaries
 	[ -d /usr/local/bin ] && LPATH=/usr/local/bin:${LPATH}
 
-	# otros
-	[ -d ${BSCS_WORK}/PABLITO/SCRIPTS ] && LPATH=${BSCS_WORK}/PABLITO/SCRIPTS:${LPATH}
+	# for LHS applications
+	if [ -d /bscs ]
+	then
+		LPATH=/bscs/bscs_sys/shared_tools:${LPATH}
+		[ ${BSCS_WORK} ] && LPATH=${BSCS_WORK}/PABLITO/SCRIPTS:${LPATH}
+	fi
 
 	PATH=${LPATH}:${LOCALPATH}
 }
