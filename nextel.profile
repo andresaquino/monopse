@@ -66,7 +66,7 @@ localpaths () {
 	if [ -d /bscs ]
 	then
 		LPATH=/bscs/bscs_sys/shared_tools:${LPATH}
-		[ ${BSCS_WORK} ] && LPATH=${BSCS_WORK}/PABLITO/SCRIPTS:${LPATH}
+		LPATH=${BSCS_WORK}/PABLITO/SCRIPTS:${LPATH}
 	fi
 
 	PATH=${LPATH}:${LOCALPATH}
@@ -117,7 +117,7 @@ export MANPATH=$HOME/monopse:$MANPATH
 unset USERNAME
 
 # specific host enviroment
-[ -e ~/${HOSTNAME}.profile ] && . ~/${HOSTNAME}.profile
+[ -s ~/${HOSTNAME}.profile ] && . ~/${HOSTNAME}.profile
 
 # PATH
 LOCALPATH=${HOME}/bin:/usr/sbin:${PATH}:.
