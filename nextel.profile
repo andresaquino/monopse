@@ -12,6 +12,10 @@
 set -o vi
 umask 0007
 
+# otros
+export HOSTNAME=`hostname`
+export HOST=`hostname | tr "[:upper:]" "[:lower:]" | sed -e "s/m.*hp//g"`
+
 # terminal line settings
 stty 2> /dev/null > /dev/null 
 if [ "$?" = "0" ]
@@ -28,11 +32,17 @@ then
 	cRed="\033[01;31m"; cYellow="\033[01;33m"
 	cBlue="\033[01;34m"; cGray="\033[01;30m"
 
+	# specific host enviroment
+	[ -s ~/${HOSTNAME}.profile ] && . ~/${HOSTNAME}.profile
+
 else
 	# command line _eye candy_
 	cClear=""; cWhite=""
 	cRed=""; cYellow=""
 	cBlue=""; cGray=""
+	
+	# specific host enviroment
+	[ -s ~/${HOSTNAME}.profile ] && . ~/${HOSTNAME}.profile > /dev/null 2>&1
 
 fi
 
@@ -110,14 +120,9 @@ export HISTSIZE=500
 export HISTCONTROL=ignoredups
 
 # otros
-export HOSTNAME=`hostname`
-export HOST=`hostname | tr "[:upper:]" "[:lower:]" | sed -e "s/m.*hp//g"`
 export MANPATH=$HOME/monopse:$MANPATH
 
 unset USERNAME
-
-# specific host enviroment
-[ -s ~/${HOSTNAME}.profile ] && . ~/${HOSTNAME}.profile
 
 # PATH
 LOCALPATH=${HOME}/bin:/usr/sbin:${PATH}:.
