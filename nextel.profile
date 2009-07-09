@@ -15,6 +15,7 @@ umask 0007
 # otros
 export HOSTNAME=`hostname`
 export HOST=`hostname | tr "[:upper:]" "[:lower:]" | sed -e "s/m.*hp//g"`
+export TTYTYPE="TERM"
 
 # terminal line settings
 stty 2> /dev/null > /dev/null 
@@ -28,6 +29,7 @@ then
 	stty werase '^W'
 	
 	# command line _eye candy_
+	TTYTYPE="CONSOLE"
 	cClear="\033[00m"; cWhite="\033[01;37m"
 	cRed="\033[01;31m"; cYellow="\033[01;33m"
 	cBlue="\033[01;34m"; cGray="\033[01;30m"
@@ -37,6 +39,8 @@ then
 
 else
 	# command line _eye candy_
+	TTYTYPE="TERM"
+	cClear="\033[00m"; cWhite="\033[01;37m"
 	cClear=""; cWhite=""
 	cRed=""; cYellow=""
 	cBlue=""; cGray=""
