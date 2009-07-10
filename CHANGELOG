@@ -1,5 +1,25 @@
 
+* 2009-07-09 Andres Aquino <cesar.aquino@nextel.com.mx>
+     ae6b6ab: FIX, filtro por dueño de proceso...
+     0255650: variable TTYTERM para identificar el tipo de terminal..
+
+* 2009-07-06 Andres Aquino <cesar.aquino@nextel.com.mx>
+     f697f21: cambios para remote shell..
+
+* 2009-07-01 Andres Aquino <cesar.aquino@nextel.com.mx>
+     a2fb04e: huellas de archivos...
+
+* 2009-06-30 Andres Aquino <cesar.aquino@nextel.com.mx>
+     818b985: el test -e no furula en algunos HPUX, usar -s...
+     cb5d1a2: adecuaciones para LHS
+
+* 2009-06-29 Andres Aquino <cesar.aquino@nextel.com.mx>
+     530d1f4: nombres de variables en color
+     364f60f: notas acerca del uso del comando SCREEN
+     2482c56: reforzar uso de variables, cambio idenficar terminal user sense
+
 * 2009-06-28 Andres Aquino <cesar.aquino@nextel.com.mx>
+     c31c0a8: Desaparece personal.profile, CHANGELOG actualizado
      54859b8: personal->nextel.profile, cambios ultimos sobre color
 
 * 2009-06-26 Andres Aquino <cesar.aquino@nextel.com.mx>
