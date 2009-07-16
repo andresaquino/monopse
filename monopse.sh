@@ -159,10 +159,10 @@ get_process_id () {
    #
    # filtrar primero por APP
    rm -f "${NAMELOG}.pid"
-   
+
    # FIX
    # filtrar por usuario dueño del proceso
-   ps ${psopts} | grep "${FILTERAPP}" | grep -v "grep"  | grep -v "$NAMEAPP" | grep "${USER} > "${NAMELOG}.tmp"
+   ps ${psopts} | grep "${FILTERAPP}" | grep -v "grep"  | grep -v "$NAMEAPP " | grep "${USER}" > "${NAMELOG}.tmp"
 
    # si existe, despues por LANG
    if [ "${FILTERLANG}" != "" ]
