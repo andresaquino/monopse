@@ -1,22 +1,15 @@
 #!/bin/sh 
-# vim: set ts=3 sw=3 sts=3 et si ai: 
-# 
+# vim: set ts=2 sw=2 sts=2 et si ai: 
+
 # monopse.sh -- Monitor de Operacion y Servicios 
-# ___________________________________________________________________
-# (c) 2008 NEXTEL DE MEXICO
-#
-# Andrés Aquino <andres.aquino@gmail.com>
-# $Id$
-#
+# ----------------------------------------------------------------------------
+# (c) 2009 Nextel de México S.A. de C.V.
+# Andrés Aquino Morales <andres.aquino@gmail.com>
+# All rights reserved.
+# 
 
-# [ ABSTRACT ]
-# Iniciar y detener los servicios que administra Control-M, aparentemente solo 
-# es necesario que arroje valores de 0 ó ! 0; donde se interpretará de la 
-# siguiente manera:
-#  * 0  : todo fue correcto
-#  * !0 : sucedió un error, verificar los logs
-
-# [ FUNCTIONS ]
+#
+. ${HOME}/monopse/libutils.sh
 
 #
 # filter_in_log
@@ -24,10 +17,12 @@
 filter_in_log () {
    local SEARCHSTR
    SEARCHSTR="${1}"
+
    [ "${SEARCHSTR}" = "_NULL_" ] && return 1
    cd ${PATHAPP}
    grep -q "${SEARCHSTR}" "${NAMELOG}.log"
    LASTSTATUS=$?
+
    if [ "${LASTSTATUS}" -eq "0" ]
    then
       log_action "DBUG" "Looking for ${SEARCHSTR} was succesfull"
@@ -64,7 +59,7 @@ log_backup () {
 
    # Si esta habilitado el fast-stop(--forced), no se comprime la informacion
    rm -f ${LOG}.lock
-   ${FASTSTOP} && log_action "WARN" "Ups,(no compress) hurry up is to late for sysadmin !"
+   ${FASTSTOP} && log_action "WARN" "Ups,(doesn't compress) hurry up is to late for sysadmin !"
    ${FASTSTOP} && return 0
 
    # si el tamaño del archivo .log sobrepasa los MAXLOGSIZE en megas 
@@ -79,7 +74,7 @@ log_backup () {
    fi
    
    #
-   # por que HP/UX tiene que ser taaan soso = estupido ? ? 
+   # por que HP/UX tiene que ser taaan estupido ? ? 
    # backup de log | err | pid para análisis
    # tar archivos | gzip -c > file-log
    $aptar -cvf "${LOG}_${DAYOF}.tar" "${DAYOF}" > /dev/null 2>&1
@@ -199,7 +194,7 @@ check_configuration () {
    
    "${VERBOSE}" && echo "Checking configuration of ${APPLICATION}"
    # existe el archivo de configuracion ?
-   FILESETUP="$HOME/${NAMEAPP}/${APPLICATION}-monopse.conf"
+   FILESETUP="${HOME}/monopse/setup/${APPLICATION}-monopse.conf"
    [ -r "${FILESETUP}" ] && . "${FILESETUP}" || return ${LASTSTATUS}
    
    # leer los parametros minimos necesarios
@@ -249,7 +244,7 @@ check_weblogicserver() {
 
 #
 # realizar un kernel full thread dump sobre el proceso indicado.
-# sobre procesos non-java va a valer queso, por que la señal 3 es para hacer un vaciado de memoria.
+# sobre procesos non-java va a valer queso, por que la señal 3 es para hacer un volcado de memoria.
 # monopse --application=resin --threaddump=5 --mailto=cesar.aquino@nextel.com.mx
 # por defecto, el ftd se almacena en el filesystem log de la aplicación; si se detecta que se esta
 # incrementando el uso del filesystem, conserva los mas recientes 
@@ -434,6 +429,7 @@ VIEWLOG=true
 MAILACCOUNTS="_NULL_"
 FILTERWL="_NULL_"
 CHECKCONFIG=false
+SUPERTEST=false
 STATUS=false
 DEBUG=false
 ERROR=true
@@ -459,7 +455,7 @@ else
 fi
 
 #
-# aplicaciones
+# esta parte esta reculera pero ni pedo, tengo weba de corregirlo en este momento...
 aptar=`which tar`
 apzip=`which gzip`
 apmail=`which mail`
@@ -470,7 +466,8 @@ typeso="`uname -s`"
 [ "${typeso}" = "HP-UX" ] && bdf="bdf"
 [ "${typeso}" = "HP-UX" ] && psopts="-fex"
 
-# Leer parametros 
+#
+# parametros 
 while [ $# -gt 0 ]
 do
    case "${1}" in
@@ -499,7 +496,7 @@ do
          fi
          ;;
          
-      status|--status|-s)
+      --status|-s)
          STATUS=true
          ERROR=false
          if ${START} || ${STOP} || ${CHECKCONFIG}
@@ -508,7 +505,7 @@ do
          fi
          ;;
          
-      log|--log|-l)
+      --log|-l)
          VIEWHISTORY=true
          ERROR=false
          if ${START} || ${STOP} || ${CHECKCONFIG} || ${STATUS}
@@ -517,7 +514,7 @@ do
          fi
          ;;
          
-      maintenance|--maintenance|-m)
+      --maintenance|-m)
          MAINTENANCE=true
          ERROR=false
          if ${START} || ${STOP} || ${CHECKCONFIG} || ${STATUS}
@@ -526,7 +523,7 @@ do
          fi
          ;;
          
-      report|--report|-r)
+      --report|-r)
          VIEWREPORT=true
          ERROR=false
          if ${START} || ${STOP} || ${CHECKCONFIG} || ${STATUS}
@@ -535,7 +532,7 @@ do
          fi
          ;;
          
-      fast|--forced|-f)
+      --forced|-f)
          NOTFORCE=false
          FASTSTOP=true
          ERROR=false
@@ -606,6 +603,10 @@ do
             ERROR=true
          fi
          ;;
+      
+      --test)
+         SUPERTEST=true
+         ;;
          
       --version|-v)
          SVERSION=true
@@ -651,10 +652,17 @@ do
    shift
 done
 
+# verificar opciones usadas
+if ${SUPERTEST}
+then
+   echo ${OPTIONS}
+   exit 0
+fi
+
 #
 if ${ERROR}
 then
-   echo "Usage: ${NAMEAPP} --application=[cci|puc|...] [--start|--stop|--status] [--help]"
+   echo "Usage: ${NAMEAPP} [OPTION]...[--help]"
    exit 0
 else
    #
@@ -673,7 +681,7 @@ else
       ${VIEWLOG} && CANCEL=false
       if ${CANCEL}
       then
-         echo "Usage: ${NAMEAPP} --application=[cci|puc|...] [--start|--stop|--status] [--help]"
+         echo "Usage: ${NAMEAPP} [OPTION]...[--help]"
          exit 1
       fi
    fi
@@ -684,7 +692,7 @@ else
    then
       check_configuration "${APPLICATION}" true
       LASTSTATUS=$?
-      FILESETUP="$HOME/${NAMEAPP}/${APPLICATION}-monopse.conf"
+      FILESETUP="${HOME}/monopse/setup/${APPLICATION}-monopse.conf"
       
       if [ "${LASTSTATUS}" -ne "0" ]
       then
@@ -953,10 +961,10 @@ else
       then
          # si no se da el parametro --application, se busca en el monopse los .conf y se consulta su estado
          cd ${HOME}
-         ls -l ${HOME}/${NAMEAPP}/*-monopse.conf > /dev/null 2>&1
+         ls -l ${HOME}/monopse/setup/*-monopse.conf > /dev/null 2>&1
          [ "$?" != "0" ] && echo "Cannot access any config file! " && exit 1
 
-         for app in monopse/*-monopse.conf
+         for app in ${HOME}/monopse/setup/*-monopse.conf
          do
             app=`basename ${app%-monopse.*}`
             echo "Checking $app using [ ~/bin/monopse --application=$app --status ] " 
@@ -1004,7 +1012,7 @@ else
       appuser=`id -u -n`
       # checando el estado de las aplicaciones
       #~/bin/monopse --status > /dev/null 2>&1
-      ls -l ${HOME}/${NAMEAPP}/*-monopse.conf > /dev/null 2>&1
+      ls -l ${HOME}/monopse/setup/*-monopse.conf > /dev/null 2>&1
       [ $? != "0" ] && echo "Cannot access any config file! " && exit 1
 
       echo "\n"
@@ -1019,7 +1027,7 @@ else
                         substr($4"              ",1,6)
                }'
       echo "--------------------+---------------+-------+-------"
-      for app in monopse/*-monopse.conf
+      for app in ${HOME}/monopse/setup/*-monopse.conf
       do
          appname=`basename ${app%-monopse.*}`
          apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
@@ -1123,7 +1131,7 @@ else
    then 
       cd $HOME
       # mantenimiento de logs principal
-      for app in monopse/*-monopse.conf
+      for app in ${HOME}/monopse/setup/*-monopse.conf
       do
          cd $HOME
          . ${app}
