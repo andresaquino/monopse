@@ -1,7 +1,7 @@
 #!/bin/sh 
 # vim: set ts=3 sw=3 sts=3 et si ai: 
 
-# lib-utils.sh -- library with some util functions
+# libutils.sh -- library with some util functions
 # ---------------------------------------------------------------------------- 
 # (c) 2009 Nextel de México S.A. de C.V.
 # Andrés Aquino Morales <andres.aquino@gmail.com>
@@ -203,7 +203,7 @@ processes_running () {
 log_action () {
    local LEVEL="${1}"
    local ACTION="${2}"
-   local APPLOG="${APPPATH}/${APPNAME}"
+   local APPLOG="${APPPATH}/log/${APPNAME}"
 
    # verificar si se cuenta con una ruta para almacenar los pid's
    if [ -n "${PROCESSNAME}" ]
