@@ -82,7 +82,7 @@ get_enviroment () {
          ;;
          
       "Linux")
-         PSOPTS="lfaex"
+         PSOPTS="lax"
          PSPOS=0
          DFOPTS="-Pk"
          MKOPTS="-t "
@@ -128,7 +128,8 @@ get_process_id () {
    # extraer procesos existentes y filtrar las cadenas del archivo de configuracion
    #log_action "NOTICE" "Buscando procesos ${WRDSLIST} propiedad de ${apUser}"
    log_action "NOTICE" "looking for process ${WRDSLIST} owned by ${apUser}"
-   ps ${PSOPTS} | grep ${apUser} > ${PSLIST}.1
+   ps ${PSOPTS} > /tmp/pslist
+   cat /tmp/pslist | grep ${apUser} > ${PSLIST}.1
    
    # extraer los procesos que nos interesan 
    awk "/${WRDSLIST}/{print}" ${PSLIST}.1 > ${PSLIST}
