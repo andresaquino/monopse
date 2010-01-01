@@ -1,19 +1,18 @@
 #!/bin/sh 
 # vim: set ts=3 sw=3 sts=3 et si ai: 
 # 
-# install.sh -- instalar monopse en el directorio
+# install.sh -- instalar starter en el directorio
 # --------------------------------------------------------------------
-# (c) 2008 NEXTEL DE MEXICO
+# (c) 2009 Strategies Labs!
 # 
-# César Andrés Aquino <cesar.aquino@nextel.com.mx>
 
 mkdir -p ~/bin
 # si existe, moverlo
-[ -d ~/monopse ] && mv ~/monopse ~/monopse.old
-[ -d ~/monopse.git ] && mv ~/monopse.git ~/monopse
-[ -d ~/monopse.old ] && cp -rp ~/monopse.old/*-monopse.conf ~/monopse/setup/ 
-chmod 0750 ~/monopse/monopse.sh
-ln -sf ~/monopse/monopse.sh ~/bin/monopse
+[ -d ~/starter ] && mv ~/starter ~/starter.old
+[ -d ~/starter.git ] && mv ~/starter.git ~/starter
+[ -d ~/starter.old ] && cp -rp ~/starter.old/*-starter.conf ~/starter/setup/ 
+chmod 0750 ~/starter/starter.sh
+ln -sf ~/starter/starter.sh ~/bin/starter
 PATH=$HOME/bin:$PATH
 
 #

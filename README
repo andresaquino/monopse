@@ -8,7 +8,13 @@ An small shell for those applications that nobody wants to restart ;)
 
 =-=
 
-Probado con:
+GIT
+http://gitorious.org/starter
+
+BUGTRACKER
+http://akin0.lighthouseapp.com/projects/43684-starter/overview
+
+TESTED ON
 	* WebLogic 10
 	* WebLogic 9.2
 	* WebLogic 8.1

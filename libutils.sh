@@ -3,9 +3,8 @@
 
 # libutils.sh -- library with some util functions
 # ---------------------------------------------------------------------------- 
-# (c) 2009 Nextel de México S.A. de C.V.
+# (c) 2009 Strategies Labs!
 # Andrés Aquino Morales <andres.aquino@gmail.com>
-# All rights reserved.
 # 
 
 #

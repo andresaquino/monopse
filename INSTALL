@@ -1,25 +1,23 @@
-
-Monitor de Operaciones y Servicios
- _ __  ___ _ _  ___ _ __ ___ ___ 
-| '  \/ _ \ ' \/ _ \ '_ (_-</ -_) 
-|_|_|_\___/_||_\___/ .__/__/\___|
-                   |_| 
+     _             _            
+ ___| |_ __ _ _ __| |_ ___ _ __ 
+/ __| __/ _` | '__| __/ _ \ '__|
+\__ \ || (_| | |  | ||  __/ |   
+|___/\__\__,_|_|   \__\___|_|   
+                                
+An small shell for those applications that nobody wants to restart ;)
 
 =-=
-Aplicacion para iniciar y  detener las distintas aplicaciones existentes en 
-los servidores de NEXTEL.
-
 
 COMO INSTALAR ?
 
-Bajar el paquete monopse-v2.5Stable
+Bajar el paquete starter-v2.5Stable
 -
- $ wget http://10.103.22.44/applications/monopse-v2.5Stable.tar.gz 
+ $ wget http://10.103.22.44/applications/starter-v2.5Stable.tar.gz 
 
 
 Ejecuta el script install.sh
 -
- $ sh monopse.git/install.sh
+ $ sh starter.git/install.sh
 
 ó el procedimiento manual:
 
@@ -27,21 +25,21 @@ Ejecuta el script install.sh
 Descomprimir
 -
  $ cd $HOME
- $ gunzip monopse-v2.5Stable.tar.gz
- $ tar xvf monopse.git
+ $ gunzip starter-v2.5Stable.tar.gz
+ $ tar xvf starter.git
 
 
 Renombrar directorio y cambiar permisos de ejecucion para el shell
 -
- $ mv monopse.git monopse
- $ chmod 0750 $HOME/monopse/monopse.sh 
+ $ mv starter.git starter
+ $ chmod 0750 $HOME/starter/starter.sh 
 
 
 Crear el directorio bin y hacer una liga al ejecutable
 -
  $ mkdir -p $HOME/bin
  $ cd $HOME/bin
- $ ln -sf $HOME/monopse/monopse.sh monopse
+ $ ln -sf $HOME/starter/starter.sh starter
 
 
 Agregar al PATH la referencia (puede agregarse a su profile si prefiere)
@@ -51,8 +49,8 @@ _
 
 Verificar instalación
 _
- $ monopse -v
- monopse v2.50
+ $ starter -v
+ starter v2.50
  Copyright (C) 2008 Nextel de Mexico
 
  Incognito - Enigma
