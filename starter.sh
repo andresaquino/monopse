@@ -4,6 +4,7 @@
 # starter.sh - An small shell for those applications that nobody wants to restart ;)
 # ----------------------------------------------------------------------------
 # (c) 2009 Strategies Labs!
+#
 # Andrés Aquino Morales <andres.aquino@gmail.com>
 # 
 
