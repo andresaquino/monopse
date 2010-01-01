@@ -1,54 +1,20 @@
-
-Monitor de Operaciones y Servicios
- _ __  ___ _ _  ___ _ __ ___ ___ 
-| '  \/ _ \ ' \/ _ \ '_ (_-</ -_) 
-|_|_|_\___/_||_\___/ .__/__/\___|
-                   |_| 
+     _             _            
+ ___| |_ __ _ _ __| |_ ___ _ __ 
+/ __| __/ _` | '__| __/ _ \ '__|
+\__ \ || (_| | |  | ||  __/ |   
+|___/\__\__,_|_|   \__\___|_|   
+                                
+An small shell for those applications that nobody wants to restart ;)
 
 =-=
-Aplicacion para iniciar y  detener las distintas aplicaciones existentes en 
-los servidores de NEXTEL.
 
-
-Hasta el momento lo he probado con:
+Probado con:
 	* WebLogic 10
 	* WebLogic 9.2
 	* WebLogic 8.1
 	* WebLogic 6
    * Targys (install screen)
    * otras aplicaciones
-
-
-TODO
-	* Ejecutar los procesos de iniciar y detener por aplicación, en base a su
-		archivo de configuración
-	* Verificar que el proceso realmente sea dado de baja verificando los PID's
-		de cada aplicación
-	* Generar los archivos de PID's por proceso, de log, de error y de bloqueo
-		para cada proceso de ejecución
-	* Generar archivo de respaldo de los archivos de datos generados por la app
-	* Verificar que sea el usuario asignado en el archivo de configuración quien
-		realmente ejecute el proceso
-	* Verificar los tamaños asignados en HD antes de ejecutar la aplicación
-		para no quedarse sin espacio para la ejecución del proceso
-
-
-REUNION 20080519
-   * El día de ayer 20080518 se lanzaron JOB's y estos se quedaron colgados en
-      el SO, considerar si hay algun problema con el Control-M ó si fue falla
-      del operador; el objetivo es que no suceda nuevamente
-         - qué fue lo que sucedio ?
-         - cómo se puede evitar ?
-   * Se inician las pruebas con VISION (que se compone de mas o menos 6 modulos)
-      el día Miércoles 20080521 reunión de capacitación para SisOps (VISION), 
-      posteriormente hacer los cambios 20080522 a las 05.00
-   * Puntos de Acuerdo
-      - Mier.21 18.00   : Vision review
-      - Luns.19 19.00   : Lista JOBs Control-M
-      - Mier.21 18.00   : Revisión Control-M
-      - Vier.23 18.00   : Usar APPManager para evaluar si las aplicaciones se 
-                           encuentran activas y operando.
-      -                 : wtf OLA ?
 
 
 De momento lo pidieron en SH, pero es posible crecerlo a PERL ya que HP/UX
