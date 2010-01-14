@@ -2,8 +2,8 @@
 # vim: set ts=3 sw=3 sts=3 et si ai: 
 
 # libutils.sh -- library with some util functions
-# ---------------------------------------------------------------------------- 
-# (c) 2009 Strategies Labs!
+# =-=
+# (c) 2009 StrategyLabs!
 # Andrés Aquino Morales <andres.aquino@gmail.com>
 # 
 

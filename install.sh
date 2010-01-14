@@ -2,8 +2,9 @@
 # vim: set ts=3 sw=3 sts=3 et si ai: 
 # 
 # install.sh -- instalar starter en el directorio
-# --------------------------------------------------------------------
-# (c) 2009 Strategies Labs!
+# =-=
+# (c) 2009 StrategyLabs!
+# Andrés Aquino Morales <andres.aquino@gmail.com>
 # 
 
 mkdir -p ~/bin

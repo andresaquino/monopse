@@ -2,7 +2,6 @@
 
 starter - An small shell for those applications that nobody wants to restart ;)
 
-
 =head1 SYNOPSIS
 
 Usage: starter [OPTION]...
@@ -155,8 +154,8 @@ DOMINIOS
 
 =head1 AUTHOR
 
- starter v2.6.25
- (c) 2009 Strategies Labs!
+ starter [VERSION]
+ (c) 2009 StrategyLabs!
  
  Written by
  Andres Aquino <andres.aquino@gmail.com>
