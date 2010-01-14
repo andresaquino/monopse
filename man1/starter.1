@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "STARTER 1"
-.TH STARTER 1 "2009-12-31" "perl v5.10.0" "User Contributed Perl Documentation"
+.TH STARTER 1 "2010-01-14" "perl v5.10.0" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -137,19 +137,19 @@ Usage: starter [\s-1OPTION\s0]...
 start up or stop applications like WebLogic, Fuego, Resin, etc.
 .PP
 Mandatory arguments in long format.
-   \-a, \-\-application=APPNAME         use this appName, required 
-       \-\-start                       start appName 
-       \-\-stop                        stop appName 
-   \-t, \-\-threaddump=COUNT,INTERVAL   send a 3 signal via kernel, \s-1COUNT\s0 times between \s-1INTERVAL\s0 
-   \-d, \-\-debug                       debug logs and processes in the system 
-   \-c, \-\-check\-config                check config application (see starter\-starter.conf) 
-   \-s, \-\-status                      verify the status of appName 
-   \-r, \-\-report                      show an small report about domains 
-   \-m, \-\-mail                        send output to mail accounts configured in starter.conf 
-       \-\-mailto=user@mail.com        send output to mail accounts or specified mail 
-   \-q, \-\-quiet                       don't send output to terminal 
-   \-v, \-\-version                     show version 
-   \-h, \-\-help                        show help
+   \-a, \-\-application=APPNAME        use this appName, required 
+       \-\-start                      start appName 
+       \-\-stop                       stop appName 
+   \-s, \-\-status                     verify the status of appName 
+   \-t, \-\-threaddump=COUNT,INTERVAL  send a 3 signal via kernel, \s-1COUNT\s0 times between \s-1INTERVAL\s0 
+   \-d, \-\-debug                      debug logs and processes in the system 
+   \-c, \-\-check\-config               check config application (see starter\-starter.conf) 
+   \-r, \-\-report                     show an small report about domains 
+   \-m, \-\-mail                       send output to mail accounts configured in starter.conf 
+       \-\-mailto=user@mail.com       send output to mail accounts or specified mail 
+   \-q, \-\-quiet                      don't send output to terminal 
+   \-v, \-\-version                    show version 
+   \-h, \-\-help                       show help
 .PP
 Each \s-1APPLIST\s0 refers to one application on the server.
 In case of threaddump options, \s-1COUNT\s0 refers to times sending kill \-3 signal between 
@@ -160,33 +160,60 @@ Report bugs to <andres.aquino@gmail.com>
 .IX Header "OPTIONS"
 .IP "\fB\-\-application=appName [\-\-start | \-\-stop]\fR" 4
 .IX Item "--application=appName [--start | --stop]"
-Especifica sobre que aplicacion _appName_ se realizara la accion: iniciar o detener el proceso.
+.Vb 1
+\& Especifica sobre que aplicacion _appName_ se realizara la accion: iniciar o detener el proceso.
+.Ve
 .IP "\fB\-\-threaddump[=COUNT,INTERVAL]\fR" 4
 .IX Item "--threaddump[=COUNT,INTERVAL]"
-Se busca el \s-1PID\s0 del proceso o aplicaciA\*~Xn indicado en _appName_ y sobre este mismo se envia una seA\*~Xal \-3
-que la maquina virtual de \s-1JAVA\s0 (caso especifico) interpretara como bandera para general un core o volcado
-de los procesos internos en ejecucion.
+.Vb 3
+\& Se busca el PID del proceso o aplicaciA\*~Xn indicado en _appName_ y sobre este mismo se envia una seA\*~Xal \-3
+\& que la maquina virtual de JAVA (caso especifico) interpretara como bandera para general un core o volcado
+\& de los procesos internos en ejecucion.
+.Ve
 .IP "\fB\-\-debug\fR" 4
 .IX Item "--debug"
-_debug_
+.Vb 1
+\& Genera un reporte de analisis sobre la aplicacion para determinar si se encuentra algun problema.
+.Ve
 .IP "\fB\-\-check\-config\fR" 4
 .IX Item "--check-config"
-_check\-config_
+.Vb 1
+\& Permite checar el archivo de configuracion para una aplicacion en particular
+.Ve
 .IP "\fB\-\-status\fR" 4
 .IX Item "--status"
-_status_
+.Vb 1
+\& Verifica si la aplicacion se encuentra en ejecucion, enviando una seA\*~Xal 0 via el kernel al proceso.
+.Ve
 .IP "\fB\-\-report\fR" 4
 .IX Item "--report"
-_report_
+.Vb 1
+\& Genera un reporte para determinar que aplicaciones se encuentran en ejecucion
+\&
+\& MXHPAOE2
+\& 10.103.18.141
+\& SERVER              | EXECUTED      | PID   | STATS 
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-+\-\-\-\-\-\-\-
+\& svmnoe02\-IX         | 20100114\-0400 | 15746 | UP    
+\& svmnoe03\-IX         | 20100114\-0400 | 15744 | UP    
+\& svmsoe02\-IX         | 20100114\-0401 | 16125 | UP    
+\& svmsoe03\-IX         | 20100114\-0401 | 16126 | UP
+.Ve
 .IP "\fB\-\-quiet\fR" 4
 .IX Item "--quiet"
-_quiet_
+.Vb 1
+\& Omite la salida generada por starter.
+.Ve
 .IP "\fB\-\-help\fR" 4
 .IX Item "--help"
-_help_
+.Vb 1
+\& Muestra la ayuda de starter.
+.Ve
 .IP "\fB\-\-version\fR" 4
 .IX Item "--version"
-_version_
+.Vb 1
+\& Muestra la version de starter
+.Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 .Vb 4
@@ -200,18 +227,18 @@ _version_
 \&  * starter.sh
 \&    Aplicacion principal
 \&
-\&  * starter.conf
+\&  * starterrc
 \&    Configuracion de parametros generales a la aplicacion
 \&
-\&  * [dominio]\-starter.conf
-\&    Configuracion para un dominio en particular, vease dominios.
+\&  * setup/[appname]\-starter.conf
+\&    Configuracion para una aplicacion en particular.
 \&
 \&  * starter.log
 \&    Log de ejecucion
 .Ve
 .PP
 \&\s-1DOMINIOS\s0
- El archivo para configurar un dominio en particular tiene los
+ El archivo para configurar una aplicacion en particular tiene los
  siguientes parametros posibles:
 .PP
 .Vb 2
@@ -274,9 +301,9 @@ _version_
 .SH "AUTHOR"
 .IX Header "AUTHOR"
 .Vb 2
-\& starter v2.6.25
-\& (c) 2009 Strategies Labs!
-\& 
+\& starter v3.01.14
+\& (c) 2008, 2009, 2010 StrategyLabs! 
+\&
 \& Written by
 \& Andres Aquino <andres.aquino@gmail.com>
 .Ve
@@ -285,5 +312,5 @@ _version_
 .Vb 1
 \& Muchos!
 \& 
-\& Algun voluntario a encontrarlos ?
+\& Se necesitan traductores... !!!
 .Ve

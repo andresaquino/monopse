@@ -8,19 +8,19 @@ Usage: starter [OPTION]...
 start up or stop applications like WebLogic, Fuego, Resin, etc.
 
 Mandatory arguments in long format.
-   -a, --application=APPNAME         use this appName, required 
-       --start                       start appName 
-       --stop                        stop appName 
-   -t, --threaddump=COUNT,INTERVAL   send a 3 signal via kernel, COUNT times between INTERVAL 
-   -d, --debug                       debug logs and processes in the system 
-   -c, --check-config                check config application (see starter-starter.conf) 
-   -s, --status                      verify the status of appName 
-   -r, --report                      show an small report about domains 
-   -m, --mail                        send output to mail accounts configured in starter.conf 
-       --mailto=user@mail.com        send output to mail accounts or specified mail 
-   -q, --quiet                       don't send output to terminal 
-   -v, --version                     show version 
-   -h, --help                        show help
+   -a, --application=APPNAME        use this appName, required 
+       --start                      start appName 
+       --stop                       stop appName 
+   -s, --status                     verify the status of appName 
+   -t, --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL 
+   -d, --debug                      debug logs and processes in the system 
+   -c, --check-config               check config application (see starter-starter.conf) 
+   -r, --report                     show an small report about domains 
+   -m, --mail                       send output to mail accounts configured in starter.conf 
+       --mailto=user@mail.com       send output to mail accounts or specified mail 
+   -q, --quiet                      don't send output to terminal 
+   -v, --version                    show version 
+   -h, --help                       show help
  
 Each APPLIST refers to one application on the server.
 In case of threaddump options, COUNT refers to times sending kill -3 signal between 
@@ -34,41 +34,50 @@ Report bugs to <andres.aquino@gmail.com>
 
 =item B<--application=appName [--start | --stop]>
 
-Especifica sobre que aplicacion _appName_ se realizara la accion: iniciar o detener el proceso.
+ Especifica sobre que aplicacion _appName_ se realizara la accion: iniciar o detener el proceso.
 
 =item B<--threaddump[=COUNT,INTERVAL]>
 
-Se busca el PID del proceso o aplicación indicado en _appName_ y sobre este mismo se envia una señal -3
-que la maquina virtual de JAVA (caso especifico) interpretara como bandera para general un core o volcado
-de los procesos internos en ejecucion.
+ Se busca el PID del proceso o aplicación indicado en _appName_ y sobre este mismo se envia una señal -3
+ que la maquina virtual de JAVA (caso especifico) interpretara como bandera para general un core o volcado
+ de los procesos internos en ejecucion.
 
 =item B<--debug>
 
-_debug_
+ Genera un reporte de analisis sobre la aplicacion para determinar si se encuentra algun problema.
 
 =item B<--check-config>
 
-_check-config_
+ Permite checar el archivo de configuracion para una aplicacion en particular
 
 =item B<--status>
 
-_status_
+ Verifica si la aplicacion se encuentra en ejecucion, enviando una señal 0 via el kernel al proceso.
 
 =item B<--report>
 
-_report_
+ Genera un reporte para determinar que aplicaciones se encuentran en ejecucion
+
+ MXHPAOE2
+ 10.103.18.141
+ SERVER              | EXECUTED      | PID   | STATS 
+ --------------------+---------------+-------+-------
+ svmnoe02-IX         | 20100114-0400 | 15746 | UP    
+ svmnoe03-IX         | 20100114-0400 | 15744 | UP    
+ svmsoe02-IX         | 20100114-0401 | 16125 | UP    
+ svmsoe03-IX         | 20100114-0401 | 16126 | UP    
 
 =item B<--quiet>
 
-_quiet_
+ Omite la salida generada por starter.
 
 =item B<--help>
 
-_help_
+ Muestra la ayuda de starter.
 
 =item B<--version>
 
-_version_
+ Muestra la version de starter
 
 =back
 
@@ -84,17 +93,17 @@ _version_
   * starter.sh
     Aplicacion principal
 
-  * starter.conf
+  * starterrc
     Configuracion de parametros generales a la aplicacion
 
-  * [dominio]-starter.conf
-    Configuracion para un dominio en particular, vease dominios.
+  * setup/[appname]-starter.conf
+    Configuracion para una aplicacion en particular.
 
   * starter.log
     Log de ejecucion
 
 DOMINIOS
- El archivo para configurar un dominio en particular tiene los
+ El archivo para configurar una aplicacion en particular tiene los
  siguientes parametros posibles:
  
  Para indicar cual es el shell que inicia la aplicacion
@@ -154,9 +163,9 @@ DOMINIOS
 
 =head1 AUTHOR
 
- starter [VERSION]
- (c) 2009 StrategyLabs!
- 
+ starter v3.01.14
+ (c) 2008, 2009, 2010 StrategyLabs! 
+
  Written by
  Andres Aquino <andres.aquino@gmail.com>
 
@@ -164,7 +173,7 @@ DOMINIOS
 
  Muchos!
  
- Algun voluntario a encontrarlos ?
+ Se necesitan traductores... !!!
 
 =cut
 # vim: set ts=3 sw=3 sts=3 et si ai:
