@@ -8,6 +8,11 @@
 #
 
 #
+# home de la aplicacion
+APHOME=$HOME/starter
+APLOGS=$HOME/logs
+
+#
 # correo de los Administradores
 MAILTOADMIN="cesar.aquino@nextel.com.mx"
 
