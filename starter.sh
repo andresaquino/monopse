@@ -14,18 +14,18 @@
 # filter_in_log
 # filtrar la cadena sugerida en el log de la aplicacion
 filter_in_log () {
-	 local SEARCHSTR
-	 SEARCHSTR="${1}"
-
-	 [ "${SEARCHSTR}" = "_NULL_" ] && return 1
-	 grep -q "${SEARCHSTR}" "${APLOGS}.log"
-	 LASTSTATUS=$?
-
-	 if [ "${LASTSTATUS}" -eq "0" ]
-	 then
-			log_action "DBUG" "Looking for ${SEARCHSTR} was succesfull"
-	 fi
-	 return ${LASTSTATUS}
+	local SEARCHSTR
+	SEARCHSTR="${1}"
+	
+	[ "${SEARCHSTR}" = "_NULL_" ] && return 1
+	grep -q "${SEARCHSTR}" "${APLOGS}.log"
+	LASTSTATUS=$?
+	
+	if [ "${LASTSTATUS}" -eq "0" ]
+	then
+		log_action "DBUG" "Looking for ${SEARCHSTR} was succesfull"
+	fi
+	return ${LASTSTATUS}
 }
 
 
@@ -33,55 +33,55 @@ filter_in_log () {
 # log_backup
 # respaldar logs para que no se generen problemas de espacio.
 log_backup () {
-	 #
-	 # filename: starter/starter-cci-20080516-2230.tar.gz
-	 DAYOF=`date '+%Y%m%d-%H%M'`
-	 cd ${DIRLOG}
-	 if [ -e ${APLOGS}.date ]
-	 then
-			DAYOF="`cat ${APLOGS}.date`"
-			rm -f ${APLOGS}.date 
-	 fi
-	 mkdir -p ${DAYOF}
-	 touch ${APLOGS}.log
-	 touch ${APLOGS}.err
-	 touch ${APLOGS}.pid
-	 mv ${APLOGS}.log ${APLOGS}.err ${APLOGS}.pid ${DAYOF}/
-	 touch ${APLOGS}.log
-	 LOGSIZE=`du -sk "${DAYOF}" | cut -f1`
-	 RESULT=$((${LOGSIZE}/1024))
-	 
-	 # reportar action
-	 log_action "INFO" "The sizeof ${APLOGS}.log is ${LOGSIZE}M, proceeding to compress"
-
-	 # Si esta habilitado el fast-stop(--forced), no se comprime la informacion
-	 rm -f ${APLOGS}.lock
-	 ${FASTSTOP} && log_action "WARN" "Ups,(doesn't compress) hurry up is to late for sysadmin !"
-	 ${FASTSTOP} && return 0
-
-	 # si el tamaño del archivo .log sobrepasa los MAXLOGSIZE en megas 
-	 # entonces hacer un recorte para no saturar el filesystem
-	 if [ ${RESULT} -gt ${MAXLOGSIZE} ]
-	 then
-			log_action "WARN" "The sizeof ${APLOGS}.log is ${LOGSIZE}M, i need reduce it to ${MAXLOGSIZE}M"
-			SIZE=$((${MAXLOGSIZE}*1024*1024))
-			tail -c${SIZE} ${DAYOF}/${APPLICATION}.log > ${DAYOF}/${APPLICATION}
-			rm -f ${DAYOF}/${APPLICATION}.log
-			mv ${DAYOF}/${APPLICATION} ${DAYOF}/${APPLICATION}.log
-	 fi
-	 
-	 #
-	 # por que HP/UX tiene que ser taaan estupido ? ? 
-	 # backup de log | err | pid para análisis
-	 # tar archivos | gzip -c > file-log
-	 $aptar -cvf ${APLOGS}_${DAYOF}.tar ${DAYOF} > /dev/null 2>&1
-	 $apzip -c ${APLOGS}_${DAYOF}.tar > ${APLOGS}_${DAYOF}.tar.gz
-	 LOGSIZE=`du -sk ${APLOGS}_${DAYOF}.tar.gz | cut -f1`
-	 log_action "INFO" "Creating ${APLOGS}_${DAYOF}.tar.gz file with ${LOGSIZE}M of size"
-	 
-	 rm -f ${APLOGS}_${DAYOF}.tar
-	 rm -fr ${DAYOF}
-
+	#
+	# filename: starter/starter-cci-20080516-2230.tar.gz
+	DAYOF=`date '+%Y%m%d-%H%M'`
+	cd ${DIRLOG}
+	if [ -e ${APLOGS}.date ]
+	then
+		DAYOF="`cat ${APLOGS}.date`"
+		rm -f ${APLOGS}.date 
+	fi
+	
+	mkdir -p ${DAYOF}
+	touch ${APLOGS}.log
+	touch ${APLOGS}.err
+	touch ${APLOGS}.pid
+	mv ${APLOGS}.log ${APLOGS}.err ${APLOGS}.pid ${DAYOF}/
+	touch ${APLOGS}.log
+	LOGSIZE=`du -sk "${DAYOF}" | cut -f1`
+	RESULT=$((${LOGSIZE}/1024))
+	
+	# reportar action
+	log_action "INFO" "The sizeof ${APLOGS}.log is ${LOGSIZE}M, proceeding to compress"
+	
+	# Si esta habilitado el fast-stop(--forced), no se comprime la informacion
+	rm -f ${APLOGS}.lock
+	${FASTSTOP} && log_action "WARN" "Ups,(doesn't compress) hurry up is to late for sysadmin !"
+	${FASTSTOP} && return 0
+	
+	# si el tamaño del archivo .log sobrepasa los MAXLOGSIZE en megas 
+	# entonces hacer un recorte para no saturar el filesystem
+	if [ ${RESULT} -gt ${MAXLOGSIZE} ]
+	then
+		log_action "WARN" "The sizeof ${APLOGS}.log is ${LOGSIZE}M, i need reduce it to ${MAXLOGSIZE}M"
+		SIZE=$((${MAXLOGSIZE}*1024*1024))
+		tail -c${SIZE} ${DAYOF}/${APPLICATION}.log > ${DAYOF}/${APPLICATION}
+		rm -f ${DAYOF}/${APPLICATION}.log
+		mv ${DAYOF}/${APPLICATION} ${DAYOF}/${APPLICATION}.log
+	fi
+	
+	#
+	# por que HP/UX tiene que ser taaan estupido ? ? 
+	# backup de log | err | pid para análisis
+	# tar archivos | gzip -c > file-log
+	$aptar -cvf ${APLOGS}_${DAYOF}.tar ${DAYOF} > /dev/null 2>&1
+	$apzip -c ${APLOGS}_${DAYOF}.tar > ${APLOGS}_${DAYOF}.tar.gz
+	LOGSIZE=`du -sk ${APLOGS}_${DAYOF}.tar.gz | cut -f1`
+	log_action "INFO" "Creating ${APLOGS}_${DAYOF}.tar.gz file with ${LOGSIZE}M of size"
+	
+	rm -f ${APLOGS}_${DAYOF}.tar
+	rm -fr ${DAYOF}
 }
 
 
@@ -89,25 +89,25 @@ log_backup () {
 # guess !
 # solo un estupido wrap por que el logger del SO no tenemos chance de usarlo ... 
 log_action () {
-	 LEVEL=${1}
-	 ACTION=${2}
-	 PID=0
-	 LOGME=true
-	 [ -r ${APLOGS}.pid ] && PID=`head -n1 ${APLOGS}.pid`
-	 case "${LEVEL}" in
-			"DBUG")
-				 [ "${LOGLEVEL}" = "INFO" ] && LOGME=false
-				 [ "${LOGLEVEL}" = "WARN" ] && LOGME=false
-				 ;;
-			"WARN")
-				 [ "${LOGLEVEL}" = "INFO" ] && LOGME=false
-				 ;;
-	 esac
-
-	 if ${LOGME}
-	 then
-			echo "`date '+%Y-%m-%d'` [`date '+%H:%M:%S'`] ${APPLICATION}(${PID}): ${LEVEL} ${ACTION}" >> ${APLOGS}.log
-	 fi
+	LEVEL=${1}
+	ACTION=${2}
+	PID=0
+	LOGME=true
+	[ -r ${APLOGS}.pid ] && PID=`head -n1 ${APLOGS}.pid`
+	case "${LEVEL}" in
+		"DBUG")
+			 [ "${LOGLEVEL}" = "INFO" ] && LOGME=false
+			 [ "${LOGLEVEL}" = "WARN" ] && LOGME=false
+		;;
+		"WARN")
+			 [ "${LOGLEVEL}" = "INFO" ] && LOGME=false
+		;;
+	esac
+	
+	if ${LOGME}
+	then
+		echo "`date '+%Y-%m-%d'` [`date '+%H:%M:%S'`] ${APPLICATION}(${PID}): ${LEVEL} ${ACTION}" >> ${DIRLOG}/starter.log
+	fi
 
 }
 
@@ -116,30 +116,30 @@ log_action () {
 # is_process_running
 # verificar si un proceso se encuenta ejecutandose en base a su PID
 is_process_running () {
-	 #
-	 # obtener los PID del proceso 
-	 get_process_id
-	 if [ ! -e "${APLOGS}.pid" ]
-	 then
-			[ $VIEWLOG ] && echo "The application is not running actually"
-			log_action "INFO" "The application is down"
-			exit 0
-	 fi
+	#
+	# obtener los PID del proceso 
+	get_process_id
+	if [ ! -e "${APLOGS}.pid" ]
+	then
+		[ $VIEWLOG ] && echo "The application is not running actually"
+		log_action "INFO" "The application is down"
+		exit 0
+	fi
+	
+	if [ "${typeso}" = "HP-UX" ]
+	then
+		PROCESSES=`awk '{print "ps -fex | grep "$0" | grep -v grep"}' "${APLOGS}.pid" | sh | grep "${FILTERLANG}" | grep "${FILTERAPP}" | grep -v grep | wc -l | cut -f1 -d" " `
+	else
+		PROCESSES=`awk '{print "ps fax | grep "$0" | grep -v grep"}' "${APLOGS}.pid" | sh | grep "${FILTERLANG}" | grep "${FILTERAPP}" | grep -v grep | wc -l | cut -f1 -d" " `
+	fi
 
-	 if [ "`uname -s`" = "HP-UX" ]
-	 then
-			PROCESSES=`awk '{print "ps -fex | grep "$0" | grep -v grep"}' "${APLOGS}.pid" | sh | grep "${FILTERLANG}" | grep "${FILTERAPP}" | grep -v grep | wc -l | cut -f1 -d" " `
-	 else
-			PROCESSES=`awk '{print "ps fax | grep "$0" | grep -v grep"}' "${APLOGS}.pid" | sh | grep "${FILTERLANG}" | grep "${FILTERAPP}" | grep -v grep | wc -l | cut -f1 -d" " `
-	 fi
-
-	 if [ "${PROCESSES}" -gt 0 ]
-	 then
-			return "${PROCESSES}"
-			log_action "INFO" "The application is running with ${PROCESSES} processes in memory"
-	 else
-			return 0
-	 fi
+	if [ "${PROCESSES}" -gt 0 ]
+	then
+		return "${PROCESSES}"
+		log_action "INFO" "The application is running with ${PROCESSES} processes in memory"
+	else
+		return 0
+	fi
 
 }
 
@@ -148,35 +148,44 @@ is_process_running () {
 # get_process_id
 # obtener los PID de las aplicaciones
 get_process_id () {
-	 #
-	 # filtrar primero por APP
-	 rm -f "${APLOGS}.pid"
-
-	 # FIX
-	 # filtrar por usuario dueño del proceso
-	 ps ${psopts} | grep "${FILTERAPP}" | grep -v "grep"	| grep -v "$NAMEAPP " | grep "${USER}" > "${APLOGS}.tmp"
-
-	 # si existe, despues por LANG
-	 if [ "${FILTERLANG}" != "" ]
-	 then
-			mv "${APLOGS}.tmp" "${APLOGS}.tmp.1"
-			grep "${FILTERLANG}" "${APLOGS}.tmp.1" | grep -v "grep" > "${APLOGS}.tmp"
-	 fi
+	#
+	# filtrar primero por APP
+	rm -f ${APLOGS}.pid
+	
+	# FIX
+	# filtrar por usuario dueño del proceso
+	log_action "DBUG" "${FILTERAPP} | starter | ${USER}"
+	ps ${psopts} > ${APLOGS}.pslist
+	grep "${FILTERAPP}" ${APLOGS}.pslist | grep -v "starter " > ${APLOGS}.tmp
+	
+	# si existe, despues por LANG
+	if [ "${FILTERLANG}" != "" ]
+	then
+		mv ${APLOGS}.tmp ${APLOGS}.tmp.1
+		grep "${FILTERLANG}" ${APLOGS}.tmp.1 | grep -v "grep" > ${APLOGS}.tmp
+	fi
 	 
-	 # si existe 1 o mas procesos, entonces averiguar el PPID (Parent Process ID) 
-	 # y almacenarlo, en caso contrario solo generar archivo vacio
-	 touch "${APLOGS}.pid"
-	 if [ `wc -l "${APLOGS}.tmp" | cut -f1 -d\ ` -gt 0 ]
-	 then
-			log_action "DBUG" "The application still remains in memory ... "
-			awk '{print $2}' "${APLOGS}.tmp" > "${APLOGS}.tmp.1"
-			# FIX: sacar el proceso padre, ordenando los process id y sacando el primero
-			cat "${APLOGS}.tmp.1" | sort -n | head -n1 > "${APLOGS}.pid"
-			# FIX: para el caso de iPlanet, es necesario conservar todos los pids implicados
-			#			 y así poder obtener el último pid para aplicar un FTD
-			cat "${APLOGS}.tmp.1" | sort -nr > "${APLOGS}.plist"
-	 fi
-	 rm -f "${APLOGS}.tmp" "${APLOGS}.tmp.1"
+	# si existe 1 o mas procesos, entonces averiguar el PPID (Parent Process ID) 
+	# y almacenarlo, en caso contrario solo generar archivo vacio
+	touch ${APLOGS}.pid
+	if [ `wc -l "${APLOGS}.tmp" | cut -f1 -d\ ` -gt 0 ]
+	then
+		log_action "DBUG" "The application still remains in memory ... "
+		if [ "${typeso}" = "HP-UX" ]
+		then
+			awk '{print $2}' ${APLOGS}.tmp > ${APLOGS}.tmp.1
+		else
+			awk '{print $1}' ${APLOGS}.tmp > ${APLOGS}.tmp.1
+		fi
+		
+		# FIX: sacar el proceso padre, ordenando los process id y sacando el primero
+		cat ${APLOGS}.tmp.1 | sort -n | head -n1 > ${APLOGS}.pid
+		
+		# FIX: para el caso de iPlanet, es necesario conservar todos los pids implicados
+		#			 y así poder obtener el último pid para aplicar un FTD
+		cat ${APLOGS}.tmp.1 | sort -nr > ${APLOGS}.plist
+	fi
+	rm -f "${APLOGS}.tmp" "${APLOGS}.tmp.1"
 }
 
 
@@ -184,28 +193,28 @@ get_process_id () {
 # check_configuration
 # corroborar que los parametros/archivos sean correctos y existan en el filesystem
 check_configuration () {
-	 local LASTSTATUS APPLICATION FILESETUP VERBOSE PARAM
-	 LASTSTATUS=1
-	 APPLICATION="${1}"
-	 VERBOSE="${2}"
-	 
-	 "${VERBOSE}" && echo "Checking configuration of ${APPLICATION}"
-	 # existe el archivo de configuracion ?
-	 FILESETUP="${APHOME}/setup/${APPLICATION}-starter.conf"
-	 [ -r "${FILESETUP}" ] && . "${FILESETUP}" || return ${LASTSTATUS}
-	 
-	 # leer los parametros minimos necesarios
-	 for PARAM in STARTAPP STOPAPP PATHAPP FILTERAPP UPSTRING
-	 do 
-			#"${VERBOSE}" && grep "${PARAM}=" "${FILESETUP}" 
-			# checar que los datos del archivo de configuracion sean correctos
-			grep -q "${PARAM}=" "${FILESETUP}" && LASTSTATUS=0
-	 done
-	 
-	 # como minimo, comprobamos que exista el PATH
-	 [ -d ${PATHAPP} ] || LASTSTATUS=1
+	local LASTSTATUS APPLICATION FILESETUP VERBOSE PARAM
+	LASTSTATUS=1
+	APPLICATION="${1}"
+	VERBOSE="${2}"
+	
+	"${VERBOSE}" && echo "Checking configuration of ${APPLICATION}"
+	# existe el archivo de configuracion ?
+	FILESETUP="${APHOME}/setup/${APPLICATION}-starter.conf"
+	[ -r "${FILESETUP}" ] && . "${FILESETUP}" || return ${LASTSTATUS}
+	
+	# leer los parametros minimos necesarios
+	for PARAM in STARTAPP STOPAPP PATHAPP FILTERAPP UPSTRING
+	do 
+		#"${VERBOSE}" && grep "${PARAM}=" "${FILESETUP}" 
+		# checar que los datos del archivo de configuracion sean correctos
+		grep -q "${PARAM}=" "${FILESETUP}" && LASTSTATUS=0
+	done
+	
+	# como minimo, comprobamos que exista el PATH
+	[ -d ${PATHAPP} ] || LASTSTATUS=1
 
-	 return ${LASTSTATUS}
+	return ${LASTSTATUS}
 
 }
 
@@ -214,27 +223,27 @@ check_configuration () {
 # verificar que el servidor weblogic (en el caso de los appsrv's se encuentre arriba y operando,
 # de otra manera, ejecutar una rutina _plugin_ para iniciar el servicio )
 check_weblogicserver() {
-	 # si se dio de alta la variable FILTERWL(weblogic.Server), entonces se tiene que buscar si existe el proceso de servidor WEBLOGIC
-	 if [ ${FILTERWL} != "_NULL_" ]
-	 then
-				 log_action "INFO" "Check if exists an application server manager of WebLogic"
-				 # existe algun proceso de weblogic.Server ?
-				 if [ "`uname -s`" = "HP-UX" ]
-				 then
-						WLPROCESS=`ps -fex | grep "${FILTERWL}" | wc -l | cut -f1 -d\ `
-				 else
-						WLPROCESS=`ps fea | grep "${FILTERWL}" | wc -l | cut -f1 -d\ `
-				 fi
-				 
-				 # si no es así, levantar el servidor y esperar 3 minuto
-				 WLSLEEP=60*3
-				 if [ ${WLPROCESS} -eq "0" ]
-				 then
-						log_action "WARN" "Dont exists an application server manager of WebLogic, starting an instance of"
-						nohup sh ${WLSAPP} 2> ${APLOGS}-WLS.err > ${APLOGS}-WLS.log &
-						sleep ${WLSLEEP}
-				 fi
-	 fi
+	# si se dio de alta la variable FILTERWL(weblogic.Server), entonces se tiene que buscar si existe el proceso de servidor WEBLOGIC
+	if [ ${FILTERWL} != "_NULL_" ]
+	then
+		log_action "INFO" "Check if exists an application server manager of WebLogic"
+		# existe algun proceso de weblogic.Server ?
+		if [ "${typeso}" = "HP-UX" ]
+		then
+			WLPROCESS=`ps -fex | grep "${FILTERWL}" | wc -l | cut -f1 -d\ `
+		else
+			WLPROCESS=`ps fea | grep "${FILTERWL}" | wc -l | cut -f1 -d\ `
+		fi
+		
+		# si no es así, levantar el servidor y esperar 3 minuto
+		WLSLEEP=60*3
+		if [ ${WLPROCESS} -eq "0" ]
+		then
+			log_action "WARN" "Dont exists an application server manager of WebLogic, starting an instance of"
+			nohup sh ${WLSAPP} 2> ${APLOGS}-WLS.err > ${APLOGS}-WLS.log &
+			sleep ${WLSLEEP}
+		fi
+	fi
 
 }
 
@@ -246,68 +255,68 @@ check_weblogicserver() {
 # por defecto, el ftd se almacena en el filesystem log de la aplicación; si se detecta que se esta
 # incrementando el uso del filesystem, conserva los mas recientes 
 make_fullthreaddump() {
-	 # para cuando son procesos JAVA StandAlone (WL, Tomcat, etc...) 
-	 log_action "DBUG" "Change to ${PATHAPP}"
-	 [ -r ${APLOGS}.pid ] && PID=`tail -n1 ${APLOGS}.pid`
+	# para cuando son procesos JAVA StandAlone (WL, Tomcat, etc...) 
+	log_action "DBUG" "Change to ${PATHAPP}"
+	[ -r ${APLOGS}.pid ] && PID=`tail -n1 ${APLOGS}.pid`
 
-	 # para cuando son procesos ONDemand (iPlanet, ...)
-	 [ -r ${APLOGS}.plist -a ${FILTERAPP} ] && PID=`head -n1 ${APLOGS}.pid`
-	 
-	 # hacer un mark para saber desde donde vamos a sacar datos del log
-	 ftdFILE="${APLOGS}_`date '+%Y%m%d-%H%M%S'`.ftd"
-	 touch "${ftdFILE}"
-	 log_action "DBUG" "Taking ${APLOGS}.log to extract the FTP on ${ftdFILE}"
-	 tail -f "${APLOGS}.log" > ${ftdFILE} &
-
-	 # enviar el FTD al PID, N muestras cada T segs
-	 times=0
-	 timeStart=`date`
-	 while [ $times -ne $MAXSAMPLES ]
-	 do
-			kill -3 $PID
-			echo "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
-			log_action "INFO" "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
-			sleep $MAXSLEEP
-			times=$(($times+1))
-	 done
-	 
-	 # quitar el proceso de copia del log
-	 if [ "`uname -s`" = "HP-UX" ]
-	 then
-			PROCESSES=`ps -fex | grep "tail -f ${APLOGS}.log" | grep -v grep | awk '/tail/{print $2}'`
-	 else
-			PROCESSES=`ps fax | grep "tail -f ${APLOGS}.log" | grep -v grep | awk '/tail/{print $2}'`
-	 fi
-	 kill -15 ${PROCESSES}
+	# para cuando son procesos ONDemand (iPlanet, ...)
+	[ -r ${APLOGS}.plist -a ${FILTERAPP} ] && PID=`head -n1 ${APLOGS}.pid`
 	
-	 #
-	 # generar encabezado y limpiar basura
-	 tFILE=`wc -l ${ftdFILE} | awk '{print $1}'`
-	 gFILE=`nl -ba ${ftdFILE} | grep "Full thread dump" | grep "Java HotSpot" | head -n1 | awk '{print $1}'`
-	 total=$(($tFILE-$gFILE+1))
-	 log_action "DBUG" "Total: $total, where tFile=$tFILE and gFile=$gFILE"
-	 tail -n${total} ${ftdFILE} > ${ftdFILE}.tmp
-	 echo "-------------------------------------------------------------------------------" > ${ftdFILE}
-	 echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
-	 echo "JAVA FTD" >> ${ftdFILE}
-	 echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
-	 echo "Host: `hostname`" >> ${ftdFILE}
-	 echo "ID's: `id`" >> ${ftdFILE}
-	 echo "Date: ${timeStart}" >> ${ftdFILE}
-	 echo "Appl: ${APPLICATION}" >> ${ftdFILE}
-	 echo "Smpl: ${MAXSAMPLES}" >> ${ftdFILE}
-	 echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
-	 cat ${ftdFILE}.tmp >> ${ftdFILE}
+	# hacer un mark para saber desde donde vamos a sacar datos del log
+	ftdFILE="${APLOGS}_`date '+%Y%m%d-%H%M%S'`.ftd"
+	touch "${ftdFILE}"
+	log_action "DBUG" "Taking ${APLOGS}.log to extract the FTP on ${ftdFILE}"
+	tail -f "${APLOGS}.log" > ${ftdFILE} &
+
+	# enviar el FTD al PID, N muestras cada T segs
+	times=0
+	timeStart=`date`
+	while [ $times -ne $MAXSAMPLES ]
+	do
+		kill -3 $PID
+		echo "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
+		log_action "INFO" "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
+		sleep $MAXSLEEP
+		times=$(($times+1))
+	done
+	 
+	# quitar el proceso de copia del log
+	if [ "${typeso}" = "HP-UX" ]
+	then
+		PROCESSES=`ps -fex | grep "tail -f ${APLOGS}.log" | grep -v grep | awk '/tail/{print $2}'`
+	else
+		PROCESSES=`ps fax | grep "tail -f ${APLOGS}.log" | grep -v grep | awk '/tail/{print $2}'`
+	fi
+	kill -15 ${PROCESSES}
+	
+	#
+	# generar encabezado y limpiar basura
+	tFILE=`wc -l ${ftdFILE} | awk '{print $1}'`
+	gFILE=`nl -ba ${ftdFILE} | grep "Full thread dump" | grep "Java HotSpot" | head -n1 | awk '{print $1}'`
+	total=$(($tFILE-$gFILE+1))
+	log_action "DBUG" "Total: $total, where tFile=$tFILE and gFile=$gFILE"
+	tail -n${total} ${ftdFILE} > ${ftdFILE}.tmp
+	echo "-------------------------------------------------------------------------------" > ${ftdFILE}
+	echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	echo "JAVA FTD" >> ${ftdFILE}
+	echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	echo "Host: `hostname`" >> ${ftdFILE}
+	echo "ID's: `id`" >> ${ftdFILE}
+	echo "Date: ${timeStart}" >> ${ftdFILE}
+	echo "Appl: ${APPLICATION}" >> ${ftdFILE}
+	echo "Smpl: ${MAXSAMPLES}" >> ${ftdFILE}
+	echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	cat ${ftdFILE}.tmp >> ${ftdFILE}
  
-	 # enviar por correo 
-	 if [ "${MAILACCOUNTS}" != "_NULL_" ]
-	 then
-			$apmail -s "${APPLICATION} FULL THREAD DUMP ${timeStart} (${ftdFILE})" "${MAILACCOUNTS}" < ${ftdFILE} > /dev/null 2>&1 &
-			log_action "INFO" "Sending a full thread dump(${ftdFILE}) by mail to ${MAILACCOUNTS}"
-	 fi
-	 #rm -f ${ftdFILE}
-	 rm -f ${ftdFILE}.tmp
-	 return 0
+	# enviar por correo 
+	if [ "${MAILACCOUNTS}" != "_NULL_" ]
+	then
+		$apmail -s "${APPLICATION} FULL THREAD DUMP ${timeStart} (${ftdFILE})" "${MAILACCOUNTS}" < ${ftdFILE} > /dev/null 2>&1 &
+		log_action "INFO" "Sending a full thread dump(${ftdFILE}) by mail to ${MAILACCOUNTS}"
+	fi
+	#rm -f ${ftdFILE}
+	rm -f ${ftdFILE}.tmp
+	return 0
 
 }
 
@@ -316,30 +325,30 @@ make_fullthreaddump() {
 # report_status
 # generar reporte via mail para los administradores
 report_status () {
-	 local TYPEOPERATION STATUS STRSTATUS FILESTATUS 
-	 TYPEOPERATION=${1}
-	 STATUS=${2}
+	local TYPEOPERATION STATUS STRSTATUS FILESTATUS 
+	TYPEOPERATION=${1}
+	STATUS=${2}
 
-	 if [ "${STATUS}" -eq "0" ]
-	 then
-			STRSTATUS="SUCCESS"
-			FILESTATUS="${APLOGS}.log"
-			log_action "INFO" "The application ${TYPEOPERATION} ${STRSTATUS}"
-	 else
-			STRSTATUS="FAILED"
-			FILESTATUS="${APLOGS}.err"
-			log_action "ERR" "The application ${TYPEOPERATION} ${STRSTATUS}"
-	 fi
-	 
-	 #
-	 # solo enviar si la operacion fue correcta o no
-	 echo "${APPLICATION} ${TYPEOPERATION} ${STRSTATUS}, see also ${APLOGS}.log for information"
-	 if [ "${MAILACCOUNTS}" != "_NULL_" ]
-	 then
-			# y mandarlo a bg, por que si no el so se apendeja, y por este; este arremedo de programa :-P
-			$apmail -s "${APPLICATION} ${TYPEOPERATION} ${STRSTATUS}" -r "${MAILACCOUNTS}" > /dev/null 2>&1 &
-			log_action "INFO" "Report ${APPLICATION} ${TYPEOPERATION} ${STRSTATUS} to ${MAILACCOUNTS}"
-	 fi
+	if [ "${STATUS}" -eq "0" ]
+	then
+		STRSTATUS="SUCCESS"
+		FILESTATUS="${APLOGS}.log"
+		log_action "INFO" "The application ${TYPEOPERATION} ${STRSTATUS}"
+	else
+		STRSTATUS="FAILED"
+		FILESTATUS="${APLOGS}.err"
+		log_action "ERR" "The application ${TYPEOPERATION} ${STRSTATUS}"
+	fi
+	
+	#
+	# solo enviar si la operacion fue correcta o no
+	echo "${APPLICATION} ${TYPEOPERATION} ${STRSTATUS}, see also ${APLOGS}.log for information"
+	if [ "${MAILACCOUNTS}" != "_NULL_" ]
+	then
+		# y mandarlo a bg, por que si no el so se apendeja, y por este; este arremedo de programa :-P
+		$apmail -s "${APPLICATION} ${TYPEOPERATION} ${STRSTATUS}" -r "${MAILACCOUNTS}" > /dev/null 2>&1 &
+		log_action "INFO" "Report ${APPLICATION} ${TYPEOPERATION} ${STRSTATUS} to ${MAILACCOUNTS}"
+	fi
 
 }
 
@@ -347,20 +356,20 @@ report_status () {
 #
 # obtiene la version de la aplicación
 show_version () {
-	 # como ya cambie de SVN a GIT, no puedo usar el Id keyword, entonces ... a pensar en otra opcion ! ! ! 
-	 IDAPP='$Id$'
-	 
-	 VERSIONAPP="2"
-	 UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
-	 RLVERSION=`awk '/200/{t=substr($2,6,7);gsub("-",".",t);print t}' ${HOME}/${NAMEAPP}/CHANGELOG | head -n1`
-	 echo "${NAMEAPP} v${UPVERSION}.${RLVERSION}"
-	 echo "(c) 2008, 2009, 2010 StrategyLabs! \n"
-
-	 if ${SVERSION}
-	 then
-			echo "Written by"
-			echo "Andres Aquino <andres.aquino@gmail.com>"
-	 fi
+	# como ya cambie de SVN a GIT, no puedo usar el Id keyword, entonces ... a pensar en otra opcion ! ! ! 
+	IDAPP='$Id$'
+	
+	VERSIONAPP="3"
+	UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
+	RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-",".",t);print t}' ${APHOME}/CHANGELOG | head -n1`
+	echo "${NAMEAPP} v${UPVERSION}.${RLVERSION}"
+	echo "(c) 2008, 2009, 2010 StrategyLabs! \n"
+	
+	if ${SVERSION}
+	then
+		echo "Written by"
+		echo "Andres Aquino <andres.aquino@gmail.com>"
+	fi
 
 }
 
@@ -368,21 +377,21 @@ show_version () {
 #
 # obtiene el estatus de la aplicación
 show_status () {
-	 REPORT="${DIRLOG}/report.inf"
-	 [ ! -e ${REPORT} ] && rm -f ${REPORT}
-	 is_process_running
-	 PROCESSES=$?
-	 if [ "${PROCESSES}" -ne "0" ]
-	 then
-			WITHLOCK="out of control of starter!"
-			[ -r "${APLOGS}.lock" ] && WITHLOCK="controlled by ${NAMEAPP}."
-			echo "${APPLICATION} is running with ${PROCESSES} processes ${WITHLOCK}" >> ${REPORT}
-			cat ${APLOGS}.pid >> ${REPORT}
-			return 0
-	 else
-			echo "${APPLICATION} is not running." >> ${REPORT}
-			return 1
-	 fi
+	REPORT="${DIRLOG}/report.inf"
+	[ ! -e ${REPORT} ] && rm -f ${REPORT}
+	is_process_running
+	PROCESSES=$?
+	if [ "${PROCESSES}" -ne "0" ]
+	then
+		WITHLOCK="out of control of starter!"
+		[ -r "${APLOGS}.lock" ] && WITHLOCK="controlled by ${NAMEAPP}."
+		echo "${APPLICATION} is running with ${PROCESSES} processes ${WITHLOCK}" >> ${REPORT}
+		cat ${APLOGS}.pid >> ${REPORT}
+		return 0
+	else
+		echo "${APPLICATION} is not running." >> ${REPORT}
+		return 1
+	fi
 
 }
 
@@ -440,7 +449,7 @@ OPTIONS="Options used when starter was called:"
 
 #
 # application's home by default
-APHOME=$HOME/monopse
+APHOME=$HOME/starter
 APLOGS=$HOME/logs
 
 #
@@ -449,13 +458,14 @@ if [ -r $HOME/.starterrc ]
 then
 	. $HOME/.starterrc
 fi
+DIRLOG=${APLOGS}
 
 #
 # esta parte esta reculera pero ni pedo, tengo weba de corregirlo en este momento...
 aptar=`which tar`
 apzip=`which gzip`
 apmail=`which mail`
-psopts="-fea"
+psopts="fax"
 bdf="df"
 typeso="`uname -s`"
 [ "${typeso}" = "HP-UX" ] && apmail=`which mailx`
@@ -709,6 +719,7 @@ else
 	# START -- Iniciar la aplicación indicada en el archivo de configuración
 	if ${START}
 	then	 
+		cd ${PATHAPP}
 		#
 		# que sucede si intentan dar de alta el proceso nuevamente
 		# verificamos que no exista un bloqueo (Dummies of Proof) 
@@ -832,7 +843,7 @@ else
 		# checar en 10 ocasiones hasta que el servicio se encuentre abajo 
 		LASTSTATUS=1
 		STRSTATUS="FORCED SHUTDOWN"
-		[ ${STOPAPP} = "_NULL_" ] && NOTFORCE=false
+		[ "x${STOPAPP}" != "x" ] && NOTFORCE=false
 
 		#
 		# si es necesario que el stop sea forzado
@@ -988,10 +999,10 @@ else
 			echo "SERVER:EXECUTED:PID:STATS" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
-								print substr($1"														 ",1,20),
-											substr($2"							",1,14),
-											substr($3"							",1,6),
-											substr($4"							",1,6)
+								print substr($1"                             ",1,20),
+											substr($2"              ",1,14),
+											substr($3"              ",1,6),
+											substr($4"              ",1,6)
 							}'
 			echo "--------------------+---------------+-------+-------"
 			
@@ -1014,10 +1025,10 @@ else
 				echo "${appname}:${appdate}:${apppidn}:${appstat}" | 
 					awk 'BEGIN{FS=":";OFS="| "}
 							{
-								print substr($1"															 ",1,20),
-											substr($2"							",1,14),
-											substr($3"							",1,6),
-											substr($4"							",1,6)
+								print substr($1"                             ",1,20),
+											substr($2"              ",1,14),
+											substr($3"              ",1,6),
+											substr($4"              ",1,6)
 							}'
 			done
 			echo ""
@@ -1045,12 +1056,12 @@ else
 			echo "STOP:START:SERVER" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
-								print substr($1"										 ",1,18),
-											substr($2"										 ",1,18),
-											substr($3"										 ",1,7);
+								print substr($1"                     ",1,18),
+											substr($2"                     ",1,18),
+											substr($3"                     ",1,7);
 							}'
 			echo "------------------+-------------------------------------------------"
-			tail -n600 ${APLOGS}.log |	tr -d ":[]()-" | \
+			tail -n600 ${DIRLOG}/starter.log |	tr -d ":[]()-" | \
 						awk 'BEGIN{LAST="";OFS="| "}
 									/SUCCESS/{
 									if($0~"STARTUP")
@@ -1060,11 +1071,11 @@ else
 									}
 									else
 									{
-										print substr(LDATE"									",1,9),
-													substr(LTIME"									",1,7),
-													substr($1"								",1,9),
-													substr($2"								",1,7),
-													substr($3"									",1,14);
+										print substr(LDATE"                     ",1,9),
+													substr(LTIME"                     ",1,7),
+													substr($1"                     ",1,9),
+													substr($2"                     ",1,7),
+													substr($3"                     ",1,14);
 									}
 						}' > ${DIRLOG}/starter.history
 			
