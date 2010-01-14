@@ -1,6 +1,10 @@
 
 2010-01-14  Andres Aquino <andres.aquino@gmail.com>
 
+        * 59c36fb: se complementa el manual de usuario (man)
+
+        * 33a698d: registro de cambios
+
         * d81344c: adecuaciones al shell de test
 
         * ca11300: correccion al stop, si no hay script se usa el forced
