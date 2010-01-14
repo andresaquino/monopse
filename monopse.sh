@@ -1,14 +1,14 @@
 #!/bin/sh 
 # vim: set ts=2 sw=2 sts=2 si ai: 
 
-# starter.sh - An small shell for those applications that nobody wants to restart ;)
+# monopse.sh - An small shell for those applications that nobody wants to restart ;)
 # =-=
-# (c) 2009 StrategyLabs!
+# (c) 2008, 2009 Nextel de Mexico
 # Andrés Aquino Morales <andres.aquino@gmail.com>
 # 
 
 #
-. ${HOME}/starter/libutils.sh
+. ${HOME}/monopse/libutils.sh
 
 #
 # filter_in_log
@@ -34,7 +34,7 @@ filter_in_log () {
 # respaldar logs para que no se generen problemas de espacio.
 log_backup () {
 	#
-	# filename: starter/starter-cci-20080516-2230.tar.gz
+	# filename: monopse/monopse-cci-20080516-2230.tar.gz
 	DAYOF=`date '+%Y%m%d-%H%M'`
 	cd ${DIRLOG}
 	if [ -e ${APLOGS}.date ]
@@ -106,7 +106,7 @@ log_action () {
 	
 	if ${LOGME}
 	then
-		echo "`date '+%Y-%m-%d'` [`date '+%H:%M:%S'`] ${APPLICATION}(${PID}): ${LEVEL} ${ACTION}" >> ${DIRLOG}/starter.log
+		echo "`date '+%Y-%m-%d'` [`date '+%H:%M:%S'`] ${APPLICATION}(${PID}): ${LEVEL} ${ACTION}" >> ${DIRLOG}/monopse.log
 	fi
 
 }
@@ -154,9 +154,9 @@ get_process_id () {
 	
 	# FIX
 	# filtrar por usuario dueño del proceso
-	log_action "DBUG" "${FILTERAPP} | starter | ${USER}"
+	log_action "DBUG" "${FILTERAPP} | monopse | ${USER}"
 	ps ${psopts} > ${APLOGS}.pslist
-	grep "${FILTERAPP}" ${APLOGS}.pslist | grep -v "starter " > ${APLOGS}.tmp
+	grep "${FILTERAPP}" ${APLOGS}.pslist | grep -v "monopse " > ${APLOGS}.tmp
 	
 	# si existe, despues por LANG
 	if [ "${FILTERLANG}" != "" ]
@@ -200,7 +200,7 @@ check_configuration () {
 	
 	"${VERBOSE}" && echo "Checking configuration of ${APPLICATION}"
 	# existe el archivo de configuracion ?
-	FILESETUP="${APHOME}/setup/${APPLICATION}-starter.conf"
+	FILESETUP="${APHOME}/setup/${APPLICATION}-monopse.conf"
 	[ -r "${FILESETUP}" ] && . "${FILESETUP}" || return ${LASTSTATUS}
 	
 	# leer los parametros minimos necesarios
@@ -251,7 +251,7 @@ check_weblogicserver() {
 #
 # realizar un kernel full thread dump sobre el proceso indicado.
 # sobre procesos non-java va a valer queso, por que la señal 3 es para hacer un volcado de memoria.
-# starter --application=resin --threaddump=5 --mailto=cesar.aquino@nextel.com.mx
+# monopse --application=resin --threaddump=5 --mailto=cesar.aquino@nextel.com.mx
 # por defecto, el ftd se almacena en el filesystem log de la aplicación; si se detecta que se esta
 # incrementando el uso del filesystem, conserva los mas recientes 
 make_fullthreaddump() {
@@ -363,7 +363,7 @@ show_version () {
 	UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
 	RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-",".",t);print t}' ${APHOME}/CHANGELOG | head -n1`
 	echo "${NAMEAPP} v${UPVERSION}.${RLVERSION}"
-	echo "(c) 2008, 2009, 2010 StrategyLabs! \n"
+	echo "(c) 2008, 2009 Nextel de Mexico S.A. de C.V.\n"
 	
 	if ${SVERSION}
 	then
@@ -383,7 +383,7 @@ show_status () {
 	PROCESSES=$?
 	if [ "${PROCESSES}" -ne "0" ]
 	then
-		WITHLOCK="out of control of starter!"
+		WITHLOCK="out of control of monopse!"
 		[ -r "${APLOGS}.lock" ] && WITHLOCK="controlled by ${NAMEAPP}."
 		echo "${APPLICATION} is running with ${PROCESSES} processes ${WITHLOCK}" >> ${REPORT}
 		cat ${APLOGS}.pid >> ${REPORT}
@@ -445,18 +445,18 @@ SVERSION=false
 APPTYPE="STAYRESIDENT"
 UNIQUELOG=false
 PREEXECUTION="_NULL_"
-OPTIONS="Options used when starter was called:"
+OPTIONS="Options used when monopse was called:"
 
 #
 # application's home by default
-APHOME=$HOME/starter
+APHOME=$HOME/monopse
 APLOGS=$HOME/logs
 
 #
 # applications setup
-if [ -r $HOME/.starterrc ]
+if [ -r $HOME/.monopserc ]
 then
-	. $HOME/.starterrc
+	. $HOME/.monopserc
 fi
 DIRLOG=${APLOGS}
 
@@ -641,7 +641,7 @@ do
 				echo "\t-s, --status                     verify the status of appName "
 				echo "\t-t, --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
 				echo "\t-d, --debug                      debug logs and processes in the system "
-				echo "\t-c, --check-config               check config application (see ${NAMEAPP}-starter.conf) "
+				echo "\t-c, --check-config               check config application (see ${NAMEAPP}-monopse.conf) "
 				echo "\t-r, --report                     show an small report about domains "
 				echo "\t-m, --mail                       send output to mail accounts configured in ${NAMEAPP}.conf "
 				echo "\t    --mailto=user@mail.com       send output to mail accounts or specified mail "
@@ -693,7 +693,7 @@ else
 		${VIEWLOG} && CANCEL=false
 		if ${CANCEL}
 		then
-			echo "Usage: starter [OPTION]...[--help]"
+			echo "Usage: monopse [OPTION]...[--help]"
 			exit 1
 		fi
 	fi
@@ -704,7 +704,7 @@ else
 	then
 		check_configuration "${APPLICATION}" true
 		LASTSTATUS=$?
-		FILESETUP="${APHOME}/setup/${APPLICATION}-starter.conf"
+		FILESETUP="${APHOME}/setup/${APPLICATION}-monopse.conf"
 		if [ "${LASTSTATUS}" -ne "0" ]
 		then
 			echo "${FILESETUP} have errors, check your parameters."
@@ -735,7 +735,7 @@ else
 				echo "${APPLICATION} have a lock process file without application, maybe a bug brain developer ?"
 				rm -f "${APLOGS}.lock"
 				log_action "WARN" "Exists a lock process without an application in memory, remove it and start again automagically"
-				# mover archivos a directorio starter/20080527-0605
+				# mover archivos a directorio monopse/20080527-0605
 				log_backup
 			else
 				echo "${APPLICATION} is running right now !"
@@ -833,7 +833,7 @@ else
 		is_process_running
 		if [ `wc -l "${APLOGS}.pid" | cut -f1 -d\ ` -le 0 ]
 		then
-			echo "uh, ${NAMEAPP} is not running currently, tip: starter --report"
+			echo "uh, ${NAMEAPP} is not running currently, tip: monopse --report"
 			log_action "INFO" "The application is down"
 			exit 0
 		fi
@@ -898,10 +898,10 @@ else
 			# si el stop es con FORCED, y es una aplicacion JAVA enviar FTD
 			if [ ${FILTERLANG} = "java" -a ${THREADDUMP} = true ]
 			then
-				# starter -a=app stop -f -t=3,10
+				# monopse -a=app stop -f -t=3,10
 				# se aplica un fullthreaddump de 3 muestras cada 10 segundos antes de detener el proceso de manera forzada. 
 				log_action "INFO" "before kill the baby, we send 3 FTD's between 8 secs"
-				~/bin/starter --application=${APPLICATION} --threaddump=${MAXSAMPLES},${MAXSLEEP}
+				~/bin/monopse --application=${APPLICATION} --threaddump=${MAXSAMPLES},${MAXSLEEP}
 				THREADDUMP=false
 			fi
 			
@@ -948,14 +948,14 @@ else
 		then
 			if [ ${APPLICATION} = "NONSETUP" ]
 			then
-				# si no se da el parametro --application, se busca en el starter los .conf y se consulta su estado
-				ls -l ${APHOME}/setup/*-starter.conf > /dev/null 2>&1
+				# si no se da el parametro --application, se busca en el monopse los .conf y se consulta su estado
+				ls -l ${APHOME}/setup/*-monopse.conf > /dev/null 2>&1
 				[ "$?" != "0" ] && echo "Cannot access any config file! " && exit 1
-				for app in ${APHOME}/setup/*-starter.conf
+				for app in ${APHOME}/setup/*-monopse.conf
 				do
-					app=`basename ${app%-starter.*}`
-					echo "Checking $app using [ ~/bin/starter --application=$app --status ] " 
-					~/bin/starter --application=$app --status 
+					app=`basename ${app%-monopse.*}`
+					echo "Checking $app using [ ~/bin/monopse --application=$app --status ] " 
+					~/bin/monopse --application=$app --status 
 				done
 			else
 				# si se da el parametro de --application, procede sobre esa aplicacion 
@@ -991,7 +991,7 @@ else
 			apphost=`hostname | tr "[:lower:]" "[:upper:]"`
 			appipmc=`echo $SSH_CONNECTION | cut -f3 -d" "`
 			appuser=`id -u -n`
-			ls -l ${APHOME}/setup/*-starter.conf > /dev/null 2>&1
+			ls -l ${APHOME}/setup/*-monopse.conf > /dev/null 2>&1
 			[ $? != "0" ] && echo "Cannot access any config file! " && exit 1
 			echo "\n"
 			echo "${apphost}"
@@ -1006,10 +1006,10 @@ else
 							}'
 			echo "--------------------+---------------+-------+-------"
 			
-			~/bin/starter --status > /dev/null 2>&1
-			for app in ${APHOME}/setup/*-starter.conf
+			~/bin/monopse --status > /dev/null 2>&1
+			for app in ${APHOME}/setup/*-monopse.conf
 			do
-				appname=`basename ${app%-starter.*}`
+				appname=`basename ${app%-monopse.*}`
 				apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
 				# verificar que exista el PID del usuario
 				touch "${DIRLOG}/${appname}.pid"
@@ -1049,7 +1049,7 @@ else
 			appipmc=`echo $SSH_CONNECTION | cut -f3 -d" "`
 			appuser=`id -u -n`
 			# checando el estado de las aplicaciones
-			~/bin/starter --status > /dev/null 2>&1
+			~/bin/monopse --status > /dev/null 2>&1
 			echo "\n"
 			echo "${apphost}"
 			echo "${appipmc}"
@@ -1061,7 +1061,7 @@ else
 											substr($3"                     ",1,7);
 							}'
 			echo "------------------+-------------------------------------------------"
-			tail -n600 ${DIRLOG}/starter.log |	tr -d ":[]()-" | \
+			tail -n600 ${DIRLOG}/monopse.log |	tr -d ":[]()-" | \
 						awk 'BEGIN{LAST="";OFS="| "}
 									/SUCCESS/{
 									if($0~"STARTUP")
@@ -1077,13 +1077,13 @@ else
 													substr($2"                     ",1,7),
 													substr($3"                     ",1,14);
 									}
-						}' > ${DIRLOG}/starter.history
+						}' > ${DIRLOG}/monopse.history
 			
 			if [ "${APPLICATION}" = "NONSETUP" ]
 			then
-				cat ${DIRLOG}/starter.history | uniq | sort -r	| head -n60
+				cat ${DIRLOG}/monopse.history | uniq | sort -r	| head -n60
 			else
-				cat ${DIRLOG}/starter.history | uniq | sort -r	| head -n60 | grep "${APPLICATION} "
+				cat ${DIRLOG}/monopse.history | uniq | sort -r	| head -n60 | grep "${APPLICATION} "
 			fi
 			echo ""
 		fi
@@ -1108,7 +1108,7 @@ else
 				echo " deleting ${flog}"
 			done
 			# mantenimiento de logs de aplicaciones en base a shell-plugins
-			#for mplugin in starter/*-maintenance.plug
+			#for mplugin in monopse/*-maintenance.plug
 			#do
 			#	 sh ${mplugin}
 			#done
@@ -1137,7 +1137,7 @@ else
 			echo "	" >> ${FLDEBUG}
 			echo "CONFIGURATION" >> ${FLDEBUG}
 			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
-			~/bin/starter --application=${APPLICATION} --check-config >> ${FLDEBUG}
+			~/bin/monopse --application=${APPLICATION} --check-config >> ${FLDEBUG}
 			echo "	" >> ${FLDEBUG}
 			echo "${APLOGS}.date" >> ${FLDEBUG}
 			cat ${APLOGS}.date >> ${FLDEBUG} 2>&1

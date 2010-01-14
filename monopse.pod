@@ -1,10 +1,10 @@
 =head1 NAME
 
-starter - An small shell for those applications that nobody wants to restart ;)
+monopse - An small shell for those applications that nobody wants to restart ;)
 
 =head1 SYNOPSIS
 
-Usage: starter [OPTION]...
+Usage: monopse [OPTION]...
 start up or stop applications like WebLogic, Fuego, Resin, etc.
 
 Mandatory arguments in long format.
@@ -14,9 +14,9 @@ Mandatory arguments in long format.
    -s, --status                     verify the status of appName 
    -t, --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL 
    -d, --debug                      debug logs and processes in the system 
-   -c, --check-config               check config application (see starter-starter.conf) 
+   -c, --check-config               check config application (see monopse-monopse.conf) 
    -r, --report                     show an small report about domains 
-   -m, --mail                       send output to mail accounts configured in starter.conf 
+   -m, --mail                       send output to mail accounts configured in monopse.conf 
        --mailto=user@mail.com       send output to mail accounts or specified mail 
    -q, --quiet                      don't send output to terminal 
    -v, --version                    show version 
@@ -69,37 +69,37 @@ Report bugs to <andres.aquino@gmail.com>
 
 =item B<--quiet>
 
- Omite la salida generada por starter.
+ Omite la salida generada por monopse.
 
 =item B<--help>
 
- Muestra la ayuda de starter.
+ Muestra la ayuda de monopse.
 
 =item B<--version>
 
- Muestra la version de starter
+ Muestra la version de monopse
 
 =back
 
 =head1 DESCRIPTION 
 
- starter
+ monopse
  Aplicacion que sirve como auxiliar en la administracion de aplicaciones
  basadas en WebLogic, con posibilidad de extenderla a cualquier otra aplicacion
  que se ejecute en un sistema like UNIX*
 
  Utiliza un directorio de configuracion, donde se almacenan los siguientes
  archivos:
-  * starter.sh
+  * monopse.sh
     Aplicacion principal
 
-  * starterrc
+  * monopserc
     Configuracion de parametros generales a la aplicacion
 
-  * setup/[appname]-starter.conf
+  * setup/[appname]-monopse.conf
     Configuracion para una aplicacion en particular.
 
-  * starter.log
+  * monopse.log
     Log de ejecucion
 
 DOMINIOS
@@ -140,7 +140,7 @@ DOMINIOS
  
  Clave para verificar que la aplicacion ya no se encuentra en ejecucion,
  se buscara en el archivo de bitacora y posteriormente el PID del proceso
- DOWNSTRING=["thanks for using starter"]
+ DOWNSTRING=["thanks for using monopse"]
  
  Tiempo de espera antes de verificar si se encuentra en ejecucion o no
  la aplicacion
@@ -148,23 +148,23 @@ DOMINIOS
 
 =head1 EXAMPLES
 
- Para usar starter es necesario tener configurado al menos un dominio, supongamos
+ Para usar monopse es necesario tener configurado al menos un dominio, supongamos
  el super proyecto NOE:
 
  * para iniciar NOE
-   $ ~/bin/starter --application=wliNOEdes --start
+   $ ~/bin/monopse --application=wliNOEdes --start
  
  * con opciones cortas
-   $ ~/bin/starter -a=wliNOEdes start
+   $ ~/bin/monopse -a=wliNOEdes start
 
  * de plano si ya es muy grande la hueva (TIP)
-   $ alias noedes='~/bin/starter -a=wliNOEdes'
+   $ alias noedes='~/bin/monopse -a=wliNOEdes'
 	$ noedes start
 
 =head1 AUTHOR
 
- starter v3.01.14
- (c) 2008, 2009, 2010 StrategyLabs! 
+ monopse v3.01.14
+ (c) 2008, 2009 Nextel de Mexico 
 
  Written by
  Andres Aquino <andres.aquino@gmail.com>

@@ -3,7 +3,7 @@
 
 # libutils.sh -- library with some util functions
 # =-=
-# (c) 2009 StrategyLabs!
+# (c) 2008, 2009 Nextel de Mexico
 # Andrés Aquino Morales <andres.aquino@gmail.com>
 # 
 
