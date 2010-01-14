@@ -1,100 +1,215 @@
 
-* 2009-08-03 Andres Aquino <cesar.aquino@nextel.com.mx>
-     d203a39: version y configuraciones
-     a1b96e0: ejecutar y poder migrar configuraciones
+2010-01-14  Andres Aquino <andres.aquino@gmail.com>
 
-* 2009-07-24 Andres Aquino <cesar.aquino@nextel.com.mx>
-     ed65085: changelog update...
-     91d8b11: verificacion del directorio ~/monopse para instalar o actualizar...
-     ad4a98a: se mueven archivos de configuracion al directorio setup, para poder migrarlos entre servidores...
-     1ae05e5: se integra libutils como biblioteca de funciones...
+        * d81344c: adecuaciones al shell de test
 
-* 2009-07-16 Andres Aquino <cesar.aquino@nextel.com.mx>
-     4e3abca: FIX: filtrar por usuario..
-     d56f586: el perfil de NEXTEL lo mandamos al playground, utilerias...
-     9d89707: eliminar archivos md5, mejor md5 sobre el package...
-     ce60fec: Notas sobre el uso del screen, al playground...
-     5d78474: eliminar archivos md5, mejor md5 sobre el package...
+        * ca11300: correccion al stop, si no hay script se usa el forced
 
-* 2009-07-10 Andres Aquino <cesar.aquino@nextel.com.mx>
-     57bc92c: Changelog update
+        * 3e03b04: cambios para indicar el log en directorio independiente
 
-* 2009-07-09 Andres Aquino <cesar.aquino@nextel.com.mx>
-     ae6b6ab: FIX, filtro por dueño de proceso...
-     0255650: variable TTYTERM para identificar el tipo de terminal..
 
-* 2009-07-06 Andres Aquino <cesar.aquino@nextel.com.mx>
-     f697f21: cambios para remote shell..
+2010-01-02  Andres Aquino <andres.aquino@gmail.com>
 
-* 2009-07-01 Andres Aquino <cesar.aquino@nextel.com.mx>
-     a2fb04e: huellas de archivos...
+        * ce5c412: Licencia BSD
 
-* 2009-06-30 Andres Aquino <cesar.aquino@nextel.com.mx>
-     818b985: el test -e no furula en algunos HPUX, usar -s...
-     cb5d1a2: adecuaciones para LHS
 
-* 2009-06-29 Andres Aquino <cesar.aquino@nextel.com.mx>
-     530d1f4: nombres de variables en color
-     364f60f: notas acerca del uso del comando SCREEN
-     2482c56: reforzar uso de variables, cambio idenficar terminal user sense
+2009-12-31  Andres Aquino <andres.aquino@gmail.com>
 
-* 2009-06-28 Andres Aquino <cesar.aquino@nextel.com.mx>
-     c31c0a8: Desaparece personal.profile, CHANGELOG actualizado
-     54859b8: personal->nextel.profile, cambios ultimos sobre color
+        * d1581d3: ultimos cambios de tm y correos no validos
 
-* 2009-06-26 Andres Aquino <cesar.aquino@nextel.com.mx>
-     bb9815e: correciones varias al personal.profile, se anexa un profile especifico por host
+        * f68b6ad: establecer el trademark a Strategies Labs y el nombre de starter
 
-* 2009-06-25 Andres Aquino <cesar.aquino@nextel.com.mx>
-     d52cdf0: Adecuacion en la documentacion
-     7f08501: Adecuaciones al (-h), errores sintaxis
-     98e441e: Mejora en ayuda (-h)
 
-* 2009-06-17 Andres Aquino <cesar.aquino@nextel.com.mx>
-     45c4eac: log de cambios
-     f993fe7: 2.6stable: correccion filtros y version
+2009-12-31  Andres Aquino <cesar.aquino@nextel.com.mx>
 
-* 2009-06-16 Andres Aquino <cesar.aquino@nextel.com.mx>
-     65745c7: se habilita la opcion threaddump por defecto con 3 muestras cada 10
-     53d8c22: cambios al stop forced con threaddump
-     5ac7f39: se modifico el --report, ya no calcula el filesystem space
-     dbaf37b: se adecuo el output en la opcion --report
-     82833a1: - se actualizo el personal.profile
-     da5189c: - se adecuo el kill para que no ejecute el threaddump cuanso es un fast
+        * adbbd72: cambiamos el nombre a starter, para subirlo al Gitorious
 
-* 2008-12-18 Andres Aquino <cesar.aquino@nextel.com.mx>
-     a2a59bd: Documentacion final
-     6f7c835: agregar install
-     d11f5e1: * agregar cambios al CHANGELOG
-     f144b20: el test no es necesario tenerlo trabajando
-     d98ddc6: quitar paja y arreglar el readme ...
-     1f6245a: Se agrega documento (INSTALL) para instalar aplicacion
-     aeb0490: estos DOCS son unos crones, los movemos al playground para revisarlos..
-     a6f3a12:  * eliminar directorios no usados
-     7d59a5b: informacion inutil :)
-     6378ea9: historial de cambios, despues de usar SVN
 
-* 2008-12-10 Andres Aquino <cesar.aquino@nextel.com.mx>
-     ab414f8: version en manual de ayuda
+2009-09-11  Andres Aquino <cesar.aquino@nextel.com.mx>
 
-* 2008-12-05 Andres Aquino <cesar.aquino@nextel.com.mx>
-     62c855b: cambios en alias para ls
+        * a05a369: cambios en path para el temporal y para listado de procesos linux
 
-* 2008-11-09 Andres Aquino <cesar.aquino@nextel.com.mx>
-     dd9f24f: cambios en tar -cvf...
 
-* 2008-11-04 Andres Aquino <cesar.aquino@nextel.com.mx>
-     f609360: actualizar información de correos y radios
+2009-08-12  Andres Aquino <cesar.aquino@nextel.com.mx>
 
-* 2008-10-29 Andres Aquino <cesar.aquino@nextel.com.mx>
-     6587996: modificaciones a personal.profile
-     3bcce50: agregar manual de ayuda: man monopse
+        * dbaa654: cx's setup update
 
-* 2008-10-28 Andres Aquino <cesar.aquino@nextel.com.mx>
-     37cc006: Version 2.5 stable (produccion)
+        * 55f1271: changelog history
 
-* 2008-10-27 Andres Aquino <cesar.aquino@nextel.com.mx>
-     76efc1f: upload files of project
 
-* 2008-10-27 GIT User for Development <git@pulgosa.nextelmx.net>
-     61e0755: first commit of README
+2009-08-03  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * d203a39: version y configuraciones
+
+        * a1b96e0: ejecutar y poder migrar configuraciones
+
+
+2009-07-24  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * ed65085: changelog update...
+
+        * 91d8b11: verificacion del directorio ~/monopse para instalar o actualizar...
+
+        * ad4a98a: se mueven archivos de configuracion al directorio setup, para poder migrarlos entre servidores...
+
+        * 1ae05e5: se integra libutils como biblioteca de funciones...
+
+
+2009-07-16  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 4e3abca: FIX: filtrar por usuario..
+
+        * d56f586: el perfil de NEXTEL lo mandamos al playground, utilerias...
+
+        * 9d89707: eliminar archivos md5, mejor md5 sobre el package...
+
+        * ce60fec: Notas sobre el uso del screen, al playground...
+
+        * 5d78474: eliminar archivos md5, mejor md5 sobre el package...
+
+
+2009-07-10  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 57bc92c: Changelog update
+
+
+2009-07-09  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * ae6b6ab: FIX, filtro por dueño de proceso...
+
+        * 0255650: variable TTYTERM para identificar el tipo de terminal..
+
+
+2009-07-06  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * f697f21: cambios para remote shell..
+
+
+2009-07-01  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * a2fb04e: huellas de archivos...
+
+
+2009-06-30  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 818b985: el test -e no furula en algunos HPUX, usar -s...
+
+        * cb5d1a2: adecuaciones para LHS
+
+
+2009-06-29  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 530d1f4: nombres de variables en color
+
+        * 364f60f: notas acerca del uso del comando SCREEN
+
+        * 2482c56: reforzar uso de variables, cambio idenficar terminal user sense
+
+
+2009-06-28  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * c31c0a8: Desaparece personal.profile, CHANGELOG actualizado
+
+        * 54859b8: personal->nextel.profile, cambios ultimos sobre color
+
+
+2009-06-26  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * bb9815e: correciones varias al personal.profile, se anexa un profile especifico por host
+
+
+2009-06-25  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * d52cdf0: Adecuacion en la documentacion
+
+        * 7f08501: Adecuaciones al (-h), errores sintaxis
+
+        * 98e441e: Mejora en ayuda (-h)
+
+
+2009-06-17  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 45c4eac: log de cambios
+
+        * f993fe7: 2.6stable: correccion filtros y version
+
+
+2009-06-16  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 65745c7: se habilita la opcion threaddump por defecto con 3 muestras cada 10 segundos (-t | --threaddump)
+
+        * 53d8c22: cambios al stop forced con threaddump
+
+        * 5ac7f39: se modifico el --report, ya no calcula el filesystem space
+
+        * dbaf37b: se adecuo el output en la opcion --report se adecuo el output en la opcion --status
+
+        * 82833a1: - se actualizo el personal.profile
+
+        * da5189c: - se adecuo el kill para que no ejecute el threaddump cuanso es un fast 	stop
+
+
+2008-12-18  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * a2a59bd: Documentacion final
+
+        * 6f7c835: agregar install
+
+        * d11f5e1: * agregar cambios al CHANGELOG * se quito el test-monopse.conf por no estar configurado por defecto en * una nueva instalacion
+
+        * f144b20: el test no es necesario tenerlo trabajando
+
+        * d98ddc6: quitar paja y arreglar el readme ...
+
+        * 1f6245a: Se agrega documento (INSTALL) para instalar aplicacion
+
+        * aeb0490: estos DOCS son unos crones, los movemos al playground para revisarlos..
+
+        * a6f3a12:  * eliminar directorios no usados  * limpiar log  * quitar shells que no van aqui
+
+        * 7d59a5b: informacion inutil :)
+
+        * 6378ea9: historial de cambios, despues de usar SVN
+
+
+2008-12-10  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * ab414f8: version en manual de ayuda
+
+
+2008-12-05  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 62c855b: cambios en alias para ls
+
+
+2008-11-09  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * dd9f24f: cambios en tar -cvf...
+
+
+2008-11-04  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * f609360: actualizar información de correos y radios
+
+
+2008-10-29  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 6587996: modificaciones a personal.profile
+
+        * 3bcce50: agregar manual de ayuda: man monopse
+
+
+2008-10-28  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 37cc006: Version 2.5 stable (produccion)
+
+
+2008-10-27  Andres Aquino <cesar.aquino@nextel.com.mx>
+
+        * 76efc1f: upload files of project
+
+
+2008-10-27  GIT User for Development <git@pulgosa.nextelmx.net>
+
+        * 61e0755: first commit of README
+
