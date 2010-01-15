@@ -1,0 +1,44 @@
+--- nextel.profile.orig	2009-12-20 12:21:59.000000000 -0600
++++ nextel.profile	2010-01-15 02:39:32.000000000 -0600
+@@ -2,11 +2,9 @@
+ # vim: set ts=2 sw=2 sts=2 si ai: 
+ 
+ # nextel.profile -- profile unix de aplicaciones
+-# ----------------------------------------------------------------------------
+-# (c) 2009 Nextel de México S.A. de C.V.
+-# Andrés Aquino Morales <andres.aquino@gmail.com>
+-#
+-# All rights reserved.
++# =-=
++# (c) 2008, 2009 Nextel de Mexico S.A. de C.V.
++# Andres Aquino Morales <andres.aquino@gmail.com>
+ # 
+ 
+ # input mode
+@@ -113,8 +111,6 @@
+ alias lt='la -t'
+ alias lr='lt -r'
+ alias pw='pwd'
+-alias domain9='cd /opt/apps/wl9mp2/bea/user_projects/domains/'
+-alias domain10='cd /opt/apps/wl10mp3/bea/user_projects/domains/'
+ 
+ # terminal type
+ export EDITOR=vi
+@@ -125,14 +121,13 @@
+ export HISTSIZE=500
+ export HISTCONTROL=ignoredups
+ 
+-# otros
+-export MANPATH=$HOME/monopse:$MANPATH
++# FIX: 1001FX001
++# Manuals
++export MANPATH=$HOME/manuals:$MANPATH
+ 
+ unset USERNAME
+ 
+-# PATH
+ LOCALPATH=${HOME}/bin:${HOME}/apps:/usr/sbin:${PATH}:.
+-
+ export PATH=${LOCALPATH}
+ 
+ # get IP Address
