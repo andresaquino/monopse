@@ -8,6 +8,8 @@
 # 
 
 mkdir -p ~/bin
+mkdir -p ~/manuals/man1
+
 cd $HOME
 
 # respaldar setup actual
@@ -30,7 +32,7 @@ ln -sf ~/monopse/monopserc ~/.monopserc
 
 # copiar manual
 echo "Siempre podras consultar el manual con monopse -h o man monopse"
-cp ~/monopse/man1/monopse.1 ~/man/
+cp ~/monopse/man1/monopse.1 ~/manuals/man1/
 
 # establecer nuevo path
 PATH=$HOME/bin:$PATH
