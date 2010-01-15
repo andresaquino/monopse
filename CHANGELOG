@@ -1,5 +1,16 @@
 
+2010-01-15  Andres Aquino <andres.aquino@gmail.com>
+
+        * ed59373: historico de tickes, por que no puedo registrarlos en el bugtracker
+
+        * 9587721: cambios al install.sh para colocar los manuales en el path correcto
+
+        * 36d26a7: parche para cambiar los datos en el nextel.profile
+
+
 2010-01-14  Andres Aquino <andres.aquino@gmail.com>
+
+        * 4f128b1: registro de cambios
 
         * 8d3adc0: se eliminan archivos no necesarios
 
