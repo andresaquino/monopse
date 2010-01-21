@@ -3,60 +3,57 @@
 
 # monopse.sh - An small shell for those applications that nobody wants to restart ;)
 # =-=
-# (c) 2008, 2009 Nextel de Mexico
+# (c) 2009 StrategyLabs!
 # Andrés Aquino Morales <andres.aquino@gmail.com>
 # 
 
 #
 . ${HOME}/monopse/libutils.sh
 
-#
-# filter_in_log
-# filtrar la cadena sugerida en el log de la aplicacion
-filter_in_log () {
-	local SEARCHSTR
-	SEARCHSTR="${1}"
-	
-	[ "${SEARCHSTR}" = "_NULL_" ] && return 1
-	grep -q "${SEARCHSTR}" "${APLOGS}.log"
-	LASTSTATUS=$?
-	
-	if [ "${LASTSTATUS}" -eq "0" ]
-	then
-		log_action "DBUG" "Looking for ${SEARCHSTR} was succesfull"
-	fi
-	return ${LASTSTATUS}
-}
-
+# set environment
+APNAME="monopse"
+APPATH=${HOME}/${APNAME}
+APLOGD=${HOME}/logs
+APLEVL="DEBUG"
+TOSLEEP=0
+MAILTOADMIN=
+MAILTODEVELOPER=
+MAILTORADIO=
+MAXSAMPLES=3
+MAXSLEEP=2
 
 #
 # log_backup
 # respaldar logs para que no se generen problemas de espacio.
 log_backup () {
+	# local apps
+	APTAR=`which tar`
+	APZIP=`which gzip`
+
 	#
 	# filename: monopse/monopse-cci-20080516-2230.tar.gz
 	DAYOF=`date '+%Y%m%d-%H%M'`
-	cd ${DIRLOG}
-	if [ -e ${APLOGS}.date ]
+	cd ${APTEMP}
+	if [ -e ${APLOGT}.date ]
 	then
-		DAYOF="`cat ${APLOGS}.date`"
-		rm -f ${APLOGS}.date 
+		DAYOF="`cat ${APLOGT}.date`"
+		rm -f ${APLOGT}.date 
 	fi
 	
 	mkdir -p ${DAYOF}
-	touch ${APLOGS}.log
-	touch ${APLOGS}.err
-	touch ${APLOGS}.pid
-	mv ${APLOGS}.log ${APLOGS}.err ${APLOGS}.pid ${DAYOF}/
-	touch ${APLOGS}.log
+	touch ${APLOGP}.log
+	touch ${APLOGT}.err
+	touch ${APLOGT}.pid
+	mv ${APLOGP}.log ${APLOGT}.err ${APLOGT}.pid ${DAYOF}/
+	touch ${APLOGP}.log
 	LOGSIZE=`du -sk "${DAYOF}" | cut -f1`
 	RESULT=$((${LOGSIZE}/1024))
 	
 	# reportar action
-	log_action "INFO" "The sizeof ${APLOGS}.log is ${LOGSIZE}M, proceeding to compress"
+	log_action "DEBUG" "The sizeof ${APLOGP}.log is ${LOGSIZE}M, proceeding to compress"
 	
 	# Si esta habilitado el fast-stop(--forced), no se comprime la informacion
-	rm -f ${APLOGS}.lock
+	rm -f ${APLOGT}.lock
 	${FASTSTOP} && log_action "WARN" "Ups,(doesn't compress) hurry up is to late for sysadmin !"
 	${FASTSTOP} && return 0
 	
@@ -64,128 +61,24 @@ log_backup () {
 	# entonces hacer un recorte para no saturar el filesystem
 	if [ ${RESULT} -gt ${MAXLOGSIZE} ]
 	then
-		log_action "WARN" "The sizeof ${APLOGS}.log is ${LOGSIZE}M, i need reduce it to ${MAXLOGSIZE}M"
+		log_action "WARN" "The sizeof ${APLOGP}.log is ${LOGSIZE}M, i need reduce it to ${MAXLOGSIZE}M"
 		SIZE=$((${MAXLOGSIZE}*1024*1024))
-		tail -c${SIZE} ${DAYOF}/${APPLICATION}.log > ${DAYOF}/${APPLICATION}
-		rm -f ${DAYOF}/${APPLICATION}.log
-		mv ${DAYOF}/${APPLICATION} ${DAYOF}/${APPLICATION}.log
+		tail -c${SIZE} ${DAYOF}/${APPRCS}.log > ${DAYOF}/${APPRCS}
+		rm -f ${DAYOF}/${APPRCS}.log
+		mv ${DAYOF}/${APPRCS} ${DAYOF}/${APPRCS}.log
 	fi
 	
 	#
 	# por que HP/UX tiene que ser taaan estupido ? ? 
 	# backup de log | err | pid para análisis
 	# tar archivos | gzip -c > file-log
-	$aptar -cvf ${APLOGS}_${DAYOF}.tar ${DAYOF} > /dev/null 2>&1
-	$apzip -c ${APLOGS}_${DAYOF}.tar > ${APLOGS}_${DAYOF}.tar.gz
-	LOGSIZE=`du -sk ${APLOGS}_${DAYOF}.tar.gz | cut -f1`
-	log_action "INFO" "Creating ${APLOGS}_${DAYOF}.tar.gz file with ${LOGSIZE}M of size"
+	$APTAR -cvf ${APLOGP}_${DAYOF}.tar ${DAYOF} > /dev/null 2>&1
+	$APZIP -c ${APLOGP}_${DAYOF}.tar > ${APLOGP}_${DAYOF}.tar.gz
+	LOGSIZE=`du -sk ${APLOGP}_${DAYOF}.tar.gz | cut -f1`
+	log_action "INFO" "Creating ${APLOGP}_${DAYOF}.tar.gz file with ${LOGSIZE}M of size"
 	
-	rm -f ${APLOGS}_${DAYOF}.tar
+	rm -f ${APLOGP}_${DAYOF}.tar
 	rm -fr ${DAYOF}
-}
-
-
-#
-# guess !
-# solo un estupido wrap por que el logger del SO no tenemos chance de usarlo ... 
-log_action () {
-	LEVEL=${1}
-	ACTION=${2}
-	PID=0
-	LOGME=true
-	[ -r ${APLOGS}.pid ] && PID=`head -n1 ${APLOGS}.pid`
-	case "${LEVEL}" in
-		"DBUG")
-			 [ "${LOGLEVEL}" = "INFO" ] && LOGME=false
-			 [ "${LOGLEVEL}" = "WARN" ] && LOGME=false
-		;;
-		"WARN")
-			 [ "${LOGLEVEL}" = "INFO" ] && LOGME=false
-		;;
-	esac
-	
-	if ${LOGME}
-	then
-		echo "`date '+%Y-%m-%d'` [`date '+%H:%M:%S'`] ${APPLICATION}(${PID}): ${LEVEL} ${ACTION}" >> ${DIRLOG}/monopse.log
-	fi
-
-}
-
-
-#
-# is_process_running
-# verificar si un proceso se encuenta ejecutandose en base a su PID
-is_process_running () {
-	#
-	# obtener los PID del proceso 
-	get_process_id
-	if [ ! -e "${APLOGS}.pid" ]
-	then
-		[ $VIEWLOG ] && echo "The application is not running actually"
-		log_action "INFO" "The application is down"
-		exit 0
-	fi
-	
-	if [ "${typeso}" = "HP-UX" ]
-	then
-		PROCESSES=`awk '{print "ps -fex | grep "$0" | grep -v grep"}' "${APLOGS}.pid" | sh | grep "${FILTERLANG}" | grep "${FILTERAPP}" | grep -v grep | wc -l | cut -f1 -d" " `
-	else
-		PROCESSES=`awk '{print "ps fax | grep "$0" | grep -v grep"}' "${APLOGS}.pid" | sh | grep "${FILTERLANG}" | grep "${FILTERAPP}" | grep -v grep | wc -l | cut -f1 -d" " `
-	fi
-
-	if [ "${PROCESSES}" -gt 0 ]
-	then
-		return "${PROCESSES}"
-		log_action "INFO" "The application is running with ${PROCESSES} processes in memory"
-	else
-		return 0
-	fi
-
-}
-
-
-#
-# get_process_id
-# obtener los PID de las aplicaciones
-get_process_id () {
-	#
-	# filtrar primero por APP
-	rm -f ${APLOGS}.pid
-	
-	# FIX
-	# filtrar por usuario dueño del proceso
-	log_action "DBUG" "${FILTERAPP} | monopse | ${USER}"
-	ps ${psopts} > ${APLOGS}.pslist
-	grep "${FILTERAPP}" ${APLOGS}.pslist | grep -v "monopse " > ${APLOGS}.tmp
-	
-	# si existe, despues por LANG
-	if [ "${FILTERLANG}" != "" ]
-	then
-		mv ${APLOGS}.tmp ${APLOGS}.tmp.1
-		grep "${FILTERLANG}" ${APLOGS}.tmp.1 | grep -v "grep" > ${APLOGS}.tmp
-	fi
-	 
-	# si existe 1 o mas procesos, entonces averiguar el PPID (Parent Process ID) 
-	# y almacenarlo, en caso contrario solo generar archivo vacio
-	touch ${APLOGS}.pid
-	if [ `wc -l "${APLOGS}.tmp" | cut -f1 -d\ ` -gt 0 ]
-	then
-		log_action "DBUG" "The application still remains in memory ... "
-		if [ "${typeso}" = "HP-UX" ]
-		then
-			awk '{print $2}' ${APLOGS}.tmp > ${APLOGS}.tmp.1
-		else
-			awk '{print $1}' ${APLOGS}.tmp > ${APLOGS}.tmp.1
-		fi
-		
-		# FIX: sacar el proceso padre, ordenando los process id y sacando el primero
-		cat ${APLOGS}.tmp.1 | sort -n | head -n1 > ${APLOGS}.pid
-		
-		# FIX: para el caso de iPlanet, es necesario conservar todos los pids implicados
-		#			 y así poder obtener el último pid para aplicar un FTD
-		cat ${APLOGS}.tmp.1 | sort -nr > ${APLOGS}.plist
-	fi
-	rm -f "${APLOGS}.tmp" "${APLOGS}.tmp.1"
 }
 
 
@@ -193,33 +86,44 @@ get_process_id () {
 # check_configuration
 # corroborar que los parametros/archivos sean correctos y existan en el filesystem
 check_configuration () {
-	local LASTSTATUS APPLICATION FILESETUP VERBOSE PARAM
-	LASTSTATUS=1
-	APPLICATION="${1}"
-	VERBOSE="${2}"
+	PROCESS="${1}"
 	
-	"${VERBOSE}" && echo "Checking configuration of ${APPLICATION}"
 	# existe el archivo de configuracion ?
-	FILESETUP="${APHOME}/setup/${APPLICATION}-monopse.conf"
-	[ -r "${FILESETUP}" ] && . "${FILESETUP}" || return ${LASTSTATUS}
+	FILESETUP="${APPATH}/setup/${PROCESS}-${APNAME}.conf"
+	log_action "DEBUG" "Testing ${FILESETUP}"
 	
-	# leer los parametros minimos necesarios
-	for PARAM in STARTAPP STOPAPP PATHAPP FILTERAPP UPSTRING
-	do 
-		#"${VERBOSE}" && grep "${PARAM}=" "${FILESETUP}" 
-		# checar que los datos del archivo de configuracion sean correctos
-		grep -q "${PARAM}=" "${FILESETUP}" && LASTSTATUS=0
-	done
-	
-	# como minimo, comprobamos que exista el PATH
-	[ -d ${PATHAPP} ] || LASTSTATUS=1
+	CHECKTEST=false
+	if [ -r "${FILESETUP}" ]
+	then
+		CHECKTEST=true
+		. "${FILESETUP}"
+		
+		# Validar parametros
+		[ -d ${PATHAPP} ] || CHECKTEST=false
+		log_action "DEBUG" "Testing PATHAPP=${PATHAPP} ($CHECKTEST)"
+		
+		[ -f ${PATHAPP}/${STARTAPP} ] || CHECKTEST=false
+		log_action "DEBUG" "Testing STARTAPP=${PATHAPP}/${STARTAPP} ($CHECKTEST)"
+		
+		[ ! -z "${FILTERAPP}" ] || CHECKTEST=false
+		log_action "DEBUG" "Testing FILTER=/${FILTERAPP}//${FILTERLANG}/ ($CHECKTEST)"
+		
+		[ ! -z "${UPSTRING}" ] || CHECKTEST=false
+		log_action "DEBUG" "Testing UPSTRING=${UPSTRING} ($CHECKTEST)"
+	fi
 
-	return ${LASTSTATUS}
-
+	if ${CHECKTEST}
+	then
+		log_action "DEBUG" "All parameters seem to be correct "
+		return 0
+	else
+		log_action "DEBUG" "Uhmmm, maybe some parameter is incorrect "
+		return 1
+	fi
 }
 
 
-#
+# *
 # verificar que el servidor weblogic (en el caso de los appsrv's se encuentre arriba y operando,
 # de otra manera, ejecutar una rutina _plugin_ para iniciar el servicio )
 check_weblogicserver() {
@@ -228,7 +132,7 @@ check_weblogicserver() {
 	then
 		log_action "INFO" "Check if exists an application server manager of WebLogic"
 		# existe algun proceso de weblogic.Server ?
-		if [ "${typeso}" = "HP-UX" ]
+		if [ "${APSYSO}" = "HP-UX" ]
 		then
 			WLPROCESS=`ps -fex | grep "${FILTERWL}" | wc -l | cut -f1 -d\ `
 		else
@@ -240,7 +144,7 @@ check_weblogicserver() {
 		if [ ${WLPROCESS} -eq "0" ]
 		then
 			log_action "WARN" "Dont exists an application server manager of WebLogic, starting an instance of"
-			nohup sh ${WLSAPP} 2> ${APLOGS}-WLS.err > ${APLOGS}-WLS.log &
+			nohup sh ${WLSAPP} 2> ${APLOGP}-WLS.err > ${APLOGP}-WLS.log &
 			sleep ${WLSLEEP}
 		fi
 	fi
@@ -248,7 +152,7 @@ check_weblogicserver() {
 }
 
 
-#
+# *
 # realizar un kernel full thread dump sobre el proceso indicado.
 # sobre procesos non-java va a valer queso, por que la señal 3 es para hacer un volcado de memoria.
 # monopse --application=resin --threaddump=5 --mailto=cesar.aquino@nextel.com.mx
@@ -257,16 +161,16 @@ check_weblogicserver() {
 make_fullthreaddump() {
 	# para cuando son procesos JAVA StandAlone (WL, Tomcat, etc...) 
 	log_action "DBUG" "Change to ${PATHAPP}"
-	[ -r ${APLOGS}.pid ] && PID=`tail -n1 ${APLOGS}.pid`
+	[ -r ${APLOGT}.pid ] && PID=`tail -n1 ${APLOGT}.pid`
 
 	# para cuando son procesos ONDemand (iPlanet, ...)
-	[ -r ${APLOGS}.plist -a ${FILTERAPP} ] && PID=`head -n1 ${APLOGS}.pid`
+	[ -r ${APLOGT}.plist -a ${FILTERAPP} ] && PID=`head -n1 ${APLOGT}.pid`
 	
 	# hacer un mark para saber desde donde vamos a sacar datos del log
-	ftdFILE="${APLOGS}_`date '+%Y%m%d-%H%M%S'`.ftd"
+	ftdFILE="${APLOGP}_`date '+%Y%m%d-%H%M%S'`.ftd"
 	touch "${ftdFILE}"
-	log_action "DBUG" "Taking ${APLOGS}.log to extract the FTP on ${ftdFILE}"
-	tail -f "${APLOGS}.log" > ${ftdFILE} &
+	log_action "DBUG" "Taking ${APLOGP}.log to extract the FTP on ${ftdFILE}"
+	tail -f "${APLOGP}.log" > ${ftdFILE} &
 
 	# enviar el FTD al PID, N muestras cada T segs
 	times=0
@@ -281,12 +185,7 @@ make_fullthreaddump() {
 	done
 	 
 	# quitar el proceso de copia del log
-	if [ "${typeso}" = "HP-UX" ]
-	then
-		PROCESSES=`ps -fex | grep "tail -f ${APLOGS}.log" | grep -v grep | awk '/tail/{print $2}'`
-	else
-		PROCESSES=`ps fax | grep "tail -f ${APLOGS}.log" | grep -v grep | awk '/tail/{print $2}'`
-	fi
+	PROCESSES=`ps ${PSOPTS} | grep "tail -f ${APLOGP}.log" | grep -v grep | awk '/tail/{print $2}'`
 	kill -15 ${PROCESSES}
 	
 	#
@@ -303,7 +202,7 @@ make_fullthreaddump() {
 	echo "Host: `hostname`" >> ${ftdFILE}
 	echo "ID's: `id`" >> ${ftdFILE}
 	echo "Date: ${timeStart}" >> ${ftdFILE}
-	echo "Appl: ${APPLICATION}" >> ${ftdFILE}
+	echo "Appl: ${APPRCS}" >> ${ftdFILE}
 	echo "Smpl: ${MAXSAMPLES}" >> ${ftdFILE}
 	echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
 	cat ${ftdFILE}.tmp >> ${ftdFILE}
@@ -311,7 +210,7 @@ make_fullthreaddump() {
 	# enviar por correo 
 	if [ "${MAILACCOUNTS}" != "_NULL_" ]
 	then
-		$apmail -s "${APPLICATION} FULL THREAD DUMP ${timeStart} (${ftdFILE})" "${MAILACCOUNTS}" < ${ftdFILE} > /dev/null 2>&1 &
+		$APMAIL -s "${APPRCS} FULL THREAD DUMP ${timeStart} (${ftdFILE})" "${MAILACCOUNTS}" < ${ftdFILE} > /dev/null 2>&1 &
 		log_action "INFO" "Sending a full thread dump(${ftdFILE}) by mail to ${MAILACCOUNTS}"
 	fi
 	#rm -f ${ftdFILE}
@@ -321,10 +220,10 @@ make_fullthreaddump() {
 }
 
 
-#
+# *
 # report_status
 # generar reporte via mail para los administradores
-report_status () {
+reports_status () {
 	local TYPEOPERATION STATUS STRSTATUS FILESTATUS 
 	TYPEOPERATION=${1}
 	STATUS=${2}
@@ -332,38 +231,35 @@ report_status () {
 	if [ "${STATUS}" -eq "0" ]
 	then
 		STRSTATUS="SUCCESS"
-		FILESTATUS="${APLOGS}.log"
+		FILESTATUS="${APLOGP}.log"
 		log_action "INFO" "The application ${TYPEOPERATION} ${STRSTATUS}"
 	else
 		STRSTATUS="FAILED"
-		FILESTATUS="${APLOGS}.err"
+		FILESTATUS="${APLOGT}.err"
 		log_action "ERR" "The application ${TYPEOPERATION} ${STRSTATUS}"
 	fi
 	
 	#
 	# solo enviar si la operacion fue correcta o no
-	echo "${APPLICATION} ${TYPEOPERATION} ${STRSTATUS}, see also ${APLOGS}.log for information"
+	echo "${APPRCS} ${TYPEOPERATION} ${STRSTATUS}, see also ${APLOGP}.log for information"
 	if [ "${MAILACCOUNTS}" != "_NULL_" ]
 	then
 		# y mandarlo a bg, por que si no el so se apendeja, y por este; este arremedo de programa :-P
-		$apmail -s "${APPLICATION} ${TYPEOPERATION} ${STRSTATUS}" -r "${MAILACCOUNTS}" > /dev/null 2>&1 &
-		log_action "INFO" "Report ${APPLICATION} ${TYPEOPERATION} ${STRSTATUS} to ${MAILACCOUNTS}"
+		$APMAIL -s "${APPRCS} ${TYPEOPERATION} ${STRSTATUS}" -r "${MAILACCOUNTS}" > /dev/null 2>&1 &
+		log_action "INFO" "Report ${APPRCS} ${TYPEOPERATION} ${STRSTATUS} to ${MAILACCOUNTS}"
 	fi
 
 }
 
 
 #
-# obtiene la version de la aplicación
+# show application's version
 show_version () {
-	# como ya cambie de SVN a GIT, no puedo usar el Id keyword, entonces ... a pensar en otra opcion ! ! ! 
-	IDAPP='$Id$'
-	
 	VERSIONAPP="3"
 	UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
-	RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-",".",t);print t}' ${APHOME}/CHANGELOG | head -n1`
-	echo "${NAMEAPP} v${UPVERSION}.${RLVERSION}"
-	echo "(c) 2008, 2009 Nextel de Mexico S.A. de C.V.\n"
+	RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-"," Rev.",t);print t}' ${APPATH}/CHANGELOG | head -n1`
+	echo "${APNAME} v${UPVERSION}.${RLVERSION}"
+	echo "(c) 2008, 2009, 2010 StrategyLabs! \n"
 	
 	if ${SVERSION}
 	then
@@ -375,37 +271,34 @@ show_version () {
 
 
 #
-# obtiene el estatus de la aplicación
+# get application's status
 show_status () {
-	REPORT="${DIRLOG}/report.inf"
-	[ ! -e ${REPORT} ] && rm -f ${REPORT}
-	is_process_running
+	REPORT=${APTEMP}/report.inf
+	
+	processes_running
 	PROCESSES=$?
 	if [ "${PROCESSES}" -ne "0" ]
 	then
-		WITHLOCK="out of control of monopse!"
-		[ -r "${APLOGS}.lock" ] && WITHLOCK="controlled by ${NAMEAPP}."
-		echo "${APPLICATION} is running with ${PROCESSES} processes ${WITHLOCK}" >> ${REPORT}
-		cat ${APLOGS}.pid >> ${REPORT}
+		WITHLOCK="out of control of ${APNAME}!"
+		[ -f ${APLOGT}.lock ] && WITHLOCK="controlled by ${APNAME}."
+		STR="${APPRCS} is running with ${PROCESSES} processes ${WITHLOCK}" 
+		report_status "*" "${STR}"
+		echo ${STR} >> ${REPORT}
+		cat ${APLOGT}.pid >> ${REPORT}
 		return 0
 	else
-		echo "${APPLICATION} is not running." >> ${REPORT}
+		STR="${APPRCS} is not running" 
+		[ -f ${APLOGT}.lock ] && rm -f ${APLOGT}.lock
+		report_status "i" "${STR}"
+		echo ${STR} >> ${REPORT}
 		return 1
 	fi
 
 }
 
 
-#
-# MAIN
-NAMEAPP="`basename ${0%.*}`"
-TOSLEEP=0
-MAILTOADMIN=""
-MAILTODEVELOPER=""
-MAILTORADIO=""
-MAXSAMPLES=3
-MAXSLEEP=2
-
+## MAIN ##
+##
 # corroborar que no se ejecute como usuario r00t
 if [ "`id -u`" -eq "0" ]
 then
@@ -413,7 +306,7 @@ then
 	 then
 			echo "Hey, i can't run as root user "
 	 else
-			$apmail -s "Somebody tried to run me as r00t user" "${MAILACCOUNTS}" < "$@" > /dev/null 2>&1 &
+			$APMAIL -s "Somebody tried to run me as r00t user" "${MAILACCOUNTS}" < "$@" > /dev/null 2>&1 &
 			log_action "WARN" "Somebod tried to run me as r00t, sending warn to ${MAILACCOUNTS}"
 	 fi
 	 
@@ -421,7 +314,7 @@ fi
 
 #
 # Opciones por defecto
-APPLICATION="NONSETUP"
+APPRCS=
 START=false
 STOP=false
 STATUS=false
@@ -439,38 +332,26 @@ MAXLOGSIZE=500
 THREADDUMP=false
 VIEWREPORT=false
 VIEWHISTORY=false
-MAINTENANCE=false
+MAINTENEANCE=false
 LOGLEVEL="DBUG"
 SVERSION=false
 APPTYPE="STAYRESIDENT"
 UNIQUELOG=false
 PREEXECUTION="_NULL_"
-OPTIONS="Options used when monopse was called:"
+OPTIONS="Options used when ${APNAME} was called:"
 
-#
-# application's home by default
-APHOME=$HOME/monopse
-APLOGS=$HOME/logs
+
+APMAIL=`which mail`
+[ "${APSYSO}" = "HP-UX" ] && APMAIL=`which mailx`
+
 
 #
 # applications setup
-if [ -r $HOME/.monopserc ]
+if [ -r $HOME/.${APNAME}rc ]
 then
-	. $HOME/.monopserc
+	. $HOME/.${APNAME}rc
 fi
-DIRLOG=${APLOGS}
-
-#
-# esta parte esta reculera pero ni pedo, tengo weba de corregirlo en este momento...
-aptar=`which tar`
-apzip=`which gzip`
-apmail=`which mail`
-psopts="fax"
-bdf="df"
-typeso="`uname -s`"
-[ "${typeso}" = "HP-UX" ] && apmail=`which mailx`
-[ "${typeso}" = "HP-UX" ] && bdf="bdf"
-[ "${typeso}" = "HP-UX" ] && psopts="-fex"
+set_environment
 
 #
 # parametros 
@@ -478,18 +359,11 @@ while [ $# -gt 0 ]
 do
 	case "${1}" in
 		-a=*|--application=*)
-			APPLICATION=`echo "$1" | sed 's/^--[a-z-]*=//'`
-			APPLICATION=`echo "${APPLICATION}" | sed 's/^-a=//'`
-			if [ "x" = "x${APLOGS}" ]
-			then
-				APLOGS=${HOME}/logs
-			fi
-			DIRLOG=${APLOGS}
-			mkdir -p ${DIRLOG}
-			APLOGS=${APLOGS}/${APPLICATION}
+			APPRCS=`echo "$1" | sed 's/^--[a-z-]*=//'`
+			APPRCS=`echo "${APPRCS}" | sed 's/^-a=//'`
+			set_proc "${APPRCS}"
 			ERROR=false
 		;;
-				 
 		--start|start)
 			START=true
 			ERROR=false
@@ -498,7 +372,6 @@ do
 				ERROR=true
 			fi
 		;;
-				 
 		--stop|stop)
 			STOP=true
 			ERROR=false
@@ -507,7 +380,14 @@ do
 				ERROR=true
 			fi
 		;;
-				 
+		--restart|restart)
+			RESTART=true
+			ERROR=false
+			if ${START} || ${STOP} || ${CHECKCONFIG}
+			then
+				ERROR=true
+			fi
+		;;
 		--status|-s)
 			STATUS=true
 			ERROR=false
@@ -516,7 +396,6 @@ do
 				ERROR=true
 			fi
 		;;
-
 		--log|-l)
 			VIEWHISTORY=true
 			ERROR=false
@@ -525,16 +404,14 @@ do
 				ERROR=true
 			fi
 		;;
-
-		--maintenance|-m)
-			MAINTENANCE=true
+		--mainteneance|-m)
+			MAINTENEANCE=true
 			ERROR=false
 			if ${START} || ${STOP} || ${CHECKCONFIG} || ${STATUS}
 			then
 				ERROR=true
 			fi
 		;;
-
 		--report|-r)
 			VIEWREPORT=true
 			ERROR=false
@@ -543,18 +420,15 @@ do
 				ERROR=true
 			fi
 		;;
-
 		--forced|-f)
 			NOTFORCE=false
 			FASTSTOP=true
 			ERROR=false
 		;;
-
 		--unique-log|-u)
 			UNIQUELOG=true
 			ERROR=false
 		;;
-
 		-t=*|--threaddump=*)
 			THREADDUMP=true
 			ERROR=false
@@ -570,8 +444,7 @@ do
 				ERROR=true
 			fi
 		;;
-
-		-t|--threaddump)
+		--threaddump|-t)
 			THREADDUMP=true
 			ERROR=false
 			MAXSAMPLES=3
@@ -581,23 +454,19 @@ do
 				ERROR=true
 			fi
 		;;
-
 		--mailto=*)
 			MAILACCOUNTS=`echo "$1" | sed 's/^--[a-z-]*=//'`
 			ERROR=false
 		;;
-
 		--mailreport)
 			MAILACCOUNTS="${MAILTOADMIN} ${MAILTODEVELOPER} ${MAILTORADIO}"
 			VIEWLOG=false
 			ERROR=false
 		;;
-
 		--quiet|quiet|-q)
 			VIEWLOG=false
 			ERROR=false
 		;;
-
 		--debug|debug|-d)
 			DEBUG=true
 			ERROR=false
@@ -606,7 +475,6 @@ do
 				ERROR=true
 			fi
 		;;
-
 		--check-config|-c)
 			CHECKCONFIG=true
 			ERROR=false
@@ -615,35 +483,34 @@ do
 				ERROR=true
 			fi
 		;;
-
 		--test)
 			SUPERTEST=true
 		;;
-
 		--version|-v)
 			SVERSION=true
 			show_version
 			exit 0
 		;;
-
 		--help|-h)
 			ERROR=false
 			if ${START} || ${STOP} || ${STATUS} || ${CHECKCONFIG}
 			then
 				ERROR=true
 			else
-				echo "Usage: ${NAMEAPP} [OPTION]..."
+				echo "Usage: ${APNAME} [OPTION]..."
 				echo "start up or stop applications like WebLogic, Fuego, Resin, etc.\n"
 				echo "Mandatory arguments in long format."
 				echo "\t-a, --application=APPNAME        use this appName, required "
 				echo "\t    --start                      start appName "
 				echo "\t    --stop                       stop appName "
-				echo "\t-s, --status                     verify the status of appName "
-				echo "\t-t, --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
-				echo "\t-d, --debug                      debug logs and processes in the system "
-				echo "\t-c, --check-config               check config application (see ${NAMEAPP}-monopse.conf) "
 				echo "\t-r, --report                     show an small report about domains "
-				echo "\t-m, --mail                       send output to mail accounts configured in ${NAMEAPP}.conf "
+				echo "\t-m, --mainteneance               execute all shell plugins in mainteneance directory"
+				echo "\t-s, --status                     verify the status of appName "
+				echo "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
+				echo "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
+				echo "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
+				echo "\t-d, --debug                      debug logs and processes in the system "
+				echo "\t-m, --mail                       send output to mail accounts configured in ${APNAME}.conf "
 				echo "\t    --mailto=user@mail.com       send output to mail accounts or specified mail "
 				echo "\t-q, --quiet                      don't send output to terminal "
 				echo "\t-v, --version                    show version "
@@ -655,7 +522,6 @@ do
 			fi
 			exit 0
 		;;
-
 		*)
 			ERROR=true
 		;;
@@ -674,14 +540,30 @@ fi
 #
 if ${ERROR}
 then
-	echo "Usage: ${NAMEAPP} [OPTION]...[--help]"
+	echo "Usage: ${APNAME} [OPTION]...[--help]"
 	exit 0
 else
 	#
-	# verificar que la configuración exista, antes de ejecutar el servicio 
-	if [ ${APPLICATION} != "NONSETUP" ]
+	# CHECKCONFIG -- Verificar los parámetros del archivo de configuración
+	if ${CHECKCONFIG}
 	then
-		check_configuration "${APPLICATION}" false
+		check_configuration "${APPRCS}"
+		LASTSTATUS=$?
+		if [ ${LASTSTATUS} -eq 0 ]
+		then
+			report_status "*" "${APPRCS} is good, go ahead"
+		else
+			report_status "?" "${APPRCS} is bad, please check the log file"
+		fi
+		exit ${LASTSTATUS}
+	fi
+
+	#
+	# verificar que la configuración exista, antes de ejecutar el servicio 
+	if [ ${#APPRCS} -ne 0 ]
+	then
+		check_configuration "${APPRCS}" 
+		get_process_id "${FILTERAPP},${FILTERLANG}"
 		[ "$?" -ne "0" ] && CHECKCONFIG=true
 		[ "${TOSLEEP}" -eq "0" ] && TOSLEEP=5
 		TOSLEEP="$((60*$TOSLEEP))"
@@ -690,29 +572,11 @@ else
 		${STATUS} && CANCEL=false
 		${VIEWREPORT} && CANCEL=false
 		${VIEWHISTORY} && CANCEL=false
-		${VIEWLOG} && CANCEL=false
 		if ${CANCEL}
 		then
-			echo "Usage: monopse [OPTION]...[--help]"
+			echo "Usage: ${APNAME} [OPTION]...[--help]"
 			exit 1
 		fi
-	fi
-
-	#
-	# CHECKCONFIG -- Verificar los parámetros del archivo de configuración
-	if ${CHECKCONFIG}
-	then
-		check_configuration "${APPLICATION}" true
-		LASTSTATUS=$?
-		FILESETUP="${APHOME}/setup/${APPLICATION}-monopse.conf"
-		if [ "${LASTSTATUS}" -ne "0" ]
-		then
-			echo "${FILESETUP} have errors, check your parameters."
-		else
-			grep "^[A-Z]" "${FILESETUP}"
-			echo "${FILESETUP} was configured correctly."
-		fi
-		exit ${LASTSTATUS}
 	fi
 
 	#
@@ -724,30 +588,29 @@ else
 		# que sucede si intentan dar de alta el proceso nuevamente
 		# verificamos que no exista un bloqueo (Dummies of Proof) 
 		TOSLEEP="$(($TOSLEEP*2))"
-		is_process_running
+		processes_running
 		LASTSTATUS=$?
-		if [ -e "${APLOGS}.lock" ]
+		if [ -f ${APLOGT}.lock ]
 		then
 			# es posible que si existe el bloqueo, pero que el proceso
 			# no este trabajando, entonces verificamos usando los PID's
 			if [ "${LASTSTATUS}" -eq "0" ]
 			then
-				echo "${APPLICATION} have a lock process file without application, maybe a bug brain developer ?"
-				rm -f "${APLOGS}.lock"
-				log_action "WARN" "Exists a lock process without an application in memory, remove it and start again automagically"
+				log_action "DEBUG" "${APPRCS} have a lock process file without application, maybe a bug brain developer ?"
+				[ -f ${APLOGT}.lock ] && log_action "DEBUG" "Exists a lock process without an application in memory, remove it and start again automagically"
 				# mover archivos a directorio monopse/20080527-0605
 				log_backup
 			else
-				echo "${APPLICATION} is running right now !"
+				report_status "i" "${APPRCS} running right now!"
 				exit 0
 			fi
 		else
 			# es posible que el archivo de lock no exista pero la aplicación este ejecutandose
-			if [ "${LASTSTATUS}" -gt "0" ]
+			if [ ${LASTSTATUS} -ne 0 ]
 			then
-				touch "${APLOGS}.lock"
-				echo "${APPLICATION} is running right now !"
-				log_action "WARN" "The application lost the lck file, but is running actually"
+				touch "${APLOGT}.lock"
+				report_status "i" "${APPRCS} running right now!"
+				log_action "DEBUG" "The application lost the lock file, but is running actually"
 				exit 0
 			fi
 		fi
@@ -764,25 +627,24 @@ else
 			# ejecutar el PREEXECUTION
 			if [ ${PREEXECUTION} != "_NULL_" ]
 			then
-				log_action "INFO" "Executing ${PREEXECUTION} before any app"
-				PRELOG=${APLOGS}.pre
-				sh ${PREEXECUTION} > ${PRELOG} 2>&1 
+				sh ${PREEXECUTION} > ${APLOGT}.pre 2>&1 
+				log_action "DEBUG" "Executing ${PREEXECUTION}, logging to ${APLOGT}.pre"
 			fi
 				 
 			#
 			# iniciar la aplicación
 			if ${UNIQUELOG}
 			then
-				log_action "INFO" "Executing ${STARTAPP} with ${APLOGS}.log as logfile, with unique output ..." 
-				nohup sh ${STARTAPP} > ${APLOGS}.log 2>&1 &
+				nohup sh ${STARTAPP} > ${APLOGP}.log 2>&1 &
+				log_action "DEBUG" "Executing ${STARTAPP} with ${APLOGP}.log as logfile, with unique output ..." 
 			else
-				log_action "INFO" "Executing ${STARTAPP} with ${APLOGS}.log as logfile, with separate log ..."
-				nohup sh ${STARTAPP} 2> ${APLOGS}.err > ${APLOGS}.log &
+				nohup sh ${STARTAPP} 2> ${APLOGP}.err > ${APLOGP}.log &
+				log_action "DEBUG" "Executing ${STARTAPP}, ${APLOGP}.log as logfile, ${APLOGP}.err as errfile ..."
 			fi
-			date '+%Y%m%d-%H%M' > "${APLOGS}.date"
+			date '+%Y%m%d-%H%M' > ${APLOGT}.date
 			# summary en lock para un post-analisis
-			echo "${OPTIONS}" > "${APLOGS}.lock"
-			echo "\nDate:\n`date '+%Y%m%d %H:%M'`" >> "${APLOGS}.lock"
+			echo "${OPTIONS}" > ${APLOGT}.lock
+			echo "\nDate:\n`date '+%Y%m%d %H:%M'`" >> ${APLOGT}.lock
 		fi
 
 		#
@@ -791,12 +653,14 @@ else
 		ONSTOP=1
 		INWAIT=true
 		LASTLINE=""
-		LINE="`tail -n1 ${APLOGS}.log`"
+		LINE=" ...`tail -n1 ${APLOGP}.log | rev | cut -c 1-60 | rev`"
 		while ($INWAIT)
 		do
 			filter_in_log "${UPSTRING}"
 			LASTSTATUS=$?
-			[ "${LASTSTATUS}" -eq "0" ] && INWAIT=false;
+			[ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} start successfully"
+			[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "Great!, ${APPRCS} start successfully"
+			[ ${LASTSTATUS} -eq 0 ] && INWAIT=false
 			if [ "${LINE}" != "${LASTLINE}" ]
 			then 
 				${VIEWLOG} && echo "${LINE}" 
@@ -804,20 +668,20 @@ else
 			fi
 			sleep 2
 			ONSTOP="$(($ONSTOP+1))"
+			[ $ONSTOP -ge $TOSLEEP ] && report_status "?" "Uhm, something goes wrong with ${APPRCS}"
 			[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false;
-			LASTLINE="`tail -n1 ${APLOGS}.log`"
+			LASTLINE=" ...`tail -n1 ${APLOGP}.log | rev | cut -c 1-60 | rev`"
 		done
 		
 		# buscar los PID's
-		get_process_id
-		echo "\nPID:\n`cat ${APLOGS}.pid`" >> "${APLOGS}.lock"
+		processes_running
+		echo "\nPID:\n`cat ${APLOGT}.pid`" >> "${APLOGT}.lock"
 		# le avisamos a los admins 
-		[ "${LASTSTATUS}" -ne "0" ] && DEBUG=true
-		report_status "STARTUP" "${LASTSTATUS}"
-		# CASO ESPECIAL
+		#[ "${LASTSTATUS}" -ne "0" ] && DEBUG=true
+		
+		# FIX
 		# SI LA APLPICACION CORRE UNA SOLA VEZ, ELIMINAR EL .lock
-		[ $APPTYPE = "RUNONCE" ] && rm -f "${APLOGS}.lock"
-		[ $APPTYPE = "RUNONCE" ] && log_backup
+		[ $APPTYPE = "RUNONCE" ] && rm -f "${APLOGT}.lock" && log_backup
 	fi
 	
 
@@ -828,12 +692,12 @@ else
 		#
 		# que sucede si intentan dar de baja el proceso nuevamente
 		# verificamos que exista un bloqueo (DoP) y PID
-		log_action "INFO" "Stopping the application, please wait ..."
+		log_action "DEBUG" "Stopping the application, please wait ..."
 		TOSLEEP="$(($TOSLEEP/2))"
-		is_process_running
-		if [ `wc -l "${APLOGS}.pid" | cut -f1 -d\ ` -le 0 ]
+		processes_running
+		if [ ! -s ${APLOGT}.pid ]
 		then
-			echo "uh, ${NAMEAPP} is not running currently, tip: monopse --report"
+			echo "uh, ${APNAME} is not running currently, tip: ${APNAME} --report"
 			log_action "INFO" "The application is down"
 			exit 0
 		fi
@@ -853,7 +717,7 @@ else
 			if [ -r ${STOPAPP} ]
 			then
 				STRSTATUS="NORMAL SHUTDOWN"
-				sh ${STOPAPP} >> ${APLOGS}.log 2>&1 &
+				sh ${STOPAPP} >> ${APLOGP}.log 2>&1 &
 				log_action "INFO" "Shutdown application, please wait..."
 			fi
 				 
@@ -863,14 +727,16 @@ else
 			ONSTOP=1
 			INWAIT=true
 			LASTLINE=""
-			LINE="`tail -n1 ${APLOGS}.log`"
+			LINE="`tail -n1 ${APLOGP}.log`"
 			INWAIT=true
 			while ($INWAIT)
 			do
 				filter_in_log "${DOWNSTRING}"
-				is_process_running
+				processes_running
 				LASTSTATUS=$?
-				[ "${LASTSTATUS}" -eq "0" ] && INWAIT=false
+				[ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} was killed in normal mode"
+				[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "Yeah! ${APPRCS} died placid and successfully (npray for that)"
+				[ ${LASTSTATUS} -eq 0 ] && INWAIT=false
 				if [ "${LINE}" != "${LASTLINE}" ]
 				then 
 					${VIEWLOG} && echo "${LINE}" 
@@ -881,27 +747,27 @@ else
 				sleep 2
 				
 				ONSTOP="$((${ONSTOP}+1))"
-				log_action "DBUG" "uhmmm, OnStop = ${ONSTOP} vs ToSleep = ${TOSLEEP}"
+				log_action "DEBUG" "uhmmm, OnStop = ${ONSTOP} vs ToSleep = ${TOSLEEP}"
 				if [ ${ONSTOP} -gt ${TOSLEEP} ]
 				then 
 					INWAIT=false
 					log_action "WARN" "We have a problem Houston, the app stills remains in memory !"
 				fi
-				LASTLINE="`tail -n1 ${APLOGS}.log`"
+				LASTLINE="`tail -n1 ${APLOGP}.log`"
 			done
 		fi
 
 		#
 		# si no se cancelo el proceso por la buena, entonces pasamos a la mala
-		if [ "${LASTSTATUS}" -ne "0" ]
+		if [ ${LASTSTATUS} -ne 0 ]
 		then
 			# si el stop es con FORCED, y es una aplicacion JAVA enviar FTD
 			if [ ${FILTERLANG} = "java" -a ${THREADDUMP} = true ]
 			then
 				# monopse -a=app stop -f -t=3,10
 				# se aplica un fullthreaddump de 3 muestras cada 10 segundos antes de detener el proceso de manera forzada. 
-				log_action "INFO" "before kill the baby, we send 3 FTD's between 8 secs"
-				~/bin/monopse --application=${APPLICATION} --threaddump=${MAXSAMPLES},${MAXSLEEP}
+				log_action "DEBUG" "before kill the baby, we send 3 FTD's between 8 secs"
+				~/bin/${APNAME} --application=${APPRCS} --threaddump=${MAXSAMPLES},${MAXSLEEP}
 				THREADDUMP=false
 			fi
 			
@@ -914,15 +780,17 @@ else
 			do
 				#
 				# obtenemos los PID, armamos los kills y shelleamos
-				is_process_running
-				awk '{print "kill -9 "$0}' "${APLOGS}.pid" | sh
+				processes_running
+				awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
 				sleep 2
-				${VIEWLOG} && tail -n10 "${APLOGS}.log"
+				${VIEWLOG} && tail -n10 ${APLOGP}.log
 				
 				# checar si existen los PID's, por si el archivo no regresa el shutdown
-				is_process_running
+				processes_running
 				LASTSTATUS=$?
-				[ "${LASTSTATUS}" -eq "0" ] && break
+				[ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} was killed in --forced mode"
+				[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "you're dead successfully fucking monkey-process from hell"
+				[ ${LASTSTATUS} -eq 0 ] && break
 				ONSTOP="$(($ONSTOP+1))"
 				[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false
 				done
@@ -931,8 +799,7 @@ else
 			
 			#
 			# le avisamos a los admins 
-			[ "${LASTSTATUS}" -ne "0" ] && DEBUG=true
-			report_status "${STRSTATUS}" "${LASTSTATUS}"
+			#[ "${LASTSTATUS}" -ne "0" ] && DEBUG=true
 		fi
 
 		#
@@ -943,99 +810,90 @@ else
 		fi
 
 		#
-		# Verificar el status de la aplicación
+		# STATUS -- Verificar el status de la aplicación
 		if ${STATUS} 
 		then
-			if [ ${APPLICATION} = "NONSETUP" ]
+			if [ ${#APPRCS} -eq 0 ]
 			then
 				# si no se da el parametro --application, se busca en el monopse los .conf y se consulta su estado
-				ls -l ${APHOME}/setup/*-monopse.conf > /dev/null 2>&1
-				[ "$?" != "0" ] && echo "Cannot access any config file! " && exit 1
-				for app in ${APHOME}/setup/*-monopse.conf
+				count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
+				log_action "DEBUG" "Wow, we have $count applications in our environment"
+				[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
+				for app in ${APPATH}/setup/*-*.conf
 				do
-					app=`basename ${app%-monopse.*}`
-					echo "Checking $app using [ ~/bin/monopse --application=$app --status ] " 
-					~/bin/monopse --application=$app --status 
+					app=`basename ${app%-*}`
+					~/bin/${APNAME} --application=$app --status 
 				done
+				echo "\nTotal $count application(s)"
 			else
 				# si se da el parametro de --application, procede sobre esa aplicacion 
 				show_status
 				LASTSTATUS=$?
+				log_action "DEBUG" "Yeap, the status for [${APPRCS}] is ${LASTSTATUS}"
 				
 				#
 				# si no se solicita el --mailreport
-				if [ "${MAILACCOUNTS}" = "_NULL_" ]
-				then
-					${VIEWLOG} && cat ${REPORT}
-				else
-					echo "`date`" >> ${REPORT}
-					$apmail -s "${APPLICATION} STATUS " "${MAILACCOUNTS}" < ${REPORT} > /dev/null 2>&1 &
-					log_action "INFO" "Sending report by mail of STATUS to ${MAILACCOUNTS}"
-				fi
-				log_action "INFO" "Show the application status information"
+				#if [ "${MAILACCOUNTS}" = "_NULL_" ]
+				#then
+					#${VIEWLOG} && cat ${REPORT}
+				#else
+				#	echo "`date`" >> ${REPORT}
+				#	$APMAIL -s "${APPRCS} STATUS " "${MAILACCOUNTS}" < ${REPORT} > /dev/null 2>&1 &
+				#	log_action "INFO" "Sending report by mail of STATUS to ${MAILACCOUNTS}"
+				#fi
 				rm -f ${REPORT}
 			fi
 		fi
 
 		#
-		# Generar un reporte de aplicaciones ejecutandose
+		# REPORT - Generar un reporte de aplicaciones ejecutandose
 		#
 		# PULGOSA
 		#
-		# SERVER				| EXECUTED			| PID	 | STATS | FILESYSTEM											
-		# --------------+---------------+-------+-------+---------------------------
-		# test					| 20080924-0046 |			 | DOWN	| 0/ 21520/ 65575 Mb							
+		# APPLICATION   | EXECUTED      | PID   | STATS										
+		# --------------+---------------+-------+---------
+		# test          | 20080924-0046 |       | STOPPED
 		# ...
 		if ${VIEWREPORT} 
 		then
-			apphost=`hostname | tr "[:lower:]" "[:upper:]"`
-			appipmc=`echo $SSH_CONNECTION | cut -f3 -d" "`
-			appuser=`id -u -n`
-			ls -l ${APHOME}/setup/*-monopse.conf > /dev/null 2>&1
-			[ $? != "0" ] && echo "Cannot access any config file! " && exit 1
-			echo "\n"
-			echo "${apphost}"
-			echo "${appipmc}"
-			echo "SERVER:EXECUTED:PID:STATS" | 
+			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
+			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
+			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
+			#~/bin/${APNAME} --status > /dev/null 2>&1
+			echo "\n ${APHOST} (${IPADDRESS})\n"
+			echo "APPLICATION:EXECUTED:PID:STATUS" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
-								print substr($1"                             ",1,20),
+								print " "substr($1"                             ",1,20),
 											substr($2"              ",1,14),
 											substr($3"              ",1,6),
 											substr($4"              ",1,6)
 							}'
-			echo "--------------------+---------------+-------+-------"
+			echo " --------------------+---------------+-------+---------"
 			
-			~/bin/monopse --status > /dev/null 2>&1
-			for app in ${APHOME}/setup/*-monopse.conf
+			for app in ${APPATH}/setup/*-*.conf
 			do
-				appname=`basename ${app%-monopse.*}`
+				appname=`basename ${app%-*}`
 				apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
-				# verificar que exista el PID del usuario
-				touch "${DIRLOG}/${appname}.pid"
-				touch "${DIRLOG}/${appname}.date"
-				# si el PID file existe y es mayor a 0, entonces es un proceso valido
-				pidsize=`du -s "${DIRLOG}/${appname}.pid" | cut -f1`
-				appdate=`cat "${DIRLOG}/${appname}.date"`
-				apppidn=`cat "${DIRLOG}/${appname}.pid"`
-				[ ${pidsize} -ne "0" ] && appstat="UP" || appstat="DOWN"
-				appsize="0"
-				appfsiz="0"
+				[ -s ${APTEMP}/${appname}.date ] && appdate=`cat "${APTEMP}/${appname}.date"` || appdate=
+				[ -s ${APTEMP}/${appname}.pid ] && apppidn=`cat "${APTEMP}/${appname}.pid"` || apppidn=
+				[ -s ${APTEMP}/${appname}.pid ] && appstat="RUNNING" || appstat="STOPPED"
 				
 				echo "${appname}:${appdate}:${apppidn}:${appstat}" | 
 					awk 'BEGIN{FS=":";OFS="| "}
 							{
-								print substr($1"                             ",1,20),
+								print " "substr($1"                             ",1,20),
 											substr($2"              ",1,14),
 											substr($3"              ",1,6),
-											substr($4"              ",1,6)
+											substr($4"              ",1,9)
 							}'
 			done
-			echo ""
+			echo "\nTotal $count application(s)"
 		fi
+		
 
 		#
-		# Generar un reporte de aplicaciones historico de operaciones realizadas
+		# LOG -- enerar un reporte de aplicaciones historico de operaciones realizadas
 		#
 		# PULGOSA
 		#
@@ -1045,15 +903,12 @@ else
 		# ...
 		if ${VIEWHISTORY} 
 		then
-			apphost=`hostname | tr "[:lower:]" "[:upper:]"`
-			appipmc=`echo $SSH_CONNECTION | cut -f3 -d" "`
-			appuser=`id -u -n`
-			# checando el estado de las aplicaciones
-			~/bin/monopse --status > /dev/null 2>&1
-			echo "\n"
-			echo "${apphost}"
-			echo "${appipmc}"
-			echo "STOP:START:SERVER" | 
+			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
+			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
+			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
+			#~/bin/${APNAME} --status > /dev/null 2>&1
+			echo "\n ${APHOST} (${IPADDRESS})\n"
+			echo "STOP:START:HOST:" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print substr($1"                     ",1,18),
@@ -1061,10 +916,10 @@ else
 											substr($3"                     ",1,7);
 							}'
 			echo "------------------+-------------------------------------------------"
-			tail -n600 ${DIRLOG}/monopse.log |	tr -d ":[]()-" | \
+			tail -n600 ${APLOGS}.log |	tr -d ":[]()-" | \
 						awk 'BEGIN{LAST="";OFS="| "}
-									/SUCCESS/{
-									if($0~"STARTUP")
+									/successfully/{
+									if($0~"start")
 									{
 										LDATE=$1;
 										LTIME=$2;
@@ -1077,25 +932,24 @@ else
 													substr($2"                     ",1,7),
 													substr($3"                     ",1,14);
 									}
-						}' > ${DIRLOG}/monopse.history
+						}' > ${APTEMP}/${APNAME}.history
 			
-			if [ "${APPLICATION}" = "NONSETUP" ]
+			if [ "${APPRCS}" = "NONSETUP" ]
 			then
-				cat ${DIRLOG}/monopse.history | uniq | sort -r	| head -n60
+				cat ${APTEMP}/${APNAME}.history | uniq | sort -r	| head -n60
 			else
-				cat ${DIRLOG}/monopse.history | uniq | sort -r	| head -n60 | grep "${APPLICATION} "
+				cat ${APTEMP}/${APNAME}.history | uniq | sort -r	| head -n60 | grep "${APPRCS} "
 			fi
 			echo ""
 		fi
 
-		# ejecutar el mantenimiento
-		# eliminar archivos de log que sean mayores a 4 dias
-		# find . -name '${nameapp}*.tar.gz' -mtime +4 -type f -exec 
-		if ${MAINTENANCE}
+		#
+		# MAINTENEANCE -- ejecutar shell plugs de mantenimiento
+		if ${MAINTENEANCE}
 		then 
 			# mantenimiento de logs principal
-			cd ${DIRLOG}
-			log_action "WARN" "Executing maintenance of application logs..."
+			cd ${APTEMP}
+			log_action "INFO" "Executing maintenance of application logs..."
 			find . -name "*-*.tar.gz" -mtime +4 -type f -print | while read flog
 			do
 				rm -f ${flog} && log_action "WARN" " deleting ${flog}"
@@ -1108,65 +962,51 @@ else
 				echo " deleting ${flog}"
 			done
 			# mantenimiento de logs de aplicaciones en base a shell-plugins
-			#for mplugin in monopse/*-maintenance.plug
+			#for mplugin in ${APNAME}/*-maintenance.plug
 			#do
 			#	 sh ${mplugin}
 			#done
 		fi
 
 		#
-		# Depurar la aplicación
+		# DEBUG -- Depurar la aplicación
 		if ${DEBUG} 
 		then
-			touch ${APLOGS}.log
-			touch ${APLOGS}.err
-			touch ${APLOGS}.pid
-			touch ${APLOGS}.date
-			FLDEBUG="${APLOGS}.debug"
-			echo "\n\n">> ${FLDEBUG}
-			echo "DEBUG" >> ${FLDEBUG}
+			FLDEBUG="${APLOGT}.debug"
+			[ -f ${FLDEBUG} ] && rm -f ${FLDEBUG}
+			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
+			echo "\nDEBUG" >> ${FLDEBUG}
 			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}
-			echo "	" >> ${FLDEBUG}
-			echo "GENERAL INFORMATION" >> ${FLDEBUG}
-			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}
-			echo "`date`\n" >> ${FLDEBUG}
+			echo "\n`date`\n" >> ${FLDEBUG}
 			show_version	>> ${FLDEBUG} 2>&1
-			echo "HOSTNAME `hostname`" >> ${FLDEBUG}
-			echo "	" >> ${FLDEBUG}
-			echo "USER `id -u -n`" >> ${FLDEBUG}
-			echo "	" >> ${FLDEBUG}
-			echo "CONFIGURATION" >> ${FLDEBUG}
+			echo "HOSTNAME     : `hostname`" >> ${FLDEBUG}
+			echo "USER         : `id -u -n`" >> ${FLDEBUG}
+			echo "PROCESS      : ${APPRCS}" >> ${FLDEBUG}
+			echo "IPADDRESS    : ${IPADDRESS}" >> ${FLDEBUG}
+			echo "DESCRIPTION  : ${DESCRIPTION}" >> ${FLDEBUG}
+			echo " " >> ${FLDEBUG}
 			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
-			~/bin/monopse --application=${APPLICATION} --check-config >> ${FLDEBUG}
-			echo "	" >> ${FLDEBUG}
-			echo "${APLOGS}.date" >> ${FLDEBUG}
-			cat ${APLOGS}.date >> ${FLDEBUG} 2>&1
-			echo "	" >> ${FLDEBUG}
-			echo "${APLOGS}.pid" >> ${FLDEBUG}
-			cat ${APLOGS}.pid >> ${FLDEBUG} 2>&1
-			echo "	" >> ${FLDEBUG}
-			echo "Processes" >> ${FLDEBUG}
-			is_process_running
+			echo "\nDATE " >> ${FLDEBUG}
+			echo "${APLOGT}.date" >> ${FLDEBUG}
+			cat ${APLOGT}.date >> ${FLDEBUG} 2>&1
+			echo "\nPIDFILE " >> ${FLDEBUG}
+			echo "${APLOGT}.pid" >> ${FLDEBUG}
+			cat ${APLOGT}.pid >> ${FLDEBUG} 2>&1
+			echo "\nPROCESSES TABLE" >> ${FLDEBUG}
+			processes_running
 			PROCESSES=$?
 			if [ "${PROCESSES}" -ne "0" ]
 			then
-				echo "${APPLICATION} is running with ${PROCESSES} processes" >> ${FLDEBUG} 2>&1
-				if [ "`uname -s`" = "HP-UX" ]
-				then
-					awk '{print "ps -fex | grep "$0}' "${APLOGS}.pid" | sh | grep "$FILTERLANG" | grep "$FILTERAPP" >> ${FLDEBUG} 2>&1
-				else
-					awk '{print "ps fea | grep "$0}' "${APLOGS}.pid" | sh | grep "$FILTERLANG" | grep "$FILTERAPP" >> ${FLDEBUG} 2>&1
-				fi
+				echo "${APPRCS} is running with ${PROCESSES} processes" >> ${FLDEBUG} 2>&1
+				cat ${APLOGT}.ps >> ${FLDEBUG} 2>&1
 			else
-				echo "${APPLICATION} is not running." >> ${FLDEBUG} 2>&1
+				echo "${APPRCS} is not running." >> ${FLDEBUG} 2>&1
 			fi
-			echo "	" >> ${FLDEBUG}
-			echo "FileSystem" >> ${FLDEBUG}
-			$bdf >> ${FLDEBUG} 2>&1
-			echo "	" >> ${FLDEBUG}
-			echo "FILE LOG" >> ${FLDEBUG}
+			echo "\nFILESYSTEM" >> ${FLDEBUG}
+			df ${DFOPTS} >> ${FLDEBUG} 2>&1
+			echo "\nLOGFILE" >> ${FLDEBUG}
 			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
-			tail -n500 ${APLOGS}.log >> ${FLDEBUG} 2>&1
+			tail -n100 ${APLOGP}.log >> ${FLDEBUG} 2>&1
 			echo "	" >> ${FLDEBUG}
 			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}
 		 
@@ -1176,7 +1016,7 @@ else
 			then
 				cat ${FLDEBUG}
 			else
-				$apmail -s "${APPLICATION} DEBUG INFO " "${MAILACCOUNTS}" < ${FLDEBUG} > /dev/null 2>&1 &
+				$APMAIL -s "${APPRCS} DEBUG INFO " "${MAILACCOUNTS}" < ${FLDEBUG} > /dev/null 2>&1 &
 				log_action "INFO" "Send information from debug application to ${MAILACCOUNTS}"
 			fi
 			log_action "INFO" "Show the application debug information"
