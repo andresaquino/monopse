@@ -3,7 +3,7 @@
 
 # monopse.sh - An small shell for those applications that nobody wants to restart ;)
 # =-=
-# (c) 2009 StrategyLabs!
+# (c) 2008, 2009 Nextel de Mexico, S.A. de C.V.
 # Andrés Aquino Morales <andres.aquino@gmail.com>
 # 
 
@@ -259,7 +259,7 @@ show_version () {
 	UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
 	RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-"," Rev.",t);print t}' ${APPATH}/CHANGELOG | head -n1`
 	echo "${APNAME} v${UPVERSION}.${RLVERSION}"
-	echo "(c) 2008, 2009, 2010 StrategyLabs! \n"
+	echo "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
 	
 	if ${SVERSION}
 	then
