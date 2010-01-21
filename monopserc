@@ -10,7 +10,7 @@
 #
 # home de la aplicacion
 APHOME=$HOME/monopse
-APLOGS=$HOME/logs
+APLOGD=$HOME/logs
 
 #
 # correo de los Administradores
