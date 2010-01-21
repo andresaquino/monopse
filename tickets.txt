@@ -1,0 +1,22 @@
+Please, follow the standard:
+
+Ticket Structure
+ Month+NumberInthreeDigits+TypeOfTicket-ShortDescription
+
+Type of Ticket
+ NW :It's a new characteristic (Caracteristica)
+ FX :Fix a problem (Problema)
+ IM :Improvement (Mejora)
+
+Ej:
+ [01001NW-AddUsers] - Agregar funcionalidad para ingresar nuevos usuarios
+ [01002NW-AddCommentsOnArticles] - Agregar caja de comentarios para volcar opiniones en el articulo
+ [01001FX-ValidatePasswordLength] - Se corrige funcionalidad para ingresar usuarios, ya es valida la longitud de la contraseña
+ [01002FX-] - ...
+ [01003FX-] - ...
+ [01001IM-] - Se agregaron indices a la tabla de usuario, para agilizar la consulta por ID y mejorar desempeño en respuesta
+ [01002IM-] - ...
+
+Ej:
+ 01001NW-LoginAuthentication
+
