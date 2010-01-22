@@ -196,18 +196,18 @@ get_process_id () {
 	WRDSLIST=`echo "${APUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 	# extraer procesos existentes y filtrar las cadenas del archivo de configuracion
 	ps ${PSOPTS} > ${PIDFILE}.allps
-	log_action "DEBUG" "Using ${PIDFILE}.{pid,ppid,ps}"
+	log_action "DEBUG" "filtering process list with [ps ${PSOPTS}]"
 	
 	# extraer los procesos que nos interesan 
 	awk "/${WRDSLIST}/{print}" ${PIDFILE}.allps > ${PIDFILE}.ps
-	log_action "DEBUG" "looking for process using /${WRDSLIST}/ owned by ${APUSER}"
+	log_action "DEBUG" "looking for /${WRDSLIST}/ in ${PIDFILE}.allps owned by ${APUSER}"
 	
 	# el archivo existe y es mayor a 0 bytes 
 	if [ -s ${PIDFILE}.ps ]
 	then
 		# extraer los procesos y reordenarlos
 		sort -n -k8 ${PIDFILE}.ps > ${PIDFILE}.pss
-		log_action "DEBUG" "hey, we have one ${APPRCS} process alive!"
+		log_action "DEBUG" "hey, we have one ${APPRCS} process alive in ${PIDFILE}.ps "
 		
 		# extraer los pid de los procesos implicados 
 		awk -v P=${PSPOS} '{print $(3+P)}' ${PIDFILE}.pss > ${PIDFILE}.pid
@@ -217,11 +217,39 @@ get_process_id () {
 
 	else
 		# eliminar archivos ppid, en caso de que el proceso ya no exista
-		log_action "DEBUG" "hey, ${APPRCS} is not running.."
+		log_action "DEBUG" "hey, ${APPRCS} is not running in ${PIDFILE}.ps "
 		rm -f ${PIDFILE}.{pid,ppid}
 	fi
-	rm -f ${PIDFILE}.{pss,allps}
+	rm -f ${PIDFILE}.{pss}
 }
+
+#
+# verify the PID's for a specific process
+process_running () {
+	local COUNT=0
+	local EACH=""
+
+	# toma de base el APPRCS que se encuentra instanciada 
+	PIDFILE=${APLOGT}
+	log_action "DEBUG" "looking for ${PIDFILE}.pid"
+
+	# si no existe el PID, forzar la busqueda 
+	[ ! -s ${PIDFILE}.pid ] && get_process_id
+
+	# caso contrario, verificar que sea correcto 
+	if [ -s ${PIDFILE}.pid ]
+	then
+		PROCESS=`head -n1 ${PIDFILE}.pid`
+		kill -0 ${PROCESS} > /dev/null 2>&1
+		RESULT=$?
+		[ ${RESULT} -ne 0 ] && log_action "DEBUG" "process ${APPRCS} is not running"
+		[ ${RESULT} -eq 0 ] && log_action "DEBUG" "process ${APPRCS} is running"
+		return ${RESULT}
+	else
+		return 1
+	fi
+}
+
 
 
 #
@@ -230,25 +258,19 @@ processes_running () {
 	local COUNT=0
 	local EACH=""
 
-	get_process_id
-	PIDFILE=${APLOGT}
-	# si no existe el archivo de .pid, reportarlo y terminar
-	if [ ! -s "${PIDFILE}.pid" ]
-	then
-		log_action "DEBUG" "process${PROCID} is not running"
-		return 0
-	else
-		for EACH in $(cat "${PIDFILE}.pid")
-		do
-			# cuantos son propiedad del usuario y estan activos
-			kill -0 ${EACH} > /dev/null 2>&1
-			[ $? -eq 0 ] && COUNT=$((${COUNT}+1))
-			log_action "DEBUG" "checking, process ${EACH} is running"
-		done
-		log_action "DEBUG" "${PIDFILE}.pid report ${COUNT} instances"
-		return ${COUNT}
-	fi
-
+	for PIDFILE in ${APTEMP}/*.pid
+	do
+		# si no existe el archivo de .pid, reportarlo y terminar
+		if [ -s ${PIDFILE} ]
+		then
+			PROCESS=`head -n1 ${PIDFILE}`
+			kill -0 ${PROCESS} > /dev/null 2>&1
+			RESULT=$?
+			[ ${RESULT} -ne 0 ] && log_action "DEBUG" "${PIDFILE} is not a valid process"
+			[ ${RESULT} -ne 0 ] && rm -f ${PIDFILE}
+			return ${RESULT}
+		fi
+	done
 }
 
 
@@ -344,14 +366,21 @@ filter_in_log () {
 	local WRDSLIST=`echo "${FILTER}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 
 	# la long de la cad no esta vacia
-	[ -z "${FILTER}" ] && return 1
-	
+	[ ${#FILTER} -eq 0 ] && log_action "DEBUG" "Umh, please set the filter (UP or DOWN)String"
+	[ ${#FILTER} -eq 0 ] && return 1
+
 	# extraer los procesos que nos interesan 
+	[ ! -f ${APLOGP}.log ] && touch ${APLOGP}.log
 	awk "/${WRDSLIST}/{print}" ${APLOGP}.log
 	LASTSTATUS=$?
-	[ "${LASTSTATUS}" -eq 0 ] && \
-		log_action "DEBUG" "looking for /${FILTER}/ was succesfull" || \
+	log_action "DEBUG" "ok, searching /${WRDSLIST}/ in ${APLOGP}.log"
+	
+	if [ ${LASTSTATUS} -eq 0 ]
+	then
+		log_action "DEBUG" "looking for /${FILTER}/ was succesfull"
+	else
 		log_action "DEBUG" "looking for /${FILTER}/ was failed"
+	fi
 
 	return ${LASTSTATUS}
 }
