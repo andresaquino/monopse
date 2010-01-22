@@ -261,7 +261,7 @@ show_version () {
 	echo "${APNAME} v${UPVERSION}.${RLVERSION}"
 	echo "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
 	
-	if ${SVERSION}
+	if [ ${SVERSION} ]
 	then
 		echo "Written by"
 		echo "Andres Aquino <andres.aquino@gmail.com>"
