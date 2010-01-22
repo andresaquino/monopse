@@ -103,6 +103,7 @@ set_environment () {
 			PSPOS=1
 			DFOPTS="-P -k"
 			MKOPTS="-d /tmp -p "
+			APUSER=`id -u -n`
 		;;
 			
 		"Linux")
@@ -110,6 +111,7 @@ set_environment () {
 			PSPOS=0
 			DFOPTS="-Pk"
 			MKOPTS="-t "
+			APUSER=`id -u `
 			;;
 		
 		"Darwin")
@@ -117,6 +119,7 @@ set_environment () {
 			PSPOS=-1
 			DFOPTS="-P -k"
 			MKOPTS="-t "
+			APUSER=`id -u `
 		;;
 			
 		*)
@@ -190,8 +193,7 @@ get_process_id () {
 	
 	[ ${#FILTER} -ne 0 ] && APFLTR=${FILTER}
 	PIDFILE=${APLOGT}
-	IDUSER=`id -u`
-	WRDSLIST=`echo "${IDUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
+	WRDSLIST=`echo "${APUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 	# extraer procesos existentes y filtrar las cadenas del archivo de configuracion
 	ps ${PSOPTS} > ${PIDFILE}.allps
 	log_action "DEBUG" "Using ${PIDFILE}.{pid,ppid,ps}"
@@ -275,25 +277,22 @@ log_action () {
 		;;
 		"EMERG"|"CRIT"|"ERR")
 			LOGTHIS=true
-			#report_status "ER" "${ACTION}"
 		;;
 		"WARN")
-			[ ${APLEVL} == "WARN" ] && LOGTHIS=true
-			[ ${APLEVL} == "NOTICE" ] && LOGTHIS=true
+			[ ${APLEVL} = "WARN" ] && LOGTHIS=true
+			[ ${APLEVL} = "NOTICE" ] && LOGTHIS=true
 		;;
 		"NOTICE")
-			[ ${APLEVL} == "NOTICE" ] && LOGTHIS=true
-			[ ${APLEVL} == "DEBUG" ] && LOGTHIS=true
-			#echo "${ACTION}"
+			[ ${APLEVL} = "NOTICE" ] && LOGTHIS=true
+			[ ${APLEVL} = "DEBUG" ] && LOGTHIS=true
 		;;
 		"DEBUG")
-			[ ${APLEVL} == "DEBUG" ] && LOGTHIS=true
+			[ ${APLEVL} = "DEBUG" ] && LOGTHIS=true
 		;;
 		"INFO")
-			[ ${APLEVL} == "INFO" ] && LOGTHIS=true
-			[ ${APLEVL} == "NOTICE" ] && LOGTHIS=true
-			[ ${APLEVL} == "DEBUG" ] && LOGTHIS=true
-			#report_status "OK" "${ACTION}"
+			[ ${APLEVL} = "INFO" ] && LOGTHIS=true
+			[ ${APLEVL} = "NOTICE" ] && LOGTHIS=true
+			[ ${APLEVL} = "DEBUG" ] && LOGTHIS=true
 		;;
 	esac 
 	
