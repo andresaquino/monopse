@@ -1,6 +1,14 @@
 
 2010-01-22  Andres Aquino <andres.aquino@gmail.com>
 
+        * 966a57c: correccion en los filtros del AWK en el process_running
+
+        * 436b6d3: moverse al PATH de la aplicacion para no perder la referencia
+
+        * 8cedd8f: cambio en el tiempo del demo
+
+        * b3a83a8: registro de cambios
+
         * 03a4fdb: se reescribe el processes_ y se agrega un process_
 
         * b56751a: error en manejo de tabla de procesos corregido, --report mas veloz :D
