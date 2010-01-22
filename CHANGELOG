@@ -1,5 +1,22 @@
 
+2010-01-22  Andres Aquino <andres.aquino@gmail.com>
+
+        * 03a4fdb: se reescribe el processes_ y se agrega un process_
+
+        * b56751a: error en manejo de tabla de procesos corregido, --report mas veloz :D
+
+        * 8cc5abb: FIX en log_action y al filtrar por usuario
+
+        * bc039db: FIX en las comparaciones del log, tronaba como ejote en hpux
+
+
 2010-01-21  Andres Aquino <andres.aquino@gmail.com>
+
+        * 7d0066b: trademark set :)
+
+        * d311933: actualizacion de archivos
+
+        * b1bb589: standard para manejo de tickets en el master branch
 
         * 9b59d22: fix de logs y manejo de PIDS, depuracion de biblioteca libutils
 
