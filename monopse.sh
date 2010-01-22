@@ -270,33 +270,6 @@ show_version () {
 }
 
 
-#
-# get application's status
-show_status () {
-	REPORT=${APTEMP}/report.inf
-	
-	processes_running
-	PROCESSES=$?
-	if [ "${PROCESSES}" -ne "0" ]
-	then
-		WITHLOCK="out of control of ${APNAME}!"
-		[ -f ${APLOGT}.lock ] && WITHLOCK="controlled by ${APNAME}."
-		STR="${APPRCS} is running with ${PROCESSES} processes ${WITHLOCK}" 
-		report_status "*" "${STR}"
-		echo ${STR} >> ${REPORT}
-		cat ${APLOGT}.pid >> ${REPORT}
-		return 0
-	else
-		STR="${APPRCS} is not running" 
-		[ -f ${APLOGT}.lock ] && rm -f ${APLOGT}.lock
-		report_status "i" "${STR}"
-		echo ${STR} >> ${REPORT}
-		return 1
-	fi
-
-}
-
-
 ## MAIN ##
 ##
 # corroborar que no se ejecute como usuario r00t
@@ -317,10 +290,11 @@ fi
 APPRCS=
 START=false
 STOP=false
+RESTART=false
 STATUS=false
 NOTFORCE=true
 FASTSTOP=false
-VIEWLOG=true
+VIEWLOG=false
 MAILACCOUNTS="_NULL_"
 FILTERWL="_NULL_"
 CHECKCONFIG=false
@@ -425,7 +399,7 @@ do
 			FASTSTOP=true
 			ERROR=false
 		;;
-		--unique-log|-u)
+		--uniquelog|-u)
 			UNIQUELOG=true
 			ERROR=false
 		;;
@@ -463,11 +437,15 @@ do
 			VIEWLOG=false
 			ERROR=false
 		;;
-		--quiet|quiet|-q)
+		--verbose)
+			VIEWLOG=true
+			ERROR=false
+		;;
+		--quiet|quiet|q)
 			VIEWLOG=false
 			ERROR=false
 		;;
-		--debug|debug|-d)
+		--debug|-d)
 			DEBUG=true
 			ERROR=false
 			if ${START} || ${STOP} || ${STATUS}
@@ -564,8 +542,8 @@ else
 	then
 		check_configuration "${APPRCS}" 
 		get_process_id "${FILTERAPP},${FILTERLANG}"
-		[ "$?" -ne "0" ] && CHECKCONFIG=true
-		[ "${TOSLEEP}" -eq "0" ] && TOSLEEP=5
+		[ $? -ne 0 ] && CHECKCONFIG=true
+		[ ${TOSLEEP} -eq 0 ] && TOSLEEP=5
 		TOSLEEP="$((60*$TOSLEEP))"
 	else
 		CANCEL=true
@@ -580,6 +558,17 @@ else
 	fi
 
 	#
+	# RESTART -- guess... ?
+	if ${RESTART}
+	then
+		~/bin/${APNAME} --application=${APPRCS} stop -f
+		RESULT=$?
+		[ ${RESULT} -eq 0 ] && sleep 5
+		[ ${RESULT} -eq 0 ] && ~/bin/${APNAME} --application=${APPRCS} start
+	fi
+
+	
+	#
 	# START -- Iniciar la aplicación indicada en el archivo de configuración
 	if ${START}
 	then	 
@@ -588,13 +577,13 @@ else
 		# que sucede si intentan dar de alta el proceso nuevamente
 		# verificamos que no exista un bloqueo (Dummies of Proof) 
 		TOSLEEP="$(($TOSLEEP*2))"
-		processes_running
+		process_running
 		LASTSTATUS=$?
 		if [ -f ${APLOGT}.lock ]
 		then
 			# es posible que si existe el bloqueo, pero que el proceso
 			# no este trabajando, entonces verificamos usando los PID's
-			if [ "${LASTSTATUS}" -eq "0" ]
+			if [ ${LASTSTATUS} -ne 0 ]
 			then
 				log_action "DEBUG" "${APPRCS} have a lock process file without application, maybe a bug brain developer ?"
 				[ -f ${APLOGT}.lock ] && log_action "DEBUG" "Exists a lock process without an application in memory, remove it and start again automagically"
@@ -606,7 +595,7 @@ else
 			fi
 		else
 			# es posible que el archivo de lock no exista pero la aplicación este ejecutandose
-			if [ ${LASTSTATUS} -ne 0 ]
+			if [ ${LASTSTATUS} -eq 0 ]
 			then
 				touch "${APLOGT}.lock"
 				report_status "i" "${APPRCS} running right now!"
@@ -653,7 +642,7 @@ else
 		ONSTOP=1
 		INWAIT=true
 		LASTLINE=""
-		LINE=" ...`tail -n1 ${APLOGP}.log | rev | cut -c 1-60 | rev`"
+		LINE=" >> `tail -n1 ${APLOGP}.log | rev | cut -c 1-60 | rev`"
 		while ($INWAIT)
 		do
 			filter_in_log "${UPSTRING}"
@@ -670,12 +659,15 @@ else
 			ONSTOP="$(($ONSTOP+1))"
 			[ $ONSTOP -ge $TOSLEEP ] && report_status "?" "Uhm, something goes wrong with ${APPRCS}"
 			[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false;
-			LASTLINE=" ...`tail -n1 ${APLOGP}.log | rev | cut -c 1-60 | rev`"
+			LASTLINE=" >> `tail -n1 ${APLOGP}.log | rev | cut -c 1-60 | rev`"
 		done
 		
 		# buscar los PID's
-		processes_running
-		echo "\nPID:\n`cat ${APLOGT}.pid`" >> "${APLOGT}.lock"
+		sleep 5
+		get_process_id "${FILTERAPP},${FILTERLANG}"
+		echo "\nPID:\n" >> "${APLOGT}.lock" 2>&1
+		cat ${APLOGT}.pid >> "${APLOGT}.lock" 2>&1
+
 		# le avisamos a los admins 
 		#[ "${LASTSTATUS}" -ne "0" ] && DEBUG=true
 		
@@ -694,7 +686,7 @@ else
 		# verificamos que exista un bloqueo (DoP) y PID
 		log_action "DEBUG" "Stopping the application, please wait ..."
 		TOSLEEP="$(($TOSLEEP/2))"
-		processes_running
+		process_running
 		if [ ! -s ${APLOGT}.pid ]
 		then
 			echo "uh, ${APNAME} is not running currently, tip: ${APNAME} --report"
@@ -705,9 +697,10 @@ else
 		#
 		# verificar que la aplicación para hacer shutdown se encuentre en el dir 
 		# checar en 10 ocasiones hasta que el servicio se encuentre abajo 
-		LASTSTATUS=1
+		LASTSTATUS=0
 		STRSTATUS="FORCED SHUTDOWN"
-		[ "x${STOPAPP}" != "x" ] && NOTFORCE=false
+		[ ${#STOPAPP} -eq 0 ] && NOTFORCE=false
+		[ ${#DOWNSTRING} -eq 0 ] && NOTFORCE=false
 
 		#
 		# si es necesario que el stop sea forzado
@@ -732,11 +725,11 @@ else
 			while ($INWAIT)
 			do
 				filter_in_log "${DOWNSTRING}"
-				processes_running
+				process_running
 				LASTSTATUS=$?
-				[ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} was killed in normal mode"
-				[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "Yeah! ${APPRCS} died placid and successfully (npray for that)"
-				[ ${LASTSTATUS} -eq 0 ] && INWAIT=false
+				[ ${LASTSTATUS} -ne 0 ] && report_status "*" "process ${APPRCS} was killed in normal mode"
+				[ ${LASTSTATUS} -ne 0 ] && log_action "DEBUG" "Yeah! ${APPRCS} died placid and successfully (npray for that)"
+				[ ${LASTSTATUS} -ne 0 ] && INWAIT=false
 				if [ "${LINE}" != "${LASTLINE}" ]
 				then 
 					${VIEWLOG} && echo "${LINE}" 
@@ -759,7 +752,7 @@ else
 
 		#
 		# si no se cancelo el proceso por la buena, entonces pasamos a la mala
-		if [ ${LASTSTATUS} -ne 0 ]
+		if [ ${LASTSTATUS} -eq 0 ]
 		then
 			# si el stop es con FORCED, y es una aplicacion JAVA enviar FTD
 			if [ ${FILTERLANG} = "java" -a ${THREADDUMP} = true ]
@@ -780,17 +773,20 @@ else
 			do
 				#
 				# obtenemos los PID, armamos los kills y shelleamos
-				processes_running
-				awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
-				sleep 2
-				${VIEWLOG} && tail -n10 ${APLOGP}.log
-				
+				process_running
+				if [ $? -eq 0 ]
+				then
+					awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
+					sleep 2
+					${VIEWLOG} && tail -n10 ${APLOGP}.log
+				fi
+
 				# checar si existen los PID's, por si el archivo no regresa el shutdown
-				processes_running
+				process_running
 				LASTSTATUS=$?
-				[ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} was killed in --forced mode"
-				[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "you're dead successfully fucking monkey-process from hell"
-				[ ${LASTSTATUS} -eq 0 ] && break
+				[ ${LASTSTATUS} -ne 0 ] && report_status "*" "process ${APPRCS} was killed in --forced mode"
+				[ ${LASTSTATUS} -ne 0 ] && log_action "DEBUG" "you're dead successfully fucking monkey-process from hell"
+				[ ${LASTSTATUS} -ne 0 ] && break
 				ONSTOP="$(($ONSTOP+1))"
 				[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false
 				done
@@ -827,9 +823,21 @@ else
 				echo "\nTotal $count application(s)"
 			else
 				# si se da el parametro de --application, procede sobre esa aplicacion 
-				show_status
-				LASTSTATUS=$?
-				log_action "DEBUG" "Yeap, the status for [${APPRCS}] is ${LASTSTATUS}"
+				process_running
+				PROCESSES=$?
+				if [ ${PROCESSES} -eq 0 ]
+				then
+					WITHLOCK="out of control of ${APNAME}"
+					[ -f ${APLOGT}.lock ] && WITHLOCK="controlled by ${APNAME}"
+					STR="${APPRCS} is running ${WITHLOCK}" 
+					report_status "*" "${STR}"
+				else
+					STR="${APPRCS} is not running" 
+					[ -f ${APLOGT}.lock ] && rm -f ${APLOGT}.lock
+					[ -f ${APLOGT}.pid ] && rm -f ${APLOGT}.pid
+					report_status "i" "${STR}"
+				fi
+				log_action "DEBUG" "hey, ${STR}"
 				
 				#
 				# si no se solicita el --mailreport
@@ -859,7 +867,7 @@ else
 			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
-			#~/bin/${APNAME} --status > /dev/null 2>&1
+			processes_running
 			echo "\n ${APHOST} (${IPADDRESS})\n"
 			echo "APPLICATION:EXECUTED:PID:STATUS" | 
 				awk 'BEGIN{FS=":";OFS="| "}
@@ -993,11 +1001,11 @@ else
 			echo "${APLOGT}.pid" >> ${FLDEBUG}
 			cat ${APLOGT}.pid >> ${FLDEBUG} 2>&1
 			echo "\nPROCESSES TABLE" >> ${FLDEBUG}
-			processes_running
+			process_running
 			PROCESSES=$?
-			if [ "${PROCESSES}" -ne "0" ]
+			if [ ${PROCESSES} -eq 0 ]
 			then
-				echo "${APPRCS} is running with ${PROCESSES} processes" >> ${FLDEBUG} 2>&1
+				echo "${APPRCS} is running" >> ${FLDEBUG} 2>&1
 				cat ${APLOGT}.ps >> ${FLDEBUG} 2>&1
 			else
 				echo "${APPRCS} is not running." >> ${FLDEBUG} 2>&1
