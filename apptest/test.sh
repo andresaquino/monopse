@@ -12,7 +12,7 @@ cuteworm=0
 
 while(true)
 do
-   sleep 5
+   sleep 1
    echo "little little worm ... "
    [ $cuteworm -eq 5  ] && echo "RUNNING OK"
    [ $cuteworm -gt 800  ] && break
