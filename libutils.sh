@@ -246,6 +246,7 @@ process_running () {
 		[ ${RESULT} -eq 0 ] && log_action "DEBUG" "process ${APPRCS} is running"
 		return ${RESULT}
 	else
+		rm -f ${PIDFILE}.*
 		return 1
 	fi
 }
@@ -371,15 +372,15 @@ filter_in_log () {
 
 	# extraer los procesos que nos interesan 
 	[ ! -f ${APLOGP}.log ] && touch ${APLOGP}.log
-	awk "/${WRDSLIST}/{print}" ${APLOGP}.log
+	awk "BEGIN{res=0}/${WRDSLIST}/{res=1}END{if(res==0){exit 1}}" ${APLOGP}.log
 	LASTSTATUS=$?
-	log_action "DEBUG" "ok, searching /${WRDSLIST}/ in ${APLOGP}.log"
+	log_action "DEBUG" "ok, searching /${WRDSLIST}/ in ${APLOGP}.log: ${LASTSTATUS}"
 	
 	if [ ${LASTSTATUS} -eq 0 ]
 	then
-		log_action "DEBUG" "looking for /${FILTER}/ was succesfull"
+		log_action "DEBUG" "search of /${FILTER}/ was succesfull"
 	else
-		log_action "DEBUG" "looking for /${FILTER}/ was failed"
+		log_action "DEBUG" "search of /${FILTER}/ was failed"
 	fi
 
 	return ${LASTSTATUS}
