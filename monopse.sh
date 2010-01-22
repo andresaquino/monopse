@@ -44,7 +44,7 @@ log_backup () {
 	touch ${APLOGP}.log
 	touch ${APLOGT}.err
 	touch ${APLOGT}.pid
-	mv ${APLOGP}.log ${APLOGT}.err ${APLOGT}.pid ${DAYOF}/
+	mv ${APLOGP}.log ${APLOGT}.* ${DAYOF}/
 	touch ${APLOGP}.log
 	LOGSIZE=`du -sk "${DAYOF}" | cut -f1`
 	RESULT=$((${LOGSIZE}/1024))
@@ -53,7 +53,7 @@ log_backup () {
 	log_action "DEBUG" "The sizeof ${APLOGP}.log is ${LOGSIZE}M, proceeding to compress"
 	
 	# Si esta habilitado el fast-stop(--forced), no se comprime la informacion
-	rm -f ${APLOGT}.lock
+	#rm -f ${APLOGT}.lock
 	${FASTSTOP} && log_action "WARN" "Ups,(doesn't compress) hurry up is to late for sysadmin !"
 	${FASTSTOP} && return 0
 	
@@ -563,7 +563,7 @@ else
 	then
 		~/bin/${APNAME} --application=${APPRCS} stop -f
 		RESULT=$?
-		[ ${RESULT} -eq 0 ] && sleep 5
+		sleep 5
 		[ ${RESULT} -eq 0 ] && ~/bin/${APNAME} --application=${APPRCS} start
 	fi
 
@@ -572,11 +572,11 @@ else
 	# START -- Iniciar la aplicación indicada en el archivo de configuración
 	if ${START}
 	then	 
-		cd ${PATHAPP}
 		#
 		# que sucede si intentan dar de alta el proceso nuevamente
 		# verificamos que no exista un bloqueo (Dummies of Proof) 
 		TOSLEEP="$(($TOSLEEP*2))"
+		log_backup
 		process_running
 		LASTSTATUS=$?
 		if [ -f ${APLOGT}.lock ]
@@ -606,8 +606,10 @@ else
 		
 		#
 		# ejecutar el shell para iniciar la aplicación y verificar que esta exista
-		if [ -r "${STARTAPP}" ]
+		cd ${PATHAPP}
+		if [ ${#STARTAPP} -ne 0 ]
 		then
+			log_action "DEBUG" "ready to execute ${STARTAPP} " 
 			# si se indican la variables, entonces
 			# verificar que el weblogic server este ejecutandose
 			[ $WLSAPP ] && check_weblogicserver
@@ -674,6 +676,7 @@ else
 		# FIX
 		# SI LA APLPICACION CORRE UNA SOLA VEZ, ELIMINAR EL .lock
 		[ $APPTYPE = "RUNONCE" ] && rm -f "${APLOGT}.lock" && log_backup
+		exit ${LASTSTATUS}
 	fi
 	
 
@@ -792,6 +795,8 @@ else
 				done
 				STRSTATUS="KILLED"
 			fi
+
+			[ ${LASTSTATUS} -ne 0 ] && exit 0
 			
 			#
 			# le avisamos a los admins 
