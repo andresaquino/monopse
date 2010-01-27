@@ -1,6 +1,14 @@
 
 2010-01-27  Andres Aquino <andres.aquino@gmail.com>
 
+        * 094ad8e: se preparan archivos para el --mainteneance, los shell-plugs
+
+        * ba7cf28: opciones para mail se eliminan, no se han usado entonces no son utiles
+
+        * de0629b: correccion a los mensajes y los tiempos de espera, se usa el wait_for o_O
+
+        * 8f11af8: se corrige filtro de --log, acorde a las etiquetas del debug
+
         * 11de727: correcion al --restart, ahora con --verbose
 
         * 3f0aca3: correcion en filtros para el --log
