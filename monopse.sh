@@ -549,6 +549,7 @@ else
 		${STATUS} && CANCEL=false
 		${VIEWREPORT} && CANCEL=false
 		${VIEWHISTORY} && CANCEL=false
+		${MAINTENEANCE} && CANCEL=false
 		if ${CANCEL}
 		then
 			echo ${ECOPTS} "Usage: ${APNAME} [OPTION]...[--help]"
@@ -657,7 +658,7 @@ else
 				${VIEWLOG} && echo ${ECOPTS} "${LINE}" 
 				LINE="$LASTLINE"
 			fi
-			wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
+			[ ${LASTSTATUS} -ne 0 ] && wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
 			ONSTOP="$(($ONSTOP+1))"
 			[ $ONSTOP -ge $TOSLEEP ] && report_status "?" "Uhm, something goes wrong with ${APPRCS}"
 			[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false;
@@ -665,7 +666,7 @@ else
 		done
 		
 		# buscar los PID's
-		wait_for "Yeap, checking for ${APPRCS} application" 3
+		sleep 3
 		get_process_id "${FILTERAPP},${FILTERLANG}"
 		echo ${ECOPTS} "\nPID:\n" >> "${APLOGT}.lock" 2>&1
 		cat ${APLOGT}.pid >> "${APLOGT}.lock" 2>&1
@@ -970,25 +971,48 @@ else
 		# MAINTENEANCE -- ejecutar shell plugs de mantenimiento
 		if ${MAINTENEANCE}
 		then 
-			# mantenimiento de logs principal
-			cd ${APTEMP}
-			log_action "INFO" "Executing maintenance of application logs..."
-			find . -name "*-*.tar.gz" -mtime +4 -type f -print | while read flog
+			# mantenimientos
+			count=`ls -l ${APPATH}/setup/*-shell.plug | wc -l | sed -e "s/ //g"`
+			[ $count -eq 0 ] && report_status "?" "Cannot access any mainteneance file " && exit 1
+			cd ${APPATH}/setup/
+			for APMAIN in *-shell.plug
 			do
-				rm -f ${flog} && log_action "WARN" " deleting ${flog}"
-				echo ${ECOPTS} " deleting ${flog}"
+				MLOGFILE=${APMAIN%-shell*}
+				log_action "DEBUG" "Executing maintenance of ${APMAIN} "
+				. ${APMAIN}
+				log_action "DEBUG" "Moving to ${MPATH}"
+				cd ${MPATH}
+				
+				log_action "DEBUG" "Getting files using: find . -name ${MFILTER} -mtime ${MTIME} -type ${MTYPE}"
+				wait_for "Getting files from pattern (${MFILTER})" 2
+				if [ "${MTYPE}" = "DIRECTORY" ]
+				then
+					find . -name "${MFILTER}" -mtime "${MTIME}" -type d > ${APTEMP}/${MLOGFILE}.objects 2> /dev/null
+					
+					# by the moment, only DELETE action supported
+					awk '{print "rm -fr "$0}' ${APTEMP}/${MLOGFILE}.objects > ${APTEMP}/${MLOGFILE}.execs
+				else
+					find . -name "${MFILTER}" -mtime "${MTIME}" -type f > ${APTEMP}/${MLOGFILE}.objects 2> /dev/null
+					
+					# by the moment, only DELETE action supported
+					awk '{print "rm -f "$0}' ${APTEMP}/${MLOGFILE}.objects > ${APTEMP}/${MLOGFILE}.execs
+				fi
+				if [ -s ${APTEMP}/${MLOGFILE}.execs ]
+				then
+					log_action "DEBUG" "Please check ${APTEMP}/${MLOGFILE}.execs"
+					report_status "*" "Check ${APTEMP}/${MLOGFILE}.execs"
+					if [ "${MDEBUG}" = "NO" ]
+					then
+						sh -x ${APTEMP}/${MLOGFILE}.execs > ${APTEMP}/${MLOGFILE}.log 2>&1
+						log_action "DEBUG" "Well, you'ld pray because the system remains stable..."
+						report_status "i" "You should pray because the system remains stable..."
+					else
+						log_action "DEBUG" "Good, you're a good boy (lamer) but, a god boy..."
+					fi 
+				else
+					report_status "?" "Uhmm, yeah... time to scratching eyes!"
+				fi
 			done
-			
-			find . -name "*-*.ftd" -mtime +4 -type f -print | while read flog
-			do
-				rm -f ${flog} && log_action "WARN" " deleting ${flog}"
-				echo ${ECOPTS} " deleting ${flog}"
-			done
-			# mantenimiento de logs de aplicaciones en base a shell-plugins
-			#for mplugin in ${APNAME}/*-maintenance.plug
-			#do
-			#	 sh ${mplugin}
-			#done
 		fi
 
 		#
