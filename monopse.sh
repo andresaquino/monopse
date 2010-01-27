@@ -178,7 +178,7 @@ make_fullthreaddump() {
 	while [ $times -ne $MAXSAMPLES ]
 	do
 		kill -3 $PID
-		echo "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
+		echo ${ECOPTS} "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
 		log_action "INFO" "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
 		sleep $MAXSLEEP
 		times=$(($times+1))
@@ -195,16 +195,16 @@ make_fullthreaddump() {
 	total=$(($tFILE-$gFILE+1))
 	log_action "DBUG" "Total: $total, where tFile=$tFILE and gFile=$gFILE"
 	tail -n${total} ${ftdFILE} > ${ftdFILE}.tmp
-	echo "-------------------------------------------------------------------------------" > ${ftdFILE}
-	echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
-	echo "JAVA FTD" >> ${ftdFILE}
-	echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
-	echo "Host: `hostname`" >> ${ftdFILE}
-	echo "ID's: `id`" >> ${ftdFILE}
-	echo "Date: ${timeStart}" >> ${ftdFILE}
-	echo "Appl: ${APPRCS}" >> ${ftdFILE}
-	echo "Smpl: ${MAXSAMPLES}" >> ${ftdFILE}
-	echo "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	echo ${ECOPTS} "-------------------------------------------------------------------------------" > ${ftdFILE}
+	echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	echo ${ECOPTS} "JAVA FTD" >> ${ftdFILE}
+	echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	echo ${ECOPTS} "Host: `hostname`" >> ${ftdFILE}
+	echo ${ECOPTS} "ID's: `id`" >> ${ftdFILE}
+	echo ${ECOPTS} "Date: ${timeStart}" >> ${ftdFILE}
+	echo ${ECOPTS} "Appl: ${APPRCS}" >> ${ftdFILE}
+	echo ${ECOPTS} "Smpl: ${MAXSAMPLES}" >> ${ftdFILE}
+	echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${ftdFILE}
 	cat ${ftdFILE}.tmp >> ${ftdFILE}
  
 	# enviar por correo 
@@ -241,7 +241,7 @@ reports_status () {
 	
 	#
 	# solo enviar si la operacion fue correcta o no
-	echo "${APPRCS} ${TYPEOPERATION} ${STRSTATUS}, see also ${APLOGP}.log for information"
+	echo ${ECOPTS} "${APPRCS} ${TYPEOPERATION} ${STRSTATUS}, see also ${APLOGP}.log for information"
 	if [ "${MAILACCOUNTS}" != "_NULL_" ]
 	then
 		# y mandarlo a bg, por que si no el so se apendeja, y por este; este arremedo de programa :-P
@@ -258,13 +258,13 @@ show_version () {
 	VERSIONAPP="3"
 	UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
 	RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-"," Rev.",t);print t}' ${APPATH}/CHANGELOG | head -n1`
-	echo "${APNAME} v${UPVERSION}.${RLVERSION}"
-	echo "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
+	echo ${ECOPTS} "${APNAME} v${UPVERSION}.${RLVERSION}"
+	echo ${ECOPTS} "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
 	
 	if [ ${SVERSION} ]
 	then
-		echo "Written by"
-		echo "Andres Aquino <andres.aquino@gmail.com>"
+		echo ${ECOPTS} "Written by"
+		echo ${ECOPTS} "Andres Aquino <andres.aquino@gmail.com>"
 	fi
 
 }
@@ -277,7 +277,7 @@ if [ "`id -u`" -eq "0" ]
 then
 	 if [ "${MAILACCOUNTS}" = "_NULL_" ]
 	 then
-			echo "Hey, i can't run as root user "
+			echo ${ECOPTS} "Hey, i can't run as root user "
 	 else
 			$APMAIL -s "Somebody tried to run me as r00t user" "${MAILACCOUNTS}" < "$@" > /dev/null 2>&1 &
 			log_action "WARN" "Somebod tried to run me as r00t, sending warn to ${MAILACCOUNTS}"
@@ -333,8 +333,8 @@ while [ $# -gt 0 ]
 do
 	case "${1}" in
 		-a=*|--application=*)
-			APPRCS=`echo "$1" | sed 's/^--[a-z-]*=//'`
-			APPRCS=`echo "${APPRCS}" | sed 's/^-a=//'`
+			APPRCS=`echo ${ECOPTS} "$1" | sed 's/^--[a-z-]*=//'`
+			APPRCS=`echo ${ECOPTS} "${APPRCS}" | sed 's/^-a=//'`
 			set_proc "${APPRCS}"
 			ERROR=false
 		;;
@@ -406,12 +406,12 @@ do
 		-t=*|--threaddump=*)
 			THREADDUMP=true
 			ERROR=false
-			MAXVALUES=`echo "$1" | sed 's/^--[a-z-]*=//'`
-			MAXVALUES=`echo "${MAXVALUES}" | sed 's/^-t=//'`
+			MAXVALUES=`echo ${ECOPTS} "$1" | sed 's/^--[a-z-]*=//'`
+			MAXVALUES=`echo ${ECOPTS} "${MAXVALUES}" | sed 's/^-t=//'`
 			if [ $MAXVALUES != "--threaddump" ]
 			then
 				MAXSAMPLES=`echo $MAXVALUES | sed 's/\,.*//'`
-				MAXSLEEP=`echo "$1" | sed 's/.*\,//'`
+				MAXSLEEP=`echo ${ECOPTS} "$1" | sed 's/.*\,//'`
 			fi
 			if ${START} || ${CHECKCONFIG}
 			then
@@ -429,7 +429,7 @@ do
 			fi
 		;;
 		--mailto=*)
-			MAILACCOUNTS=`echo "$1" | sed 's/^--[a-z-]*=//'`
+			MAILACCOUNTS=`echo ${ECOPTS} "$1" | sed 's/^--[a-z-]*=//'`
 			ERROR=false
 		;;
 		--mailreport)
@@ -475,28 +475,28 @@ do
 			then
 				ERROR=true
 			else
-				echo "Usage: ${APNAME} [OPTION]..."
-				echo "start up or stop applications like WebLogic, Fuego, Resin, etc.\n"
-				echo "Mandatory arguments in long format."
-				echo "\t-a, --application=APPNAME        use this appName, required "
-				echo "\t    --start                      start appName "
-				echo "\t    --stop                       stop appName "
-				echo "\t-r, --report                     show an small report about domains "
-				echo "\t-m, --mainteneance               execute all shell plugins in mainteneance directory"
-				echo "\t-s, --status                     verify the status of appName "
-				echo "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
-				echo "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
-				echo "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
-				echo "\t-d, --debug                      debug logs and processes in the system "
-				echo "\t-m, --mail                       send output to mail accounts configured in ${APNAME}.conf "
-				echo "\t    --mailto=user@mail.com       send output to mail accounts or specified mail "
-				echo "\t-q, --quiet                      don't send output to terminal "
-				echo "\t-v, --version                    show version "
-				echo "\t-h, --help                       show help\n "
-				echo "Each APPLIST refers to one application on the server."
-				echo "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
-				echo "INTERVAL time in seconds\n"
-				echo "Report bugs to <andres.aquino@gmail.com>"
+				echo ${ECOPTS} "Usage: ${APNAME} [OPTION]..."
+				echo ${ECOPTS} "start up or stop applications like WebLogic, Fuego, Resin, etc.\n"
+				echo ${ECOPTS} "Mandatory arguments in long format."
+				echo ${ECOPTS} "\t-a, --application=APPNAME        use this appName, required "
+				echo ${ECOPTS} "\t    --start                      start appName "
+				echo ${ECOPTS} "\t    --stop                       stop appName "
+				echo ${ECOPTS} "\t-r, --report                     show an small report about domains "
+				echo ${ECOPTS} "\t-m, --mainteneance               execute all shell plugins in mainteneance directory"
+				echo ${ECOPTS} "\t-s, --status                     verify the status of appName "
+				echo ${ECOPTS} "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
+				echo ${ECOPTS} "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
+				echo ${ECOPTS} "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
+				echo ${ECOPTS} "\t-d, --debug                      debug logs and processes in the system "
+				echo ${ECOPTS} "\t-m, --mail                       send output to mail accounts configured in ${APNAME}.conf "
+				echo ${ECOPTS} "\t    --mailto=user@mail.com       send output to mail accounts or specified mail "
+				echo ${ECOPTS} "\t-q, --quiet                      don't send output to terminal "
+				echo ${ECOPTS} "\t-v, --version                    show version "
+				echo ${ECOPTS} "\t-h, --help                       show help\n "
+				echo ${ECOPTS} "Each APPLIST refers to one application on the server."
+				echo ${ECOPTS} "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
+				echo ${ECOPTS} "INTERVAL time in seconds\n"
+				echo ${ECOPTS} "Report bugs to <andres.aquino@gmail.com>"
 			fi
 			exit 0
 		;;
@@ -518,7 +518,7 @@ fi
 #
 if ${ERROR}
 then
-	echo "Usage: ${APNAME} [OPTION]...[--help]"
+	echo ${ECOPTS} "Usage: ${APNAME} [OPTION]...[--help]"
 	exit 0
 else
 	#
@@ -552,7 +552,7 @@ else
 		${VIEWHISTORY} && CANCEL=false
 		if ${CANCEL}
 		then
-			echo "Usage: ${APNAME} [OPTION]...[--help]"
+			echo ${ECOPTS} "Usage: ${APNAME} [OPTION]...[--help]"
 			exit 1
 		fi
 	fi
@@ -561,10 +561,10 @@ else
 	# RESTART -- guess... ?
 	if ${RESTART}
 	then
-		~/bin/${APNAME} --application=${APPRCS} stop -f
+		~/bin/${APNAME} --application=${APPRCS} stop --forced --verbose
 		RESULT=$?
 		sleep 5
-		[ ${RESULT} -eq 0 ] && ~/bin/${APNAME} --application=${APPRCS} start
+		[ ${RESULT} -eq 0 ] && ~/bin/${APNAME} --application=${APPRCS} start --verbose
 	fi
 
 	
@@ -634,8 +634,8 @@ else
 			fi
 			date '+%Y%m%d-%H%M' > ${APLOGT}.date
 			# summary en lock para un post-analisis
-			echo "${OPTIONS}" > ${APLOGT}.lock
-			echo "\nDate:\n`date '+%Y%m%d %H:%M'`" >> ${APLOGT}.lock
+			echo ${ECOPTS} "${OPTIONS}" > ${APLOGT}.lock
+			echo ${ECOPTS} "\nDate:\n`date '+%Y%m%d %H:%M'`" >> ${APLOGT}.lock
 		fi
 
 		#
@@ -644,7 +644,7 @@ else
 		ONSTOP=1
 		INWAIT=true
 		LASTLINE=""
-		LINE=" >> `tail -n1 ${APLOGP}.log | rev | cut -c 1-60 | rev`"
+		LINE="`tail -n1 ${APLOGP}.log`"
 		while ($INWAIT)
 		do
 			filter_in_log "${UPSTRING}"
@@ -654,20 +654,20 @@ else
 			[ ${LASTSTATUS} -eq 0 ] && INWAIT=false
 			if [ "${LINE}" != "${LASTLINE}" ]
 			then 
-				${VIEWLOG} && echo "${LINE}" 
+				${VIEWLOG} && echo ${ECOPTS} "${LINE}" 
 				LINE="$LASTLINE"
 			fi
-			sleep 2
+			sleep 1
 			ONSTOP="$(($ONSTOP+1))"
 			[ $ONSTOP -ge $TOSLEEP ] && report_status "?" "Uhm, something goes wrong with ${APPRCS}"
 			[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false;
-			LASTLINE=" >> `tail -n1 ${APLOGP}.log | rev | cut -c 1-60 | rev`"
+			LASTLINE="`tail -n1 ${APLOGP}.log`"
 		done
 		
 		# buscar los PID's
 		sleep 5
 		get_process_id "${FILTERAPP},${FILTERLANG}"
-		echo "\nPID:\n" >> "${APLOGT}.lock" 2>&1
+		echo ${ECOPTS} "\nPID:\n" >> "${APLOGT}.lock" 2>&1
 		cat ${APLOGT}.pid >> "${APLOGT}.lock" 2>&1
 
 		# le avisamos a los admins 
@@ -692,7 +692,7 @@ else
 		process_running
 		if [ ! -s ${APLOGT}.pid ]
 		then
-			echo "uh, ${APNAME} is not running currently, tip: ${APNAME} --report"
+			echo ${ECOPTS} "uh, ${APNAME} is not running currently, tip: ${APNAME} --report"
 			log_action "INFO" "The application is down"
 			exit 0
 		fi
@@ -723,7 +723,7 @@ else
 			ONSTOP=1
 			INWAIT=true
 			LASTLINE=""
-			LINE="`tail -n1 ${APLOGP}.log`"
+			LINE="`tail -n1 ${APLOGP}.log `"
 			INWAIT=true
 			while ($INWAIT)
 			do
@@ -731,16 +731,16 @@ else
 				process_running
 				LASTSTATUS=$?
 				[ ${LASTSTATUS} -ne 0 ] && report_status "*" "process ${APPRCS} was killed in normal mode"
-				[ ${LASTSTATUS} -ne 0 ] && log_action "DEBUG" "Yeah! ${APPRCS} died placid and successfully (npray for that)"
+				[ ${LASTSTATUS} -ne 0 ] && log_action "DEBUG" "Yeah! the ${APPRCS} died placid and successfully (pray for it)"
 				[ ${LASTSTATUS} -ne 0 ] && INWAIT=false
 				if [ "${LINE}" != "${LASTLINE}" ]
 				then 
-					${VIEWLOG} && echo "${LINE}" 
+					${VIEWLOG} && echo ${ECOPTS} "${LINE}" 
 					LINE="$LASTLINE"
 				fi
 				
 				# tiempo a esperar para refrescar out en la pantalla
-				sleep 2
+				sleep 1
 				
 				ONSTOP="$((${ONSTOP}+1))"
 				log_action "DEBUG" "uhmmm, OnStop = ${ONSTOP} vs ToSleep = ${TOSLEEP}"
@@ -749,7 +749,7 @@ else
 					INWAIT=false
 					log_action "WARN" "We have a problem Houston, the app stills remains in memory !"
 				fi
-				LASTLINE="`tail -n1 ${APLOGP}.log`"
+				LASTLINE="`tail -n1 ${APLOGP}.log `"
 			done
 		fi
 
@@ -781,14 +781,15 @@ else
 				then
 					awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
 					sleep 2
-					${VIEWLOG} && tail -n10 ${APLOGP}.log
+					LASTLINE="`tail -n3 ${APLOGP}.log `"
+					${VIEWLOG} && echo ${ECOPTS} ${LASTLINE}
 				fi
 
 				# checar si existen los PID's, por si el archivo no regresa el shutdown
 				process_running
 				LASTSTATUS=$?
 				[ ${LASTSTATUS} -ne 0 ] && report_status "*" "process ${APPRCS} was killed in --forced mode"
-				[ ${LASTSTATUS} -ne 0 ] && log_action "DEBUG" "you're dead successfully fucking monkey-process from hell"
+				[ ${LASTSTATUS} -ne 0 ] && log_action "DEBUG" "fucking monkey-process ${APPRCS} is dead successfully "
 				[ ${LASTSTATUS} -ne 0 ] && break
 				ONSTOP="$(($ONSTOP+1))"
 				[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false
@@ -825,7 +826,7 @@ else
 					app=`basename ${app%-*}`
 					~/bin/${APNAME} --application=$app --status 
 				done
-				echo "\nTotal $count application(s)"
+				echo ${ECOPTS} "\nTotal $count application(s)"
 			else
 				# si se da el parametro de --application, procede sobre esa aplicacion 
 				process_running
@@ -850,7 +851,7 @@ else
 				#then
 					#${VIEWLOG} && cat ${REPORT}
 				#else
-				#	echo "`date`" >> ${REPORT}
+				#	echo ${ECOPTS} "`date`" >> ${REPORT}
 				#	$APMAIL -s "${APPRCS} STATUS " "${MAILACCOUNTS}" < ${REPORT} > /dev/null 2>&1 &
 				#	log_action "INFO" "Sending report by mail of STATUS to ${MAILACCOUNTS}"
 				#fi
@@ -873,8 +874,8 @@ else
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			processes_running
-			echo "\n ${APHOST} (${IPADDRESS})\n"
-			echo "APPLICATION:EXECUTED:PID:STATUS" | 
+			echo ${ECOPTS} "\n ${APHOST} (${IPADDRESS})\n"
+			echo ${ECOPTS} "APPLICATION:EXECUTED:PID:STATUS" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print " "substr($1"                             ",1,20),
@@ -882,17 +883,18 @@ else
 											substr($3"              ",1,6),
 											substr($4"              ",1,6)
 							}'
-			echo " --------------------+---------------+-------+---------"
+			echo ${ECOPTS} " --------------------+---------------+-------+---------"
 			
 			for app in ${APPATH}/setup/*-*.conf
 			do
 				appname=`basename ${app%-*}`
 				apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
+				log_action "DEBUG" "report from ${APTEMP}/${appname}"
 				[ -s ${APTEMP}/${appname}.date ] && appdate=`cat "${APTEMP}/${appname}.date"` || appdate=
 				[ -s ${APTEMP}/${appname}.pid ] && apppidn=`cat "${APTEMP}/${appname}.pid"` || apppidn=
 				[ -s ${APTEMP}/${appname}.pid ] && appstat="RUNNING" || appstat="STOPPED"
 				
-				echo "${appname}:${appdate}:${apppidn}:${appstat}" | 
+				echo ${ECOPTS} "${appname}:${appdate}:${apppidn}:${appstat}" | 
 					awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print " "substr($1"                             ",1,20),
@@ -901,7 +903,7 @@ else
 											substr($4"              ",1,9)
 							}'
 			done
-			echo "\nTotal $count application(s)"
+			echo ${ECOPTS} "\nTotal $count application(s)"
 		fi
 		
 
@@ -919,16 +921,16 @@ else
 			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
-			#~/bin/${APNAME} --status > /dev/null 2>&1
-			echo "\n ${APHOST} (${IPADDRESS})\n"
-			echo "STOP:START:HOST:" | 
+			echo ${ECOPTS} "\n ${APHOST} (${IPADDRESS})\n"
+			echo ${ECOPTS} "STOP:START:HOST:" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print substr($1"                     ",1,18),
 											substr($2"                     ",1,18),
 											substr($3"                     ",1,7);
 							}'
-			echo "------------------+-------------------------------------------------"
+			echo ${ECOPTS} "------------------+-------------------------------------------------"
+			log_action "DEBUG" "report from ${APLOGS}.log "
 			tail -n600 ${APLOGS}.log |	tr -d ":[]()-" | \
 						awk 'BEGIN{LAST="";OFS="| "}
 									/successfully/{
@@ -936,6 +938,7 @@ else
 									{
 										LDATE=$1;
 										LTIME=$2;
+										PROCS=$8;
 									}
 									else
 									{
@@ -953,7 +956,7 @@ else
 			else
 				cat ${APTEMP}/${APNAME}.history | uniq | sort -r	| head -n60 | grep "${APPRCS} "
 			fi
-			echo ""
+			echo ${ECOPTS} ""
 		fi
 
 		#
@@ -966,13 +969,13 @@ else
 			find . -name "*-*.tar.gz" -mtime +4 -type f -print | while read flog
 			do
 				rm -f ${flog} && log_action "WARN" " deleting ${flog}"
-				echo " deleting ${flog}"
+				echo ${ECOPTS} " deleting ${flog}"
 			done
 			
 			find . -name "*-*.ftd" -mtime +4 -type f -print | while read flog
 			do
 				rm -f ${flog} && log_action "WARN" " deleting ${flog}"
-				echo " deleting ${flog}"
+				echo ${ECOPTS} " deleting ${flog}"
 			done
 			# mantenimiento de logs de aplicaciones en base a shell-plugins
 			#for mplugin in ${APNAME}/*-maintenance.plug
@@ -988,40 +991,40 @@ else
 			FLDEBUG="${APLOGT}.debug"
 			[ -f ${FLDEBUG} ] && rm -f ${FLDEBUG}
 			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
-			echo "\nDEBUG" >> ${FLDEBUG}
-			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}
-			echo "\n`date`\n" >> ${FLDEBUG}
+			echo ${ECOPTS} "\nDEBUG" >> ${FLDEBUG}
+			echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${FLDEBUG}
+			echo ${ECOPTS} "\n`date`\n" >> ${FLDEBUG}
 			show_version	>> ${FLDEBUG} 2>&1
-			echo "HOSTNAME     : `hostname`" >> ${FLDEBUG}
-			echo "USER         : `id -u -n`" >> ${FLDEBUG}
-			echo "PROCESS      : ${APPRCS}" >> ${FLDEBUG}
-			echo "IPADDRESS    : ${IPADDRESS}" >> ${FLDEBUG}
-			echo "DESCRIPTION  : ${DESCRIPTION}" >> ${FLDEBUG}
-			echo " " >> ${FLDEBUG}
-			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
-			echo "\nDATE " >> ${FLDEBUG}
-			echo "${APLOGT}.date" >> ${FLDEBUG}
+			echo ${ECOPTS} "HOSTNAME     : `hostname`" >> ${FLDEBUG}
+			echo ${ECOPTS} "USER         : `id -u -n`" >> ${FLDEBUG}
+			echo ${ECOPTS} "PROCESS      : ${APPRCS}" >> ${FLDEBUG}
+			echo ${ECOPTS} "IPADDRESS    : ${IPADDRESS}" >> ${FLDEBUG}
+			echo ${ECOPTS} "DESCRIPTION  : ${DESCRIPTION}" >> ${FLDEBUG}
+			echo ${ECOPTS} " " >> ${FLDEBUG}
+			echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
+			echo ${ECOPTS} "\nDATE " >> ${FLDEBUG}
+			echo ${ECOPTS} "${APLOGT}.date" >> ${FLDEBUG}
 			cat ${APLOGT}.date >> ${FLDEBUG} 2>&1
-			echo "\nPIDFILE " >> ${FLDEBUG}
-			echo "${APLOGT}.pid" >> ${FLDEBUG}
+			echo ${ECOPTS} "\nPIDFILE " >> ${FLDEBUG}
+			echo ${ECOPTS} "${APLOGT}.pid" >> ${FLDEBUG}
 			cat ${APLOGT}.pid >> ${FLDEBUG} 2>&1
-			echo "\nPROCESSES TABLE" >> ${FLDEBUG}
+			echo ${ECOPTS} "\nPROCESSES TABLE" >> ${FLDEBUG}
 			process_running
 			PROCESSES=$?
 			if [ ${PROCESSES} -eq 0 ]
 			then
-				echo "${APPRCS} is running" >> ${FLDEBUG} 2>&1
+				echo ${ECOPTS} "${APPRCS} is running" >> ${FLDEBUG} 2>&1
 				cat ${APLOGT}.ps >> ${FLDEBUG} 2>&1
 			else
-				echo "${APPRCS} is not running." >> ${FLDEBUG} 2>&1
+				echo ${ECOPTS} "${APPRCS} is not running." >> ${FLDEBUG} 2>&1
 			fi
-			echo "\nFILESYSTEM" >> ${FLDEBUG}
+			echo ${ECOPTS} "\nFILESYSTEM" >> ${FLDEBUG}
 			df ${DFOPTS} >> ${FLDEBUG} 2>&1
-			echo "\nLOGFILE" >> ${FLDEBUG}
-			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
+			echo ${ECOPTS} "\nLOGFILE" >> ${FLDEBUG}
+			echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
 			tail -n100 ${APLOGP}.log >> ${FLDEBUG} 2>&1
-			echo "	" >> ${FLDEBUG}
-			echo "-------------------------------------------------------------------------------" >> ${FLDEBUG}
+			echo ${ECOPTS} "	" >> ${FLDEBUG}
+			echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${FLDEBUG}
 		 
 			#
 			# si no se solicita el --mailreport
