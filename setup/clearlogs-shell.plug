@@ -36,5 +36,5 @@ MTIME=+3
 #     please use the MDEBUG option before to proceed 
 #     YES, Im nervous wanabe unix administrator
 #     NO, Im a son of a bitch and enjoy the power of ignorance
-MDEBUG=NO
+MDEBUG=YES
 
