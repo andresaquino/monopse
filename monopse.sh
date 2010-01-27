@@ -561,9 +561,10 @@ else
 	# RESTART -- guess... ?
 	if ${RESTART}
 	then
+		wait_for "Stopping ${APPRCS} application" 2
 		~/bin/${APNAME} --application=${APPRCS} stop --forced --verbose
 		RESULT=$?
-		sleep 5
+		wait_for "Starting ${APPRCS} application" 3
 		[ ${RESULT} -eq 0 ] && ~/bin/${APNAME} --application=${APPRCS} start --verbose
 	fi
 
@@ -657,7 +658,7 @@ else
 				${VIEWLOG} && echo ${ECOPTS} "${LINE}" 
 				LINE="$LASTLINE"
 			fi
-			sleep 1
+			wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
 			ONSTOP="$(($ONSTOP+1))"
 			[ $ONSTOP -ge $TOSLEEP ] && report_status "?" "Uhm, something goes wrong with ${APPRCS}"
 			[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false;
@@ -665,7 +666,7 @@ else
 		done
 		
 		# buscar los PID's
-		sleep 5
+		wait_for "Yeap, checking for ${APPRCS} application" 3
 		get_process_id "${FILTERAPP},${FILTERLANG}"
 		echo ${ECOPTS} "\nPID:\n" >> "${APLOGT}.lock" 2>&1
 		cat ${APLOGT}.pid >> "${APLOGT}.lock" 2>&1
@@ -740,7 +741,7 @@ else
 				fi
 				
 				# tiempo a esperar para refrescar out en la pantalla
-				sleep 1
+				wait_for "Waiting for ${APPRCS} termination, be patient ..." 1
 				
 				ONSTOP="$((${ONSTOP}+1))"
 				log_action "DEBUG" "uhmmm, OnStop = ${ONSTOP} vs ToSleep = ${TOSLEEP}"
@@ -776,11 +777,12 @@ else
 			do
 				#
 				# obtenemos los PID, armamos los kills y shelleamos
+				wait_for "Uhmmm, you're a impatient guy !!..." 2
 				process_running
 				if [ $? -eq 0 ]
 				then
 					awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
-					sleep 2
+					wait_for "Ok, sending the kill-bill signal, can you wait some seconds?" 2
 					LASTLINE="`tail -n3 ${APLOGP}.log `"
 					${VIEWLOG} && echo ${ECOPTS} ${LASTLINE}
 				fi
