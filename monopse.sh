@@ -481,15 +481,14 @@ do
 				echo ${ECOPTS} "\t-a, --application=APPNAME        use this appName, required "
 				echo ${ECOPTS} "\t    --start                      start appName "
 				echo ${ECOPTS} "\t    --stop                       stop appName "
+				echo ${ECOPTS} "\t    --restart                    restart appName "
 				echo ${ECOPTS} "\t-r, --report                     show an small report about domains "
-				echo ${ECOPTS} "\t-m, --mainteneance               execute all shell plugins in mainteneance directory"
+				echo ${ECOPTS} "\t    --mainteneance               execute all shell plugins in mainteneance directory"
 				echo ${ECOPTS} "\t-s, --status                     verify the status of appName "
 				echo ${ECOPTS} "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
 				echo ${ECOPTS} "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
 				echo ${ECOPTS} "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
 				echo ${ECOPTS} "\t-d, --debug                      debug logs and processes in the system "
-				echo ${ECOPTS} "\t-m, --mail                       send output to mail accounts configured in ${APNAME}.conf "
-				echo ${ECOPTS} "\t    --mailto=user@mail.com       send output to mail accounts or specified mail "
 				echo ${ECOPTS} "\t-q, --quiet                      don't send output to terminal "
 				echo ${ECOPTS} "\t-v, --version                    show version "
 				echo ${ECOPTS} "\t-h, --help                       show help\n "
@@ -748,7 +747,7 @@ else
 				if [ ${ONSTOP} -gt ${TOSLEEP} ]
 				then 
 					INWAIT=false
-					log_action "WARN" "We have a problem Houston, the app stills remains in memory !"
+					log_action "WARN" "We have a problem Houston, ${APPRCS} stills remains in memory !"
 				fi
 				LASTLINE="`tail -n1 ${APLOGP}.log `"
 			done
@@ -872,7 +871,10 @@ else
 		# ...
 		if ${VIEWREPORT} 
 		then
-			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
+			IPADDRESS=`/usr/sbin/ping ${HOSTNAME} -c1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' `
+			[ "x$MYIP" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
+			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan0 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
+			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan1 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			processes_running
@@ -920,7 +922,10 @@ else
 		# ...
 		if ${VIEWHISTORY} 
 		then
-			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
+			IPADDRESS=`/usr/sbin/ping ${HOSTNAME} -c1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' `
+			[ "x$MYIP" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
+			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan0 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
+			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan1 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			echo ${ECOPTS} "\n ${APHOST} (${IPADDRESS})\n"
@@ -954,9 +959,9 @@ else
 			
 			if [ "${APPRCS}" = "NONSETUP" ]
 			then
-				cat ${APTEMP}/${APNAME}.history | uniq | sort -r	| head -n60
+				cat ${APTEMP}/${APNAME}.history | uniq | sort | head -n25
 			else
-				cat ${APTEMP}/${APNAME}.history | uniq | sort -r	| head -n60 | grep "${APPRCS} "
+				cat ${APTEMP}/${APNAME}.history | uniq | sort | head -n25 | grep "${APPRCS} "
 			fi
 			echo ${ECOPTS} ""
 		fi
@@ -992,14 +997,17 @@ else
 		then
 			FLDEBUG="${APLOGT}.debug"
 			[ -f ${FLDEBUG} ] && rm -f ${FLDEBUG}
-			IPADDRESS=`echo $SSH_CONNECTION | cut -f3 -d" "`
+			IPADDRESS=`/usr/sbin/ping ${HOSTNAME} -c1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' `
+			[ "x$MYIP" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
+			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan0 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
+			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan1 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
 			echo ${ECOPTS} "\nDEBUG" >> ${FLDEBUG}
 			echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${FLDEBUG}
-			echo ${ECOPTS} "\n`date`\n" >> ${FLDEBUG}
 			show_version	>> ${FLDEBUG} 2>&1
-			echo ${ECOPTS} "HOSTNAME     : `hostname`" >> ${FLDEBUG}
+			echo ${ECOPTS} "\n\nHOSTNAME     : `hostname`" >> ${FLDEBUG}
 			echo ${ECOPTS} "USER         : `id -u -n`" >> ${FLDEBUG}
 			echo ${ECOPTS} "PROCESS      : ${APPRCS}" >> ${FLDEBUG}
+			echo ${ECOPTS} "CURRENT      : `date`" >> ${FLDEBUG}
 			echo ${ECOPTS} "IPADDRESS    : ${IPADDRESS}" >> ${FLDEBUG}
 			echo ${ECOPTS} "DESCRIPTION  : ${DESCRIPTION}" >> ${FLDEBUG}
 			echo ${ECOPTS} " " >> ${FLDEBUG}
