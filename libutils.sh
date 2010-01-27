@@ -31,16 +31,18 @@ APFLTR=
 # get the enviroment for the SO running
 set_environment () {
 	# terminal line settings
-	stty erase '^?'
-	stty intr '^C' 
-	stty kill '^U' 
-	stty stop '^S'
-	stty susp '^Z'
-	stty werase '^W'
 	stty 2> /dev/null > /dev/null 
 
 	if [ "$?" = "0" ]
 	then
+		# terminal line settings
+		stty erase '^?'
+		stty intr '^C' 
+		stty kill '^U' 
+		stty stop '^S'
+		stty susp '^Z'
+		stty werase '^W'
+
 		# command line _eye candy_
 		CCLEAR="\033[00m"
 		CWHITE="\033[01;37m"
@@ -104,6 +106,7 @@ set_environment () {
 			DFOPTS="-P -k"
 			MKOPTS="-d /tmp -p "
 			APUSER=`id -u -n`
+			ECOPTS=""
 		;;
 			
 		"Linux")
@@ -112,6 +115,7 @@ set_environment () {
 			DFOPTS="-Pk"
 			MKOPTS="-t "
 			APUSER=`id -u `
+			ECOPTS="-e"
 			;;
 		
 		"Darwin")
@@ -120,6 +124,7 @@ set_environment () {
 			DFOPTS="-P -k"
 			MKOPTS="-t "
 			APUSER=`id -u `
+			ECOPTS=""
 		;;
 			
 		*)
@@ -159,12 +164,12 @@ set_log () {
 	local AP_LOGD=${1}
 
 	# log's path
-	[ -d ${APLOGD} ] && echo "del ${APLOGD}"
+	[ -d ${APLOGD} ] && echo ${ECOPTS} "del ${APLOGD}"
 	APLOGD=${AP_LOGD}
 	APLOGS=${APLOGD}/${APNAME}
 	[ ! -d ${APLOGD} ] && mkdir -p ${APLOGD}
 
-	[ -d ${APTEMP} ] && echo "del ${APTEMP}"
+	[ -d ${APTEMP} ] && echo ${ECOPTS} "del ${APTEMP}"
 	APTEMP=${APLOGD}/temp
 	[ ! -d ${APTEMP} ] && mkdir -p ${APTEMP}
 
@@ -193,7 +198,7 @@ get_process_id () {
 	
 	[ ${#FILTER} -ne 0 ] && APFLTR=${FILTER}
 	PIDFILE=${APLOGT}
-	WRDSLIST=`echo "${APUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
+	WRDSLIST=`echo ${ECOPTS} "${APUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 	# extraer procesos existentes y filtrar las cadenas del archivo de configuracion
 	ps ${PSOPTS} > ${PIDFILE}.allps
 	log_action "DEBUG" "filtering process list with [ps ${PSOPTS}]"
@@ -323,9 +328,9 @@ log_action () {
 	then
 		if [ ${#APLOGS} -ne 0 ]
 		then
-			echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" >> ${APLOGS}.log
+			echo ${ECOPTS} "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" >> ${APLOGS}.log
 		else
-			echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" 
+			echo ${ECOPTS} "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" 
 		fi
 	fi
 }
@@ -338,22 +343,22 @@ report_status () {
 	local MESSAGE="${2}"
 	
 	# cadena para indicar proceso correcto o con error
-	if [ -z "${CBLUE}" ]
+	if [ "${#CBLUE}" -eq 0 ] 
 	then 
-		echo " ${MESSAGE} ..." | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,70),STATUS}'
+		echo ${ECOPTS} " ${MESSAGE} ..." | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,70),STATUS}'
 	else
-		echo " ${MESSAGE} ... "
+		echo ${ECOPTS} " ${MESSAGE} ...                                                                                        "
 		tput sc 
 		tput cuu1 && tput cuf 70
 		case "${STATUS}" in
 			"*")
-				echo "${CCLEAR}[${CGREEN} ${STATUS} ${CCLEAR}]"
+				echo ${ECOPTS} "${CCLEAR}[${CGREEN} ${STATUS} ${CCLEAR}]"
 			;;
 			"?")
-				echo "${CCLEAR}[${CRED} ${STATUS} ${CCLEAR}]"
+				echo ${ECOPTS} "${CCLEAR}[${CRED} ${STATUS} ${CCLEAR}]"
 			;;
 			"i")
-				echo "${CCLEAR}[${CYELLOW} ${STATUS} ${CCLEAR}]"
+				echo ${ECOPTS} "${CCLEAR}[${CYELLOW} ${STATUS} ${CCLEAR}]"
 			;;
 		esac
 	fi
@@ -364,7 +369,7 @@ report_status () {
 # filter_in_log
 filter_in_log () {
 	local FILTER="${1}"
-	local WRDSLIST=`echo "${FILTER}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
+	local WRDSLIST=`echo ${ECOPTS} "${FILTER}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 
 	# la long de la cad no esta vacia
 	[ ${#FILTER} -eq 0 ] && log_action "DEBUG" "Umh, please set the filter (UP or DOWN)String"
@@ -396,21 +401,12 @@ wait_for () {
 	local GOON=true
 	local WAITCHAR="-"
 	
-	if [ ! -z "${CBLUE}" ] 
+	if [ "${#CBLUE}" -ne 0 ] 
 	then
-		TIMETO=${2}
-		echo "${STATUS}"
-		while(${GOON})
-		do
-			sleep 1
-			TIMETO=$((${TIMETO}-1))
-			[ ${TIMETO} -eq 0 ] && GOON=false
-		done
-	else
 		if [ "${STATUS}" != "CLEAR" ]
 		then
 			TIMETO=$((${2}*5))
-			echo "${STATUS}"
+			echo ${ECOPTS} "...${STATUS}"
 			tput sc
 			CHARPOS=1
 			while(${GOON})
@@ -419,7 +415,7 @@ wait_for () {
 				# recuperar la posicion en pantalla, ubicar en la columna 70 y subirse un renglon 
 				tput rc
 				tput cuu1 && tput cuf 70 
-				echo "${CCLEAR}[${CYELLOW} ${WAITCHAR} ${CCLEAR}]"
+				echo ${ECOPTS} "${CCLEAR}[${CYELLOW} ${WAITCHAR} ${CCLEAR}]"
 				# incrementar posicion, si es igual a 5 regresar al primer caracter 
 				CHARPOS=$((${CHARPOS}+1))
 				[ ${CHARPOS} -eq 5 ] && CHARPOS=1
@@ -431,7 +427,16 @@ wait_for () {
 		# limpiar linea de mensajes
 		tput rc 
 		tput cuu1
-		tput el
+		#tput el
+	else
+		TIMETO=${2}
+		echo ${ECOPTS} "...${STATUS}"
+		while(${GOON})
+		do
+			sleep 1
+			TIMETO=$((${TIMETO}-1))
+			[ ${TIMETO} -eq 0 ] && GOON=false
+		done
 	fi
 }
 
@@ -451,7 +456,7 @@ wait_for () {
 
 #
 # [] test para verificar los procesos asociados a un .pid
-#get_enviroment
+#set_enviroment
 #processes_running "gvfs"
 #wait_for "CLEAR"
 
@@ -461,9 +466,10 @@ wait_for () {
 #report_status "ERR" "Reinicio WebLogic 9.2 "
 
 # [ok] test para mostrar indicador de espera
-#get_enviroment
+#set_environment
 #wait_for "Revisando el log de servicios " 5
 #wait_for "CLEAR"
+#report_status "*" "Reinicio WebLogic 9.2 "
 #while (true)
 #do
 #	wait_for "STANDBY"
