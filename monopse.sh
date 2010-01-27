@@ -895,8 +895,8 @@ else
 				appname=`basename ${app%-*}`
 				apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
 				log_action "DEBUG" "report from ${APTEMP}/${appname}"
-				[ -s ${APTEMP}/${appname}.date ] && appdate=`cat "${APTEMP}/${appname}.date"` || appdate=
-				[ -s ${APTEMP}/${appname}.pid ] && apppidn=`cat "${APTEMP}/${appname}.pid"` || apppidn=
+				[ -s ${APTEMP}/${appname}.date ] && appdate=`head -n1 "${APTEMP}/${appname}.date"` || appdate=
+				[ -s ${APTEMP}/${appname}.pid ] && apppidn=`head -n1 "${APTEMP}/${appname}.pid"` || apppidn=
 				[ -s ${APTEMP}/${appname}.pid ] && appstat="RUNNING" || appstat="STOPPED"
 				
 				echo ${ECOPTS} "${appname}:${appdate}:${apppidn}:${appstat}" | 
@@ -978,7 +978,7 @@ else
 			for APMAIN in *-shell.plug
 			do
 				MLOGFILE=${APMAIN%-shell*}
-				log_action "DEBUG" "Executing maintenance of ${APMAIN} "
+				log_action "DEBUG" "Executing maintenance ${MDESCRIPTION} "
 				. ${APMAIN}
 				log_action "DEBUG" "Moving to ${MPATH}"
 				cd ${MPATH}
@@ -989,13 +989,15 @@ else
 				then
 					find . -name "${MFILTER}" -mtime "${MTIME}" -type d > ${APTEMP}/${MLOGFILE}.objects 2> /dev/null
 					
-					# by the moment, only DELETE action supported
+					# by the moment, only DELETE and CLEAR action supported
 					awk '{print "rm -fr "$0}' ${APTEMP}/${MLOGFILE}.objects > ${APTEMP}/${MLOGFILE}.execs
+					[ "${MACTION}" = "CLEAR" ] && awk '{print "rm -f "$0"/*}' ${APTEMP}/${MLOGFILE}.objects > ${APTEMP}/${MLOGFILE}.execs
 				else
 					find . -name "${MFILTER}" -mtime "${MTIME}" -type f > ${APTEMP}/${MLOGFILE}.objects 2> /dev/null
 					
-					# by the moment, only DELETE action supported
+					# by the moment, only DELETE and CLEAR action supported
 					awk '{print "rm -f "$0}' ${APTEMP}/${MLOGFILE}.objects > ${APTEMP}/${MLOGFILE}.execs
+					[ "${MACTION}" = "CLEAR" ] && awk '{print "echo ""> "$0}' ${APTEMP}/${MLOGFILE}.objects > ${APTEMP}/${MLOGFILE}.execs
 				fi
 				if [ -s ${APTEMP}/${MLOGFILE}.execs ]
 				then
@@ -1004,14 +1006,16 @@ else
 					if [ "${MDEBUG}" = "NO" ]
 					then
 						sh -x ${APTEMP}/${MLOGFILE}.execs > ${APTEMP}/${MLOGFILE}.log 2>&1
-						log_action "DEBUG" "Well, you'ld pray because the system remains stable..."
-						report_status "i" "You should pray because the system remains stable..."
+						log_action "DEBUG" "Well, you'ld pray because the system remains stable"
+						report_status "i" "You should pray because the system remains stable"
 					else
-						log_action "DEBUG" "Good, you're a good boy (lamer) but, a god boy..."
+						log_action "DEBUG" "Good, you're a good boy (lamer) but, a good boy"
 					fi 
 				else
-					report_status "?" "Uhmm, yeah... time to scratching eyes!"
+					report_status "i" "Uhmm, yeah... time to scratching eyes!"
 				fi
+				cd ${APPATH}/setup/
+				report_status "*" "Ok, ${APMAIN} executed"
 			done
 		fi
 
