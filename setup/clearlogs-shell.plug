@@ -1,19 +1,40 @@
 # CONF 
 # vim: set ts=3 et sw=3 sts=3 si ai: 
 
-# clearlogs-shell.plug - shell plug para limpiar logs
+# clearlogs-shell.plug - shell plug to clean log files
 # =-=
 # (c) 2008 Nextel de Mexico
 #
 
-#
-PATHAPP=${HOME}/monopse
-STARTAPP=apptest/test.sh
-#STOPAPP=setup/cx1.stop
-FILTERAPP="test.sh"
-FILTERLANG="sh"
-UNIQUELOG=true
-UPSTRING="RUNNING OK"
-DOWNSTRING=""
-TOSLEEP=2
+# 1. Show description
+MDESCRIPTION="Limpiar logs del Monopse :)"
+
+# 2. Move to path
+MPATH=$APLOGD
+
+# 3. Search the objects (TYPE) like this pattern
+MFILTER=201001*
+
+# 4. Only for this objects: TYPE=[FILE|DIRECTORY]
+MTYPE=DIRECTORY
+
+# 5. Execute the actions required: ACTION=[DELETE|CLEAR|BACKUP|MOVE]
+MACTION=DELETE
+
+# 6. Period time, in other words: the age of the OBJECT
+#     0 = 24%0 = means OBJECT modified IN the last 24 hours, today!
+#    +3 = 3x24 = means OBJECT modified AT LEAST three days or 72 hours ago 
+#    -5 = 5x24 = means OBJECT modified SINCE five days or 120 hours before
+MTIME=+3
+
+# OPTIONAL
+
+# 7. If ACTION = BACKUP or MOVE, we need a destination directory
+# MDESTINATION=
+
+# 8. finally, everybody have mistakes.. yes, except me (monopse)
+#     please use the MDEBUG option before to proceed 
+#     YES, Im nervous wanabe unix administrator
+#     NO, Im a son of a bitch and enjoy the power of ignorance
+MDEBUG=NO
 
