@@ -1,6 +1,12 @@
 
 2010-01-27  Andres Aquino <andres.aquino@gmail.com>
 
+        * 22bae89: mantenimiento para archivos de log del monopse
+
+        * 05938f0: se agrega la opcion para mantenimiento, aun estado beta
+
+        * 7fae999: registro de cambios
+
         * 094ad8e: se preparan archivos para el --mainteneance, los shell-plugs
 
         * ba7cf28: opciones para mail se eliminan, no se han usado entonces no son utiles
