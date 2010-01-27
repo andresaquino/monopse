@@ -650,7 +650,7 @@ else
 			filter_in_log "${UPSTRING}"
 			LASTSTATUS=$?
 			[ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} start successfully"
-			[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "Great!, ${APPRCS} start successfully"
+			[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "Great!, the ${APPRCS} start successfully"
 			[ ${LASTSTATUS} -eq 0 ] && INWAIT=false
 			if [ "${LINE}" != "${LASTLINE}" ]
 			then 
@@ -922,16 +922,16 @@ else
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			echo ${ECOPTS} "\n ${APHOST} (${IPADDRESS})\n"
-			echo ${ECOPTS} "STOP:START:HOST:" | 
+			echo ${ECOPTS} "START:STOP:APPLICATION:" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print substr($1"                     ",1,18),
 											substr($2"                     ",1,18),
-											substr($3"                     ",1,7);
+											substr($3"                     ",1,28);
 							}'
 			echo ${ECOPTS} "------------------+-------------------------------------------------"
 			log_action "DEBUG" "report from ${APLOGS}.log "
-			tail -n600 ${APLOGS}.log |	tr -d ":[]()-" | \
+			tail -n5000 ${APLOGS}.log |	tr -d ":[]()-" | sort -r | \
 						awk 'BEGIN{LAST="";OFS="| "}
 									/successfully/{
 									if($0~"start")
@@ -946,7 +946,7 @@ else
 													substr(LTIME"                     ",1,7),
 													substr($1"                     ",1,9),
 													substr($2"                     ",1,7),
-													substr($3"                     ",1,14);
+													substr($8"                     ",1,28);
 									}
 						}' > ${APTEMP}/${APNAME}.history
 			
