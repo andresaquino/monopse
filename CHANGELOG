@@ -1,6 +1,12 @@
 
 2010-01-27  Andres Aquino <andres.aquino@gmail.com>
 
+        * 4c30b45: la definicion del archivo shell-plug parece lista... ^_^
+
+        * cd8c37f: lista la opcion para el mantenimiento, ahora solo falta depurarla...
+
+        * 6ae1bbc: registro de cambios
+
         * 22bae89: mantenimiento para archivos de log del monopse
 
         * 05938f0: se agrega la opcion para mantenimiento, aun estado beta
