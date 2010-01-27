@@ -1,5 +1,14 @@
 
+2010-01-27  Andres Aquino <andres.aquino@gmail.com>
+
+        * 11de727: correcion al --restart, ahora con --verbose
+
+        * 3f0aca3: correcion en filtros para el --log
+
+
 2010-01-22  Andres Aquino <andres.aquino@gmail.com>
+
+        * 729b0f8: registro de cambios
 
         * 966a57c: correccion en los filtros del AWK en el process_running
 
