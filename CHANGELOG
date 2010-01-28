@@ -1,6 +1,12 @@
 
 2010-01-28  Andres Aquino <andres.aquino@gmail.com>
 
+        * 50c9a07: opcion verbose por defecto a false
+
+        * 807f6ec: cuando encuentra ejecucion correcta, termina monopse con status
+
+        * a381e40: registro de cambios
+
         * 41a099a: se borra test-monopse y se agregan otros dos
 
         * c2aca31: se agregan nuevos programas para test
