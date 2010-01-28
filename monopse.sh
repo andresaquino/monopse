@@ -668,12 +668,13 @@ else
 			[ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} start successfully"
 			[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "Great!, the ${APPRCS} start successfully"
 			[ ${LASTSTATUS} -eq 0 ] && INWAIT=false
+			[ ${LASTSTATUS} -eq 0 ] && break
 			if [ "${LINE}" != "${LASTLINE}" ]
 			then 
-				${VIEWLOG} && echo ${ECOPTS} "${LINE}" 
+				${VIEWLOG} && echo ${ECOPTS} "${LINE}" || wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
 				LINE="$LASTLINE"
 			fi
-			[ ${LASTSTATUS} -ne 0 ] && wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
+			#[ ${LASTSTATUS} -ne 0 -a ! ${VIEWLOG} ] && wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
 			ONSTOP="$(($ONSTOP+1))"
 			[ $ONSTOP -ge $TOSLEEP ] && report_status "?" "Uhm, something goes wrong with ${APPRCS}"
 			[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false;
