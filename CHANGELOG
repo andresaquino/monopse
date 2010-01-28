@@ -1,6 +1,12 @@
 
 2010-01-28  Andres Aquino <andres.aquino@gmail.com>
 
+        * 4173293: se incremento el TOSLEEP
+
+        * a995622: el restart ya no requiere el verbose, ya se puede poner como parametro por defecto
+
+        * d9657be: registro de cambios
+
         * 50c9a07: opcion verbose por defecto a false
 
         * 807f6ec: cuando encuentra ejecucion correcta, termina monopse con status
