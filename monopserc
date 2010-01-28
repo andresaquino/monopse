@@ -11,6 +11,7 @@
 # home de la aplicacion
 APHOME=$HOME/monopse
 APLOGD=$HOME/logs
+VIEWLOG=false
 
 #
 # correo de los Administradores
