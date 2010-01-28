@@ -86,17 +86,18 @@ log_backup () {
 # check_configuration
 # corroborar que los parametros/archivos sean correctos y existan en el filesystem
 check_configuration () {
-	PROCESS="${1}"
+	PROCESS=${1}
+	SHOWLOG=${2}
 	
 	# existe el archivo de configuracion ?
 	FILESETUP="${APPATH}/setup/${PROCESS}-${APNAME}.conf"
 	log_action "DEBUG" "Testing ${FILESETUP}"
 	
 	CHECKTEST=false
-	if [ -r "${FILESETUP}" ]
+	if [ -r ${FILESETUP} ]
 	then
 		CHECKTEST=true
-		. "${FILESETUP}"
+		. ${FILESETUP}
 		
 		# Validar parametros
 		[ -d ${PATHAPP} ] || CHECKTEST=false
@@ -114,6 +115,11 @@ check_configuration () {
 
 	if ${CHECKTEST}
 	then
+		if [ "${SHOWLOG}" = "YES" ]
+		then
+			echo ${ECOPTS} "File: ${FILESETUP}\n--"
+			awk '/^[a-zA-Z]/{print}' ${FILESETUP}
+		fi
 		log_action "DEBUG" "All parameters seem to be correct "
 		return 0
 	else
@@ -524,13 +530,13 @@ else
 	# CHECKCONFIG -- Verificar los parámetros del archivo de configuración
 	if ${CHECKCONFIG}
 	then
-		check_configuration "${APPRCS}"
+		check_configuration "${APPRCS}" "YES"
 		LASTSTATUS=$?
 		if [ ${LASTSTATUS} -eq 0 ]
 		then
-			report_status "*" "${APPRCS} is good, go ahead"
+			report_status "*" "${APPRCS} seems correct"
 		else
-			report_status "?" "${APPRCS} is bad, please check the log file"
+			report_status "?" "${APPRCS} seems corrupted"
 		fi
 		exit ${LASTSTATUS}
 	fi
