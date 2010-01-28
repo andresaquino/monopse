@@ -345,20 +345,20 @@ report_status () {
 	# cadena para indicar proceso correcto o con error
 	if [ "${#CBLUE}" -eq 0 ] 
 	then 
-		echo ${ECOPTS} " ${MESSAGE} ..." | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,70),STATUS}'
+		echo " ${MESSAGE} ..." | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,70),STATUS}'
 	else
-		echo ${ECOPTS} " ${MESSAGE} ...                                                                                        "
+		echo " ${MESSAGE} ...                                                                                        "
 		tput sc 
-		tput cuu1 && tput cuf 70
+		tput cuu1 && tput cuf 80
 		case "${STATUS}" in
 			"*")
-				echo ${ECOPTS} "${CCLEAR}[${CGREEN} ${STATUS} ${CCLEAR}]"
+				echo "${CCLEAR}[${CGREEN} ${STATUS} ${CCLEAR}]"
 			;;
 			"?")
-				echo ${ECOPTS} "${CCLEAR}[${CRED} ${STATUS} ${CCLEAR}]"
+				echo "${CCLEAR}[${CRED} ${STATUS} ${CCLEAR}]"
 			;;
 			"i")
-				echo ${ECOPTS} "${CCLEAR}[${CYELLOW} ${STATUS} ${CCLEAR}]"
+				echo "${CCLEAR}[${CYELLOW} ${STATUS} ${CCLEAR}]"
 			;;
 		esac
 	fi
@@ -369,7 +369,7 @@ report_status () {
 # filter_in_log
 filter_in_log () {
 	local FILTER="${1}"
-	local WRDSLIST=`echo ${ECOPTS} "${FILTER}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
+	local WRDSLIST=`echo "${FILTER}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 
 	# la long de la cad no esta vacia
 	[ ${#FILTER} -eq 0 ] && log_action "DEBUG" "Umh, please set the filter (UP or DOWN)String"
@@ -377,7 +377,7 @@ filter_in_log () {
 
 	# extraer los procesos que nos interesan 
 	[ ! -f ${APLOGP}.log ] && touch ${APLOGP}.log
-	awk "BEGIN{res=0}/${WRDSLIST}/{res=1}END{if(res==0){exit 1}}" ${APLOGP}.log
+	cut -c1-160 ${APLOGP}.log | awk "BEGIN{res=0}/${WRDSLIST}/{res=1}END{if(res==0){exit 1}}"
 	LASTSTATUS=$?
 	log_action "DEBUG" "ok, searching /${WRDSLIST}/ in ${APLOGP}.log: ${LASTSTATUS}"
 	
@@ -406,7 +406,7 @@ wait_for () {
 		if [ "${STATUS}" != "CLEAR" ]
 		then
 			TIMETO=$((${2}*5))
-			echo ${ECOPTS} "...${STATUS}"
+			echo "...${STATUS}"
 			tput sc
 			CHARPOS=1
 			while(${GOON})
@@ -414,8 +414,8 @@ wait_for () {
 				WAITCHAR=`echo ${WAITSTR} | cut -d" " -f${CHARPOS}`
 				# recuperar la posicion en pantalla, ubicar en la columna 70 y subirse un renglon 
 				tput rc
-				tput cuu1 && tput cuf 70 
-				echo ${ECOPTS} "${CCLEAR}[${CYELLOW} ${WAITCHAR} ${CCLEAR}]"
+				tput cuu1 && tput cuf 80 
+				echo "${CCLEAR}[${CYELLOW} ${WAITCHAR} ${CCLEAR}]"
 				# incrementar posicion, si es igual a 5 regresar al primer caracter 
 				CHARPOS=$((${CHARPOS}+1))
 				[ ${CHARPOS} -eq 5 ] && CHARPOS=1
@@ -430,7 +430,7 @@ wait_for () {
 		#tput el
 	else
 		TIMETO=${2}
-		echo ${ECOPTS} "...${STATUS}"
+		echo "...${STATUS}"
 		while(${GOON})
 		do
 			sleep 1
