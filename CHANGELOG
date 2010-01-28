@@ -1,5 +1,14 @@
 
+2010-01-28  Andres Aquino <andres.aquino@gmail.com>
+
+        * 8684f98: el archivo de configuracion se muestra bajo demanda :)
+
+        * 2b9035b: correccion en filter_in_log, en HPUX el awk se apendeja con un input de 3000 lineas -.-
+
+
 2010-01-27  Andres Aquino <andres.aquino@gmail.com>
+
+        * bc16aa2: registro de cambios
 
         * 4c30b45: la definicion del archivo shell-plug parece lista... ^_^
 
