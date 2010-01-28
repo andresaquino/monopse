@@ -318,7 +318,7 @@ SVERSION=false
 APPTYPE="STAYRESIDENT"
 UNIQUELOG=false
 PREEXECUTION="_NULL_"
-OPTIONS="Options used when ${APNAME} was called:"
+OPTIONS=
 
 
 APMAIL=`which mail`
@@ -339,10 +339,9 @@ while [ $# -gt 0 ]
 do
 	case "${1}" in
 		-a=*|--application=*)
-			APPRCS=`echo ${ECOPTS} "$1" | sed 's/^--[a-z-]*=//'`
-			APPRCS=`echo ${ECOPTS} "${APPRCS}" | sed 's/^-a=//'`
+			APPRCS=`echo "$1" | sed 's/^--[a-z-]*=//'`
+			APPRCS=`echo "${APPRCS}" | sed 's/^-a=//'`
 			set_proc "${APPRCS}"
-			ERROR=false
 		;;
 		--start|start)
 			START=true
@@ -368,7 +367,7 @@ do
 				ERROR=true
 			fi
 		;;
-		--status|-s)
+		--status|-s|status)
 			STATUS=true
 			ERROR=false
 			if ${START} || ${STOP} || ${CHECKCONFIG}
@@ -412,8 +411,8 @@ do
 		-t=*|--threaddump=*)
 			THREADDUMP=true
 			ERROR=false
-			MAXVALUES=`echo ${ECOPTS} "$1" | sed 's/^--[a-z-]*=//'`
-			MAXVALUES=`echo ${ECOPTS} "${MAXVALUES}" | sed 's/^-t=//'`
+			MAXVALUES=`echo "$1" | sed 's/^--[a-z-]*=//'`
+			MAXVALUES=`echo "${MAXVALUES}" | sed 's/^-t=//'`
 			if [ $MAXVALUES != "--threaddump" ]
 			then
 				MAXSAMPLES=`echo $MAXVALUES | sed 's/\,.*//'`
@@ -435,10 +434,12 @@ do
 			fi
 		;;
 		--mailto=*)
-			MAILACCOUNTS=`echo ${ECOPTS} "$1" | sed 's/^--[a-z-]*=//'`
+			# deprecated option since 3.01-rev27
+			MAILACCOUNTS=`echo "$1" | sed 's/^--[a-z-]*=//'`
 			ERROR=false
 		;;
 		--mailreport)
+			# deprecated option since 3.01-rev27
 			MAILACCOUNTS="${MAILTOADMIN} ${MAILTODEVELOPER} ${MAILTORADIO}"
 			VIEWLOG=false
 			ERROR=false
@@ -476,37 +477,45 @@ do
 			exit 0
 		;;
 		--help|-h)
-			ERROR=false
-			if ${START} || ${STOP} || ${STATUS} || ${CHECKCONFIG}
-			then
-				ERROR=true
-			else
-				echo ${ECOPTS} "Usage: ${APNAME} [OPTION]..."
-				echo ${ECOPTS} "start up or stop applications like WebLogic, Fuego, Resin, etc.\n"
-				echo ${ECOPTS} "Mandatory arguments in long format."
-				echo ${ECOPTS} "\t-a, --application=APPNAME        use this appName, required "
-				echo ${ECOPTS} "\t    --start                      start appName "
-				echo ${ECOPTS} "\t    --stop                       stop appName "
-				echo ${ECOPTS} "\t    --restart                    restart appName "
-				echo ${ECOPTS} "\t-r, --report                     show an small report about domains "
-				echo ${ECOPTS} "\t    --mainteneance               execute all shell plugins in mainteneance directory"
-				echo ${ECOPTS} "\t-s, --status                     verify the status of appName "
-				echo ${ECOPTS} "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
-				echo ${ECOPTS} "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
-				echo ${ECOPTS} "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
-				echo ${ECOPTS} "\t-d, --debug                      debug logs and processes in the system "
-				echo ${ECOPTS} "\t-q, --quiet                      don't send output to terminal "
-				echo ${ECOPTS} "\t-v, --version                    show version "
-				echo ${ECOPTS} "\t-h, --help                       show help\n "
-				echo ${ECOPTS} "Each APPLIST refers to one application on the server."
-				echo ${ECOPTS} "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
-				echo ${ECOPTS} "INTERVAL time in seconds\n"
-				echo ${ECOPTS} "Report bugs to <andres.aquino@gmail.com>"
-			fi
+			echo ${ECOPTS} "Usage: ${APNAME} [OPTION]..."
+			echo ${ECOPTS} "start up or stop applications like WebLogic, Fuego, Resin, etc.\n"
+			echo ${ECOPTS} "Mandatory arguments in long format."
+			echo ${ECOPTS} "\t-a, --application=APPNAME        use this appName, required "
+			echo ${ECOPTS} "\t    --start                      start appName "
+			echo ${ECOPTS} "\t    --stop                       stop appName "
+			echo ${ECOPTS} "\t    --restart                    restart appName "
+			echo ${ECOPTS} "\t-r, --report                     show an small report about domains "
+			echo ${ECOPTS} "\t-m, --mainteneance               execute all shell plugins in mainteneance directory"
+			echo ${ECOPTS} "\t-s, --status                     verify the status of appName "
+			echo ${ECOPTS} "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
+			echo ${ECOPTS} "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
+			echo ${ECOPTS} "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
+			echo ${ECOPTS} "\t-d, --debug                      debug logs and processes in the system "
+			echo ${ECOPTS} "\t-q, --quiet                      don't send output to terminal "
+			echo ${ECOPTS} "\t-v, --version                    show version "
+			echo ${ECOPTS} "\t-h, --help                       show help\n "
+			echo ${ECOPTS} "Each APPLIST refers to one application on the server."
+			echo ${ECOPTS} "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
+			echo ${ECOPTS} "INTERVAL time in seconds\n"
+			echo ${ECOPTS} "Report bugs to <andres.aquino@gmail.com>"
 			exit 0
 		;;
 		*)
-			ERROR=true
+			# FEAT
+			# ahora ya es posible usar el monopse $APP [options] sin usar el parametro -a o --application
+			# bonito no ^.^!
+			[ ${#APPRCS} -eq 0 ] && APPRCS="${1}"
+			check_configuration "${APPRCS}" 
+			LASTSTATUS=$?
+			if [ ${LASTSTATUS} -eq 0 ]
+			then
+				log_action "DEBUG" "${APPRCS} seems correct"
+				set_proc "${APPRCS}"
+			else
+				log_action "DEBUG" "${APPRCS} seems corrupted"
+				report_status "i" "${APPRCS} does not exist, please check your parameters."
+				exit 1
+			fi
 		;;
 	esac
 	OPTIONS="${OPTIONS}\n${1}"
@@ -516,7 +525,7 @@ done
 # verificar opciones usadas
 if ${SUPERTEST}
 then
-	echo ${OPTIONS}
+	echo ${ECOPTS} "Options used when monopse was called:\n ${OPTIONS}"
 	exit 0
 fi
 
@@ -641,7 +650,7 @@ else
 			fi
 			date '+%Y%m%d-%H%M' > ${APLOGT}.date
 			# summary en lock para un post-analisis
-			echo ${ECOPTS} "${OPTIONS}" > ${APLOGT}.lock
+			echo ${ECOPTS} "Options used when monopse was called:\n ${OPTIONS}" > ${APLOGT}.lock
 			echo ${ECOPTS} "\nDate:\n`date '+%Y%m%d %H:%M'`" >> ${APLOGT}.lock
 		fi
 
@@ -699,7 +708,7 @@ else
 		process_running
 		if [ ! -s ${APLOGT}.pid ]
 		then
-			echo ${ECOPTS} "uh, ${APNAME} is not running currently, tip: ${APNAME} --report"
+			echo ${ECOPTS} "uh, ${APPRCS} is not running currently, tip: ${APNAME} --report"
 			log_action "INFO" "The application is down"
 			exit 0
 		fi
