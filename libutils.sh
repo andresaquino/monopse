@@ -164,12 +164,12 @@ set_log () {
 	local AP_LOGD=${1}
 
 	# log's path
-	[ -d ${APLOGD} ] && echo ${ECOPTS} "del ${APLOGD}"
+	[ -d ${APLOGD} ] && echo "del ${APLOGD}"
 	APLOGD=${AP_LOGD}
 	APLOGS=${APLOGD}/${APNAME}
 	[ ! -d ${APLOGD} ] && mkdir -p ${APLOGD}
 
-	[ -d ${APTEMP} ] && echo ${ECOPTS} "del ${APTEMP}"
+	[ -d ${APTEMP} ] && echo "del ${APTEMP}"
 	APTEMP=${APLOGD}/temp
 	[ ! -d ${APTEMP} ] && mkdir -p ${APTEMP}
 
@@ -198,7 +198,7 @@ get_process_id () {
 	
 	[ ${#FILTER} -ne 0 ] && APFLTR=${FILTER}
 	PIDFILE=${APLOGT}
-	WRDSLIST=`echo ${ECOPTS} "${APUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
+	WRDSLIST=`echo  "${APUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 	# extraer procesos existentes y filtrar las cadenas del archivo de configuracion
 	ps ${PSOPTS} > ${PIDFILE}.allps
 	log_action "DEBUG" "filtering process list with [ps ${PSOPTS}]"
@@ -328,9 +328,9 @@ log_action () {
 	then
 		if [ ${#APLOGS} -ne 0 ]
 		then
-			echo ${ECOPTS} "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" >> ${APLOGS}.log
+			echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" >> ${APLOGS}.log
 		else
-			echo ${ECOPTS} "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" 
+			echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" 
 		fi
 	fi
 }
@@ -345,9 +345,9 @@ report_status () {
 	# cadena para indicar proceso correcto o con error
 	if [ "${#CBLUE}" -eq 0 ] 
 	then 
-		echo " ${MESSAGE} ..." | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,70),STATUS}'
+		echo " ${MESSAGE}..." | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,70),STATUS}'
 	else
-		echo " ${MESSAGE} ...                                                                                        "
+		echo " ${MESSAGE}...                                                 "
 		tput sc 
 		tput cuu1 && tput cuf 80
 		case "${STATUS}" in
