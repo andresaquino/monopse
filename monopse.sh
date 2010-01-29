@@ -469,7 +469,7 @@ do
 		--test)
 			SUPERTEST=true
 		;;
-		--version|-V)
+		--version)
 			SVERSION=true
 			show_version
 			exit 0
@@ -488,9 +488,9 @@ do
 			echo ${ECOPTS} "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
 			echo ${ECOPTS} "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
 			echo ${ECOPTS} "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
+			echo ${ECOPTS} "\t-v, --verbose                    send output execution to terminal "
 			echo ${ECOPTS} "\t-d, --debug                      debug logs and processes in the system "
-			echo ${ECOPTS} "\t-q, --quiet                      don't send output to terminal "
-			echo ${ECOPTS} "\t-v, --version                    show version "
+			echo ${ECOPTS} "\t    --version                    show version "
 			echo ${ECOPTS} "\t-h, --help                       show help\n "
 			echo ${ECOPTS} "Each APPLIST refers to one application on the server."
 			echo ${ECOPTS} "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
