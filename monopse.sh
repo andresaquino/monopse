@@ -261,10 +261,11 @@ reports_status () {
 #
 # show application's version
 show_version () {
-	VERSIONAPP="3"
-	UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
-	RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-"," Rev.",t);print t}' ${APPATH}/CHANGELOG | head -n1`
-	echo ${ECOPTS} "${APNAME} v${UPVERSION}.${RLVERSION}"
+	VERSIONAPP="`cat VERSION | sed -e 's/-rev/ Rev./g'`"
+	#UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
+	#RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-"," Rev.",t);print t}' ${APPATH}/CHANGELOG | head -n1`
+	#echo ${ECOPTS} "${APNAME} v${UPVERSION}.${RLVERSION}"
+	echo ${ECOPTS} "${APNAME} ${VERSIONAPP}"
 	echo ${ECOPTS} "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
 	
 	if [ ${SVERSION} ]
