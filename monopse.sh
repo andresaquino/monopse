@@ -49,13 +49,13 @@ log_backup () {
 	LOGSIZE=`du -sk "${DAYOF}" | cut -f1`
 	RESULT=$((${LOGSIZE}/1024))
 	
-	# reportar action
-	log_action "DEBUG" "The sizeof ${APLOGP}.log is ${LOGSIZE}M, proceeding to compress"
-	
 	# Si esta habilitado el fast-stop(--forced), no se comprime la informacion
 	#rm -f ${APLOGT}.lock
 	${FASTSTOP} && log_action "WARN" "Ups,(doesn't compress) hurry up is to late for sysadmin !"
 	${FASTSTOP} && return 0
+	
+	# reportar action
+	log_action "DEBUG" "The sizeof ${APLOGP}.log is ${LOGSIZE}M, proceeding to compress"
 	
 	# si el tamaño del archivo .log sobrepasa los MAXLOGSIZE en megas 
 	# entonces hacer un recorte para no saturar el filesystem
@@ -444,7 +444,7 @@ do
 			VIEWLOG=false
 			ERROR=false
 		;;
-		--verbose)
+		-v|--verbose)
 			VIEWLOG=true
 			ERROR=false
 		;;
@@ -471,7 +471,7 @@ do
 		--test)
 			SUPERTEST=true
 		;;
-		--version|-v)
+		--version|-V)
 			SVERSION=true
 			show_version
 			exit 0
@@ -554,11 +554,14 @@ else
 	# verificar que la configuración exista, antes de ejecutar el servicio 
 	if [ ${#APPRCS} -ne 0 ]
 	then
+		BVIEWLOG=${VIEWLOG}
+		VIEWLOG=false
 		check_configuration "${APPRCS}" 
 		get_process_id "${FILTERAPP},${FILTERLANG}"
 		[ $? -ne 0 ] && CHECKCONFIG=true
 		[ ${TOSLEEP} -eq 0 ] && TOSLEEP=5
 		TOSLEEP="$((60*$TOSLEEP))"
+		VIEWLOG=${BVIEWLOG}
 	else
 		CANCEL=true
 		${STATUS} && CANCEL=false
@@ -577,10 +580,11 @@ else
 	if ${RESTART}
 	then
 		wait_for "Stopping ${APPRCS} application" 2
-		~/bin/${APNAME} --application=${APPRCS} stop --forced 
+		${VIEWLOG} && OPTIONAL=" --verbose"
+		~/bin/${APNAME} --application=${APPRCS} stop --forced ${OPTIONAL}
 		RESULT=$?
 		wait_for "Starting ${APPRCS} application" 3
-		[ ${RESULT} -eq 0 ] && ~/bin/${APNAME} --application=${APPRCS} start 
+		[ ${RESULT} -eq 0 ] && ~/bin/${APNAME} --application=${APPRCS} start ${OPTIONAL}
 	fi
 
 	
@@ -592,7 +596,6 @@ else
 		# que sucede si intentan dar de alta el proceso nuevamente
 		# verificamos que no exista un bloqueo (Dummies of Proof) 
 		TOSLEEP="$(($TOSLEEP*2))"
-		log_backup
 		process_running
 		LASTSTATUS=$?
 		if [ -f ${APLOGT}.lock ]
@@ -604,6 +607,7 @@ else
 				log_action "DEBUG" "${APPRCS} have a lock process file without application, maybe a bug brain developer ?"
 				[ -f ${APLOGT}.lock ] && log_action "DEBUG" "Exists a lock process without an application in memory, remove it and start again automagically"
 				# mover archivos a directorio monopse/20080527-0605
+				wait_for "We need a backup of logfiles right?, wait" 1
 				log_backup
 			else
 				report_status "i" "${APPRCS} running right now!"
@@ -640,11 +644,14 @@ else
 				 
 			#
 			# iniciar la aplicación
+			wait_for "${APPRCS} in process" "1"
 			if ${UNIQUELOG}
 			then
+				${VIEWLOG} && wait_for "${APPRCS} executing, wait wait wait! (uniquelog)" 1
 				nohup sh ${STARTAPP} > ${APLOGP}.log 2>&1 &
 				log_action "DEBUG" "Executing ${STARTAPP} with ${APLOGP}.log as logfile, with unique output ..." 
 			else
+				${VIEWLOG} && wait_for "${APPRCS} executing, wait wait wait! (log and err)" 1
 				nohup sh ${STARTAPP} 2> ${APLOGP}.err > ${APLOGP}.log &
 				log_action "DEBUG" "Executing ${STARTAPP}, ${APLOGP}.log as logfile, ${APLOGP}.err as errfile ..."
 			fi
@@ -702,10 +709,19 @@ else
 	if ${STOP} 
 	then
 		#
+		# verificar que la aplicación para hacer shutdown se encuentre en el dir 
+		# checar en 10 ocasiones hasta que el servicio se encuentre abajo 
+		LASTSTATUS=0
+		STRSTATUS="FORCED SHUTDOWN"
+		[ ${#STOPAPP} -eq 0 ] && NOTFORCE=false && FASTSTOP=true
+		[ ${#DOWNSTRING} -eq 0 ] && NOTFORCE=false && FASTSTOP=true
+
+		#
 		# que sucede si intentan dar de baja el proceso nuevamente
 		# verificamos que exista un bloqueo (DoP) y PID
 		log_action "DEBUG" "Stopping the application, please wait ..."
 		TOSLEEP="$(($TOSLEEP/2))"
+		log_backup
 		process_running
 		if [ ! -s ${APLOGT}.pid ]
 		then
@@ -714,14 +730,6 @@ else
 			exit 0
 		fi
 		
-		#
-		# verificar que la aplicación para hacer shutdown se encuentre en el dir 
-		# checar en 10 ocasiones hasta que el servicio se encuentre abajo 
-		LASTSTATUS=0
-		STRSTATUS="FORCED SHUTDOWN"
-		[ ${#STOPAPP} -eq 0 ] && NOTFORCE=false
-		[ ${#DOWNSTRING} -eq 0 ] && NOTFORCE=false
-
 		#
 		# si es necesario que el stop sea forzado
 		if ${NOTFORCE}
@@ -752,7 +760,7 @@ else
 				[ ${LASTSTATUS} -ne 0 ] && INWAIT=false
 				if [ "${LINE}" != "${LASTLINE}" ]
 				then 
-					${VIEWLOG} && echo ${ECOPTS} "${LINE}" 
+					${VIEWLOG} && echo "${LINE}" 
 					LINE="$LASTLINE"
 				fi
 				
@@ -793,14 +801,14 @@ else
 			do
 				#
 				# obtenemos los PID, armamos los kills y shelleamos
-				wait_for "Uhmmm, you're a impatient guy !!..." 2
+				wait_for "Uhmmm, you're a impatient guy !!" 2
 				process_running
 				if [ $? -eq 0 ]
 				then
 					awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
 					wait_for "Ok, sending the kill-bill signal, can you wait some seconds?" 2
 					LASTLINE="`tail -n3 ${APLOGP}.log `"
-					${VIEWLOG} && echo ${ECOPTS} ${LASTLINE}
+					${VIEWLOG} && echo "${LASTLINE}"
 				fi
 
 				# checar si existen los PID's, por si el archivo no regresa el shutdown
@@ -836,13 +844,14 @@ else
 			if [ ${#APPRCS} -eq 0 ]
 			then
 				# si no se da el parametro --application, se busca en el monopse los .conf y se consulta su estado
+				${VIEWLOG} && OPTIONAL=" --verbose"
 				count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 				log_action "DEBUG" "Wow, we have $count applications in our environment"
 				[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 				for app in ${APPATH}/setup/*-*.conf
 				do
 					app=`basename ${app%-*}`
-					~/bin/${APNAME} --application=$app --status 
+					~/bin/${APNAME} --application=$app --status ${OPTIONAL}
 				done
 				echo ${ECOPTS} "\nTotal $count application(s)"
 			else
@@ -862,17 +871,6 @@ else
 					report_status "i" "${STR}"
 				fi
 				log_action "DEBUG" "hey, ${STR}"
-				
-				#
-				# si no se solicita el --mailreport
-				#if [ "${MAILACCOUNTS}" = "_NULL_" ]
-				#then
-					#${VIEWLOG} && cat ${REPORT}
-				#else
-				#	echo ${ECOPTS} "`date`" >> ${REPORT}
-				#	$APMAIL -s "${APPRCS} STATUS " "${MAILACCOUNTS}" < ${REPORT} > /dev/null 2>&1 &
-				#	log_action "INFO" "Sending report by mail of STATUS to ${MAILACCOUNTS}"
-				#fi
 				rm -f ${REPORT}
 			fi
 		fi
@@ -888,10 +886,10 @@ else
 		# ...
 		if ${VIEWREPORT} 
 		then
-			IPADDRESS=`/usr/sbin/ping ${HOSTNAME} -c1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' `
-			[ "x$MYIP" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
-			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan0 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
-			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan1 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
+			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z]*[.]*//g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			processes_running
@@ -915,7 +913,7 @@ else
 				[ -s ${APTEMP}/${appname}.pid ] && apppidn=`head -n1 "${APTEMP}/${appname}.pid"` || apppidn=
 				[ -s ${APTEMP}/${appname}.pid ] && appstat="RUNNING" || appstat="STOPPED"
 				
-				echo ${ECOPTS} "${appname}:${appdate}:${apppidn}:${appstat}" | 
+				echo "${appname}:${appdate}:${apppidn}:${appstat}" | 
 					awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print " "substr($1"                             ",1,20),
@@ -939,10 +937,10 @@ else
 		# ...
 		if ${VIEWHISTORY} 
 		then
-			IPADDRESS=`/usr/sbin/ping ${HOSTNAME} -c1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' `
-			[ "x$MYIP" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
-			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan0 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
-			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan1 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
+			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z]*[.]*//g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			echo ${ECOPTS} "\n ${APHOST} (${IPADDRESS})\n"
@@ -1041,17 +1039,17 @@ else
 		then
 			FLDEBUG="${APLOGT}.debug"
 			[ -f ${FLDEBUG} ] && rm -f ${FLDEBUG}
-			IPADDRESS=`/usr/sbin/ping ${HOSTNAME} -c1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' `
-			[ "x$MYIP" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
-			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan0 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
-			[ "x$MYIP" = "x" ] && IPADDRESS=`/usr/sbin/ifconfig lan1 2> /dev/null | grep "inet" | sed -e "s/.*inet //g;s/netmask.*//g"`
+			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z]*[.]*//g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
+			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			echo ${ECOPTS} "\nDEBUG" >> ${FLDEBUG}
 			echo ${ECOPTS} "-------------------------------------------------------------------------------" >> ${FLDEBUG}
 			show_version	>> ${FLDEBUG} 2>&1
-			echo ${ECOPTS} "\n\nHOSTNAME     : `hostname`" >> ${FLDEBUG}
-			echo ${ECOPTS} "USER         : `id -u -n`" >> ${FLDEBUG}
+			echo ${ECOPTS} "\n\nHOSTNAME     : ${APHOST}" >> ${FLDEBUG}
+			echo ${ECOPTS} "USER         : ${APUSER}" >> ${FLDEBUG}
 			echo ${ECOPTS} "PROCESS      : ${APPRCS}" >> ${FLDEBUG}
-			echo ${ECOPTS} "CURRENT      : `date`" >> ${FLDEBUG}
+			echo ${ECOPTS} "CURRENT      : ${APDATE}" >> ${FLDEBUG}
 			echo ${ECOPTS} "IPADDRESS    : ${IPADDRESS}" >> ${FLDEBUG}
 			echo ${ECOPTS} "DESCRIPTION  : ${DESCRIPTION}" >> ${FLDEBUG}
 			echo ${ECOPTS} " " >> ${FLDEBUG}
