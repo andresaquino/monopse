@@ -107,6 +107,10 @@ set_environment () {
 			MKOPTS="-d /tmp -p "
 			APUSER=`id -u -n`
 			ECOPTS=""
+			PING="`which ping`"
+			PINGPARAMS="-n"
+			IFCONFIG="`which ifconfig`"
+			IFPARAMS="lan"
 		;;
 			
 		"Linux")
@@ -115,8 +119,12 @@ set_environment () {
 			DFOPTS="-Pk"
 			MKOPTS="-t "
 			APUSER=`id -u `
-			ECOPTS="-e"
-			;;
+			ECOPTS=""
+			PING="`which ping`"
+			PINGPARAMS="-c"
+			IFCONFIG="`which ifconfig`"
+			IFPARAMS="eth"
+		;;
 		
 		"Darwin")
 			PSOPTS="-leax"
@@ -125,6 +133,10 @@ set_environment () {
 			MKOPTS="-t "
 			APUSER=`id -u `
 			ECOPTS=""
+			PING="`which ping`"
+			PINGPARAMS="-c"
+			IFCONFIG="`which ifconfig`"
+			IFPARAMS="en"
 		;;
 			
 		*)
@@ -202,6 +214,7 @@ get_process_id () {
 	# extraer procesos existentes y filtrar las cadenas del archivo de configuracion
 	ps ${PSOPTS} > ${PIDFILE}.allps
 	log_action "DEBUG" "filtering process list with [ps ${PSOPTS}]"
+	${VIEWLOG} && report_status "i" "Creating of ${PIDFILE}.allps"
 	
 	# extraer los procesos que nos interesan 
 	awk "/${WRDSLIST}/{print}" ${PIDFILE}.allps > ${PIDFILE}.ps
@@ -210,6 +223,7 @@ get_process_id () {
 	# el archivo existe y es mayor a 0 bytes 
 	if [ -s ${PIDFILE}.ps ]
 	then
+		${VIEWLOG} && report_status "i" "${PIDFILE}.allps < /${WRDSLIST}/ = uju!"
 		# extraer los procesos y reordenarlos
 		sort -n -k8 ${PIDFILE}.ps > ${PIDFILE}.pss
 		log_action "DEBUG" "hey, we have one ${APPRCS} process alive in ${PIDFILE}.ps "
@@ -221,6 +235,7 @@ get_process_id () {
 		awk -v P=${PSPOS} '{print $(4+P)}' ${PIDFILE}.pss | sort -rn | uniq > ${PIDFILE}.ppid
 
 	else
+		${VIEWLOG} && report_status "i" "${PIDFILE}.allps < /${WRDSLIST}/ = dawm!"
 		# eliminar archivos ppid, en caso de que el proceso ya no exista
 		log_action "DEBUG" "hey, ${APPRCS} is not running in ${PIDFILE}.ps "
 		rm -f ${PIDFILE}.{pid,ppid}
@@ -245,10 +260,13 @@ process_running () {
 	if [ -s ${PIDFILE}.pid ]
 	then
 		PROCESS=`head -n1 ${PIDFILE}.pid`
+		${VIEWLOG} && report_status "i" "${PIDFILE}.pid > [ ${PROCESS} ]"
 		kill -0 ${PROCESS} > /dev/null 2>&1
 		RESULT=$?
-		[ ${RESULT} -ne 0 ] && log_action "DEBUG" "process ${APPRCS} is not running"
-		[ ${RESULT} -eq 0 ] && log_action "DEBUG" "process ${APPRCS} is running"
+		[ ${RESULT} -ne 0 ] && STATUS="process ${APPRCS} is not running"
+		[ ${RESULT} -eq 0 ] && STATUS="process ${APPRCS} is running"
+		${VIEWLOG} && report_status "i" "Well, ${STATUS} (kill -0 PID)"
+		log_action "DEBUG" "${STATUS}"
 		return ${RESULT}
 	else
 		rm -f ${PIDFILE}.*
@@ -343,11 +361,9 @@ report_status () {
 	local MESSAGE="${2}"
 	
 	# cadena para indicar proceso correcto o con error
-	if [ "${#CBLUE}" -eq 0 ] 
+	echo " ${MESSAGE} " | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,80),STATUS}'
+	if [ "${#CBLUE}" -ne 0 ] 
 	then 
-		echo " ${MESSAGE}..." | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,70),STATUS}'
-	else
-		echo " ${MESSAGE}...                                                 "
 		tput sc 
 		tput cuu1 && tput cuf 80
 		case "${STATUS}" in
@@ -406,7 +422,7 @@ wait_for () {
 		if [ "${STATUS}" != "CLEAR" ]
 		then
 			TIMETO=$((${2}*5))
-			echo "...${STATUS}"
+			echo " >>${STATUS} " | awk '{print substr($0"                                                                                        ",1,80)}'
 			tput sc
 			CHARPOS=1
 			while(${GOON})
@@ -430,7 +446,7 @@ wait_for () {
 		#tput el
 	else
 		TIMETO=${2}
-		echo "...${STATUS}"
+		echo " >>${STATUS} " | awk '{print substr($0"                                                                                        ",1,80)}'
 		while(${GOON})
 		do
 			sleep 1
