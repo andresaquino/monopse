@@ -312,7 +312,7 @@ MAXLOGSIZE=500
 THREADDUMP=false
 VIEWREPORT=false
 VIEWHISTORY=false
-MAINTENEANCE=false
+MAINTENANCE=false
 LOGLEVEL="DBUG"
 SVERSION=false
 APPTYPE="STAYRESIDENT"
@@ -383,8 +383,8 @@ do
 				ERROR=true
 			fi
 		;;
-		--mainteneance|-m)
-			MAINTENEANCE=true
+		--maintenance|-m)
+			MAINTENANCE=true
 			ERROR=false
 			if ${START} || ${STOP} || ${CHECKCONFIG} || ${STATUS}
 			then
@@ -485,7 +485,7 @@ do
 			echo ${ECOPTS} "\t    --stop                       stop appName "
 			echo ${ECOPTS} "\t    --restart                    restart appName "
 			echo ${ECOPTS} "\t-r, --report                     show an small report about domains "
-			echo ${ECOPTS} "\t-m, --mainteneance               execute all shell plugins in mainteneance directory"
+			echo ${ECOPTS} "\t-m, --maintenance                execute all shell plugins in maintenance directory"
 			echo ${ECOPTS} "\t-s, --status                     verify the status of appName "
 			echo ${ECOPTS} "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
 			echo ${ECOPTS} "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
@@ -567,7 +567,7 @@ else
 		${STATUS} && CANCEL=false
 		${VIEWREPORT} && CANCEL=false
 		${VIEWHISTORY} && CANCEL=false
-		${MAINTENEANCE} && CANCEL=false
+		${MAINTENANCE} && CANCEL=false
 		if ${CANCEL}
 		then
 			echo ${ECOPTS} "Usage: ${APNAME} [OPTION]...[--help]"
@@ -982,12 +982,12 @@ else
 		fi
 
 		#
-		# MAINTENEANCE -- ejecutar shell plugs de mantenimiento
-		if ${MAINTENEANCE}
+		# MAINTENANCE -- ejecutar shell plugs de mantenimiento
+		if ${MAINTENANCE}
 		then 
 			# mantenimientos
 			count=`ls -l ${APPATH}/setup/*-shell.plug | wc -l | sed -e "s/ //g"`
-			[ $count -eq 0 ] && report_status "?" "Cannot access any mainteneance file " && exit 1
+			[ $count -eq 0 ] && report_status "?" "Cannot access any maintenance file " && exit 1
 			cd ${APPATH}/setup/
 			for APMAIN in *-shell.plug
 			do
