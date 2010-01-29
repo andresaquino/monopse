@@ -261,10 +261,7 @@ reports_status () {
 #
 # show application's version
 show_version () {
-	VERSIONAPP="`cat VERSION | sed -e 's/-rev/ Rev./g'`"
-	#UPVERSION=`echo ${VERSIONAPP} | sed -e "s/..$//g"`
-	#RLVERSION=`awk '/2010/{t=substr($1,6,7);gsub("-"," Rev.",t);print t}' ${APPATH}/CHANGELOG | head -n1`
-	#echo ${ECOPTS} "${APNAME} v${UPVERSION}.${RLVERSION}"
+	VERSIONAPP="`cat ${APHOME}/VERSION | sed -e 's/-rev/ Rev./g'`"
 	echo ${ECOPTS} "${APNAME} ${VERSIONAPP}"
 	echo ${ECOPTS} "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
 	
@@ -887,7 +884,7 @@ else
 		# ...
 		if ${VIEWREPORT} 
 		then
-			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z]*[.]*//g"`
+			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z][a-zA-Z]*[\.]*[ ]*//g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
@@ -938,7 +935,7 @@ else
 		# ...
 		if ${VIEWHISTORY} 
 		then
-			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z]*[.]*//g"`
+			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z][a-zA-Z]*[\.]*[ ]*//g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
@@ -1040,7 +1037,7 @@ else
 		then
 			FLDEBUG="${APLOGT}.debug"
 			[ -f ${FLDEBUG} ] && rm -f ${FLDEBUG}
-			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z]*[.]*//g"`
+			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z][a-zA-Z]*[\.]*[ ]*//g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
