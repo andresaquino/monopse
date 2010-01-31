@@ -8,10 +8,10 @@
 # 
 
 #
-. ${HOME}/monopse/libutils.sh
+APNAME="monopse"
+. ${HOME}/${APNAME}/libutils.sh
 
 # set environment
-APNAME="monopse"
 APPATH=${HOME}/${APNAME}
 APLOGD=${HOME}/logs
 APLEVL="DEBUG"
