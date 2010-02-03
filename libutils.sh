@@ -18,7 +18,7 @@ APHOUR=`date "+%H%M"`
 APLEVL="NOTICE"
 
 # globals
-APNAME=
+#APNAME=
 APPATH=
 APLOGD=
 APLOGS=
@@ -26,14 +26,16 @@ APLOGP=
 APPRCS=
 APTEMP=
 APFLTR=
+APVISUALS=true
 
 #
 # get the enviroment for the SO running
 set_environment () {
 	# terminal line settings
 	stty 2> /dev/null > /dev/null 
+	[ "$?" = "0" ] && APVISUALS=${APVISUALS}
 
-	if [ "$?" = "0" ]
+	if ${APVISUALS}
 	then
 		# terminal line settings
 		stty erase '^?'
@@ -106,7 +108,6 @@ set_environment () {
 			DFOPTS="-P -k"
 			MKOPTS="-d /tmp -p "
 			APUSER=`id -u -n`
-			ECOPTS=""
 			PING="`which ping`"
 			PINGPARAMS="-n"
 			IFCONFIG="`which ifconfig`"
@@ -119,11 +120,11 @@ set_environment () {
 			DFOPTS="-Pk"
 			MKOPTS="-t "
 			APUSER=`id -u `
-			ECOPTS=""
 			PING="`which ping`"
 			PINGPARAMS="-c"
 			IFCONFIG="`which ifconfig`"
 			IFPARAMS="eth"
+			alias echo='echo '
 		;;
 		
 		"Darwin")
@@ -132,7 +133,6 @@ set_environment () {
 			DFOPTS="-P -k"
 			MKOPTS="-t "
 			APUSER=`id -u `
-			ECOPTS=""
 			PING="`which ping`"
 			PINGPARAMS="-c"
 			IFCONFIG="`which ifconfig`"
