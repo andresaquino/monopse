@@ -9,19 +9,21 @@
 
 #
 # home de la aplicacion
-APHOME=$HOME/monopse
+APPATH=$HOME/monopse
 APLOGD=$HOME/logs
+
+# ver el verbose 
 VIEWLOG=false
 
-#
+# mostrar los eye-candy
+APVISUALS=false
+
 # correo de los Administradores
 MAILTOADMIN="cesar.aquino@nextel.com.mx"
 
-#
 # Aviso a los radios
 MAILTORADIO="5519419071@msgnextel.com.mx"
 
-#
 # correo para desarrollo
 MAILTODEVELOPER="andres.aquino@gmail.com"
 
