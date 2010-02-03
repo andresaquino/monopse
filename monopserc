@@ -16,7 +16,7 @@ APLOGD=$HOME/logs
 #VIEWLOG=false
 
 # mostrar los eye-candy
-APVISUALS=false
+APVISUALS=true
 
 # correo de los Administradores
 MAILTOADMIN="cesar.aquino@nextel.com.mx"
