@@ -263,7 +263,8 @@ reports_status () {
 # show application's version
 show_version () {
 	VERSIONAPP="`cat ${APPATH}/VERSION | sed -e 's/-rev/ Rev./g'`"
-	echo "${APNAME} ${VERSIONAPP}"
+	RELEASE=`openssl dgst -md5 ${APPATH}/${APNAME}.sh | rev | cut -c-4 | rev`
+	echo "${APNAME} ${VERSIONAPP} (${RELEASE})"
 	echo "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
 	
 	if [ ${SVERSION} ]
