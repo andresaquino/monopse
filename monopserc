@@ -13,7 +13,7 @@ APPATH=$HOME/monopse
 APLOGD=$HOME/logs
 
 # ver el verbose 
-VIEWLOG=false
+#VIEWLOG=false
 
 # mostrar los eye-candy
 APVISUALS=false

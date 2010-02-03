@@ -1,5 +1,38 @@
 
+2010-02-03  Andres Aquino <andres.aquino@gmail.com>
+
+        * 0ca3b99: se introduce el eye-candy como opción...
+
+        * ffbbbe1:  se corrige el echo -e, preferible un alias ...
+
+        * 0052277: wtf con el APHOME, si ni se ocupa.. ja ja ja
+
+
+2010-01-31  Andres Aquino <andres.aquino@gmail.com>
+
+        * 772c3b3: correcion al path de la aplicacion
+
+
+2010-01-29  Andres Aquino <andres.aquino@gmail.com>
+
+        * 9d029fd: se corrigen opciones en la ayuda...
+
+        * 3625383: correcion para obtener la ip del host y mostrarla en el --report y --debug
+
+        * 2bc2075: ahora la version se almacena en archivo, usar el playground/setVersion.sh
+
+        * 8d4d950: correcion ortografica mainteneance by maintenance... erghhhh jo jo jo
+
+        * 4c59fdf: unos cambios menores en los demos
+
+        * 5aa311c: se corrigen mensajes y amplia el verbose, ahora el -v es verbose y -V version o_O
+
+        * 4656ff8: el backup de logs corregido, cuando se pide un faststop no comprime informacion
+
+
 2010-01-28  Andres Aquino <andres.aquino@gmail.com>
+
+        * 2ce956a: registro de cambios
 
         * 4173293: se incremento el TOSLEEP
 
