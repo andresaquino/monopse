@@ -8,13 +8,38 @@
 # 
 
 #
+# set minimal environment
 APNAME="monopse"
-. ${HOME}/${APNAME}/libutils.sh
-
-# set environment
-APPATH=${HOME}/${APNAME}
-APLOGD=${HOME}/logs
+APHOME=${HOME}
+APPATH=${APHOME}/${APNAME}
+APLOGD=${APPATH}/logs
+APTEMP=${APLOGD}/temp
 APLEVL="DEBUG"
+APLOGS=
+
+# user environment
+. ${APHOME}/.${APNAME}rc
+
+# load user functions
+. ${APPATH}/libutils.sh
+set_environment
+
+## MAIN ##
+##
+# corroborar que no se ejecute como usuario r00t
+if [ "`id -u`" -eq "0" ]
+then
+	 if [ "${MAILACCOUNTS}" = "_NULL_" ]
+	 then
+			echo  "Hey, i can't run as root user "
+	 else
+			${MAIL} -s "Somebody tried to run me as r00t user" "${MAILACCOUNTS}" < "$@" > /dev/null 2>&1 &
+			log_action "WARN" "Somebod tried to run me as r00t, sending warn to ${MAILACCOUNTS}"
+	 fi
+	 
+fi
+
+# set complete application's environment
 TOSLEEP=0
 MAILTOADMIN=
 MAILTODEVELOPER=
@@ -22,6 +47,32 @@ MAILTORADIO=
 MAXSAMPLES=3
 MAXSLEEP=2
 APVISUALS=false
+APPRCS=
+START=false
+STOP=false
+RESTART=false
+STATUS=false
+NOTFORCE=true
+FASTSTOP=false
+VIEWLOG=false
+VIEWMLOG=false
+MAILACCOUNTS="_NULL_"
+FILTERWL="_NULL_"
+CHECKCONFIG=false
+SUPERTEST=false
+STATUS=false
+DEBUG=false
+ERROR=true
+MAXLOGSIZE=500
+THREADDUMP=false
+VIEWREPORT=false
+VIEWHISTORY=false
+MAINTENANCE=false
+SVERSION=false
+APPTYPE="STAYRESIDENT"
+UNIQUELOG=false
+PREEXECUTION="_NULL_"
+OPTIONS=
 
 #
 # log_backup
@@ -42,10 +93,14 @@ log_backup () {
 	fi
 	
 	mkdir -p ${DAYOF}
-	touch ${APLOGP}.log
-	touch ${APLOGT}.err
-	touch ${APLOGT}.pid
-	mv ${APLOGP}.log ${APLOGT}.* ${DAYOF}/
+	mv ${APLOGP}.log ${DAYOF}/ > /dev/null 2>&1
+	mv ${APLOGP}.err ${DAYOF}/ > /dev/null 2>&1
+	mv ${APLOGT}.allps ${DAYOF}/ > /dev/null 2>&1
+	mv ${APLOGT}.lock ${DAYOF}/ > /dev/null 2>&1
+	mv ${APLOGT}.pid ${DAYOF}/ > /dev/null 2>&1
+	mv ${APLOGT}.ppid ${DAYOF}/ > /dev/null 2>&1
+	mv ${APLOGT}.ps ${DAYOF}/ > /dev/null 2>&1
+	mv ${APLOGT}.pss ${DAYOF}/ > /dev/null 2>&1
 	touch ${APLOGP}.log
 	LOGSIZE=`du -sk "${DAYOF}" | cut -f1`
 	RESULT=$((${LOGSIZE}/1024))
@@ -217,7 +272,7 @@ make_fullthreaddump() {
 	# enviar por correo 
 	if [ "${MAILACCOUNTS}" != "_NULL_" ]
 	then
-		$APMAIL -s "${APPRCS} FULL THREAD DUMP ${timeStart} (${ftdFILE})" "${MAILACCOUNTS}" < ${ftdFILE} > /dev/null 2>&1 &
+		${MAIL} -s "${APPRCS} FULL THREAD DUMP ${timeStart} (${ftdFILE})" "${MAILACCOUNTS}" < ${ftdFILE} > /dev/null 2>&1 &
 		log_action "INFO" "Sending a full thread dump(${ftdFILE}) by mail to ${MAILACCOUNTS}"
 	fi
 	#rm -f ${ftdFILE}
@@ -252,7 +307,7 @@ reports_status () {
 	if [ "${MAILACCOUNTS}" != "_NULL_" ]
 	then
 		# y mandarlo a bg, por que si no el so se apendeja, y por este; este arremedo de programa :-P
-		$APMAIL -s "${APPRCS} ${TYPEOPERATION} ${STRSTATUS}" -r "${MAILACCOUNTS}" > /dev/null 2>&1 &
+		${MAIL} -s "${APPRCS} ${TYPEOPERATION} ${STRSTATUS}" -r "${MAILACCOUNTS}" > /dev/null 2>&1 &
 		log_action "INFO" "Report ${APPRCS} ${TYPEOPERATION} ${STRSTATUS} to ${MAILACCOUNTS}"
 	fi
 
@@ -275,63 +330,6 @@ show_version () {
 
 }
 
-
-## MAIN ##
-##
-# corroborar que no se ejecute como usuario r00t
-if [ "`id -u`" -eq "0" ]
-then
-	 if [ "${MAILACCOUNTS}" = "_NULL_" ]
-	 then
-			echo  "Hey, i can't run as root user "
-	 else
-			$APMAIL -s "Somebody tried to run me as r00t user" "${MAILACCOUNTS}" < "$@" > /dev/null 2>&1 &
-			log_action "WARN" "Somebod tried to run me as r00t, sending warn to ${MAILACCOUNTS}"
-	 fi
-	 
-fi
-
-#
-# Opciones por defecto
-APPRCS=
-START=false
-STOP=false
-RESTART=false
-STATUS=false
-NOTFORCE=true
-FASTSTOP=false
-VIEWLOG=true
-MAILACCOUNTS="_NULL_"
-FILTERWL="_NULL_"
-CHECKCONFIG=false
-SUPERTEST=false
-STATUS=false
-DEBUG=false
-ERROR=true
-MAXLOGSIZE=500
-THREADDUMP=false
-VIEWREPORT=false
-VIEWHISTORY=false
-MAINTENANCE=false
-LOGLEVEL="DBUG"
-SVERSION=false
-APPTYPE="STAYRESIDENT"
-UNIQUELOG=false
-PREEXECUTION="_NULL_"
-OPTIONS=
-
-
-APMAIL=`which mail`
-[ "${APSYSO}" = "HP-UX" ] && APMAIL=`which mailx`
-
-
-#
-# applications setup
-if [ -r $HOME/.${APNAME}rc ]
-then
-	. $HOME/.${APNAME}rc
-fi
-set_environment
 
 #
 # parametros 
@@ -448,8 +446,14 @@ do
 			VIEWLOG=true
 			ERROR=false
 		;;
-		--quiet|quiet|q)
+		-vv)
+		  VIEWLOG=true
+			VIEWMLOG=true
+			ERROR=false
+		;;
+		--quiet|-q)
 			VIEWLOG=false
+			VIEWMLOG=false
 			ERROR=false
 		;;
 		--debug|-d)
@@ -491,6 +495,7 @@ do
 			echo  "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
 			echo  "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
 			echo  "\t-v, --verbose                    send output execution to terminal "
+			echo  "\t-vv                              send output execution and monopse execution to terminal "
 			echo  "\t-d, --debug                      debug logs and processes in the system "
 			echo  "\t    --version                    show version "
 			echo  "\t-h, --help                       show help\n "
@@ -525,7 +530,17 @@ done
 # verificar opciones usadas
 if ${SUPERTEST}
 then
-	echo  "Options used when monopse was called:\n ${OPTIONS}"
+	echo "Apps Environment"
+	echo "APUSER   = ${APUSER}"
+	echo "APNAME   = ${APNAME}"
+	echo "APHOME   = ${APHOME}"
+	echo "APPATH   = ${APPATH}"
+	echo "APLOGD   = ${APLOGD}"
+	echo "APLOGS   = ${APLOGS}"
+	echo "APLOGP   = ${APLOGP}"
+	echo "APTEMP   = ${APTEMP}"
+	echo "APLEVL   = ${APLEVL}"
+
 	exit 0
 fi
 
@@ -644,14 +659,15 @@ else
 				 
 			#
 			# iniciar la aplicación
-			wait_for "${APPRCS} in process" "1"
+			wait_for "${APPRCS} in process" 1
+			wait_for "CLEAR"
 			if ${UNIQUELOG}
 			then
-				${VIEWLOG} && wait_for "${APPRCS} executing, wait wait wait! (uniquelog)" 1
+				${VIEWMLOG} && wait_for "${APPRCS} executing, wait wait wait! (uniquelog)" 1
 				nohup sh ${STARTAPP} > ${APLOGP}.log 2>&1 &
 				log_action "DEBUG" "Executing ${STARTAPP} with ${APLOGP}.log as logfile, with unique output ..." 
 			else
-				${VIEWLOG} && wait_for "${APPRCS} executing, wait wait wait! (log and err)" 1
+				${VIEWMLOG} && wait_for "${APPRCS} executing, wait wait wait! (log and err)" 1
 				nohup sh ${STARTAPP} 2> ${APLOGP}.err > ${APLOGP}.log &
 				log_action "DEBUG" "Executing ${STARTAPP}, ${APLOGP}.log as logfile, ${APLOGP}.err as errfile ..."
 			fi
@@ -679,7 +695,8 @@ else
 			[ ${LASTSTATUS} -eq 0 ] && break
 			if [ "${LINE}" != "${LASTLINE}" ]
 			then 
-				${VIEWLOG} && echo  "${LINE}" || wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
+				${VIEWMLOG} && wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
+				${VIEWLOG} && echo  "   | ${LINE}" 
 				LINE="$LASTLINE"
 			fi
 			ONSTOP="$(($ONSTOP+1))"
@@ -721,7 +738,6 @@ else
 		# verificamos que exista un bloqueo (DoP) y PID
 		log_action "DEBUG" "Stopping the application, please wait ..."
 		TOSLEEP="$(($TOSLEEP/2))"
-		log_backup
 		process_running
 		if [ ! -s ${APLOGT}.pid ]
 		then
@@ -760,7 +776,7 @@ else
 				[ ${LASTSTATUS} -ne 0 ] && INWAIT=false
 				if [ "${LINE}" != "${LASTLINE}" ]
 				then 
-					${VIEWLOG} && echo "${LINE}" 
+					${VIEWLOG} && echo "   | ${LINE}" 
 					LINE="$LASTLINE"
 				fi
 				
@@ -776,6 +792,7 @@ else
 				fi
 				LASTLINE="`tail -n1 ${APLOGP}.log `"
 			done
+			log_backup
 		fi
 
 		#
@@ -802,13 +819,14 @@ else
 				#
 				# obtenemos los PID, armamos los kills y shelleamos
 				wait_for "Uhmmm, you're a impatient guy !!" 2
+				wait_for "CLEAR"
 				process_running
 				if [ $? -eq 0 ]
 				then
 					awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
-					wait_for "Ok, sending the kill-bill signal, can you wait some seconds?" 2
-					LASTLINE="`tail -n3 ${APLOGP}.log `"
-					${VIEWLOG} && echo "${LASTLINE}"
+					${VIEWMLOG} && wait_for "Ok, sending the kill-bill signal, can you wait some seconds?" 2
+					LASTLINE="`tail -n1 ${APLOGP}.log `"
+					${VIEWLOG} && echo "   | ${LASTLINE}"
 				fi
 
 				# checar si existen los PID's, por si el archivo no regresa el shutdown
@@ -821,6 +839,7 @@ else
 				[ $ONSTOP -ge $TOSLEEP ] && INWAIT=false
 				done
 				STRSTATUS="KILLED"
+				log_backup
 			fi
 
 			[ ${LASTSTATUS} -ne 0 ] && exit 0
@@ -828,6 +847,7 @@ else
 			#
 			# le avisamos a los admins 
 			#[ "${LASTSTATUS}" -ne "0" ] && DEBUG=true
+			processes_running
 		fi
 
 		#
@@ -886,10 +906,6 @@ else
 		# ...
 		if ${VIEWREPORT} 
 		then
-			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z][a-zA-Z]*[\.]*[ ]*//g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			processes_running
@@ -937,21 +953,17 @@ else
 		# ...
 		if ${VIEWHISTORY} 
 		then
-			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z][a-zA-Z]*[\.]*[ ]*//g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			echo  "\n ${APHOST} (${IPADDRESS})\n"
 			echo  "START:STOP:APPLICATION:" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
-								print substr($1"                     ",1,18),
+								print " "substr($1"                     ",1,18),
 											substr($2"                     ",1,18),
 											substr($3"                     ",1,28);
 							}'
-			echo  "------------------+-------------------------------------------------"
+			echo  " ------------------+-------------------------------------------------"
 			log_action "DEBUG" "report from ${APLOGS}.log "
 			tail -n5000 ${APLOGS}.log |	tr -d ":[]()-" | sort -r | \
 						awk 'BEGIN{LAST="";OFS="| "}
@@ -964,7 +976,7 @@ else
 									}
 									else
 									{
-										print substr(LDATE"                     ",1,9),
+										print " "substr(LDATE"                     ",1,9),
 													substr(LTIME"                     ",1,7),
 													substr($1"                     ",1,9),
 													substr($2"                     ",1,7),
@@ -1039,10 +1051,6 @@ else
 		then
 			FLDEBUG="${APLOGT}.debug"
 			[ -f ${FLDEBUG} ] && rm -f ${FLDEBUG}
-			IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z][a-zA-Z]*[\.]*[ ]*//g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
-			[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
 			echo  "\nDEBUG" >> ${FLDEBUG}
 			echo  "-------------------------------------------------------------------------------" >> ${FLDEBUG}
 			show_version	>> ${FLDEBUG} 2>&1
@@ -1084,7 +1092,7 @@ else
 			then
 				cat ${FLDEBUG}
 			else
-				$APMAIL -s "${APPRCS} DEBUG INFO " "${MAILACCOUNTS}" < ${FLDEBUG} > /dev/null 2>&1 &
+				${MAIL} -s "${APPRCS} DEBUG INFO " "${MAILACCOUNTS}" < ${FLDEBUG} > /dev/null 2>&1 &
 				log_action "INFO" "Send information from debug application to ${MAILACCOUNTS}"
 			fi
 			log_action "INFO" "Show the application debug information"
