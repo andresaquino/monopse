@@ -16,6 +16,8 @@ APLOGD=${APPATH}/logs
 APTEMP=${APLOGD}/temp
 APLEVL="DEBUG"
 APLOGS=
+VIEWLOG=false
+VIEWMLOG=false
 
 # user environment
 . ${APHOME}/.${APNAME}rc
@@ -54,8 +56,6 @@ RESTART=false
 STATUS=false
 NOTFORCE=true
 FASTSTOP=false
-VIEWLOG=false
-VIEWMLOG=false
 MAILACCOUNTS="_NULL_"
 FILTERWL="_NULL_"
 CHECKCONFIG=false
@@ -508,7 +508,7 @@ do
 		*)
 			# FEAT
 			# ahora ya es posible usar el monopse $APP [options] sin usar el parametro -a o --application
-			# bonito no ^.^!
+			# cute ^.^!
 			[ ${#APPRCS} -eq 0 ] && APPRCS="${1}"
 			check_configuration "${APPRCS}" 
 			LASTSTATUS=$?
@@ -590,6 +590,7 @@ else
 		${VIEWREPORT} && CANCEL=false
 		${VIEWHISTORY} && CANCEL=false
 		${MAINTENANCE} && CANCEL=false
+		${DEBUG} && CANCEL=false
 		if ${CANCEL}
 		then
 			echo  "Usage: ${APNAME} [OPTION]...[--help]"
@@ -931,10 +932,16 @@ else
 			do
 				appname=`basename ${app%-*}`
 				apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
+				apppidn=""
 				log_action "DEBUG" "report from ${APTEMP}/${appname}"
 				[ -s ${APTEMP}/${appname}.date ] && appdate=`head -n1 "${APTEMP}/${appname}.date"` || appdate=
-				[ -s ${APTEMP}/${appname}.pid ] && apppidn=`head -n1 "${APTEMP}/${appname}.pid"` || apppidn=
-				[ -s ${APTEMP}/${appname}.pid ] && appstat="RUNNING" || appstat="STOPPED"
+				if [ -s ${APTEMP}/${appname}.pid ]
+				then
+					apppidn=`head -n1 "${APTEMP}/${appname}.pid"`
+					[ ${#apppidn} -gt 0 ] && kill -0 $apppidn > /dev/null 2>&1
+					[ $? -ne 0 ] && rm -f ${APTEMP}/${appname}.p* && apppidn=
+				fi
+				[ ${#apppidn} -gt 0 ] && appstat="RUNNING" || appstat="STOPPED"
 				
 				echo "${appname}:${appdate}:${apppidn}:${appstat}" | 
 					awk 'BEGIN{FS=":";OFS="| "}
@@ -1045,7 +1052,7 @@ else
 						log_action "DEBUG" "Good, you're a good boy (lamer) but, a good boy"
 					fi 
 				else
-					report_status "i" "Uhmm, yeah... time to scratching eyes!"
+					report_status "i" "Uhmm, yeah... nothing to do with ${MLOGFILE}"
 				fi
 				cd ${APPATH}/setup/
 				report_status "*" "Ok, ${APMAIN} executed"
@@ -1059,10 +1066,11 @@ else
 			FLDEBUG="${APLOGT}.debug"
 			[ -f ${FLDEBUG} ] && rm -f ${FLDEBUG}
 			echo  "\nDEBUG" >> ${FLDEBUG}
-			echo  "-------------------------------------------------------------------------------" >> ${FLDEBUG}
-			show_version	>> ${FLDEBUG} 2>&1
-			echo  "\n\nHOSTNAME     : ${APHOST}" >> ${FLDEBUG}
+			echo  "-------------------------------------------------------------------------------\n" >> ${FLDEBUG}
+			echo  "HOSTNAME     : ${APHOST}" >> ${FLDEBUG}
 			echo  "USER         : ${APUSER}" >> ${FLDEBUG}
+			echo  "VERSION      : ${VERSION}" >> ${FLDEBUG}
+			echo  "RELEASE      : ${RELEASE}" >> ${FLDEBUG}
 			echo  "PROCESS      : ${APPRCS}" >> ${FLDEBUG}
 			echo  "CURRENT      : ${APDATE}" >> ${FLDEBUG}
 			echo  "IPADDRESS    : ${IPADDRESS}" >> ${FLDEBUG}
