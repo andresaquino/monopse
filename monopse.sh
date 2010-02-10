@@ -596,10 +596,10 @@ else
 	then
 		wait_for "Stopping ${APPRCS} application" 2
 		${VIEWLOG} && OPTIONAL=" --verbose"
-		${APNAME} --application=${APPRCS} stop --forced ${OPTIONAL}
+		${APPATH}/${APNAME} --application=${APPRCS} stop --forced ${OPTIONAL}
 		RESULT=$?
 		wait_for "Starting ${APPRCS} application" 3
-		[ ${RESULT} -eq 0 ] && ${APNAME} --application=${APPRCS} start ${OPTIONAL}
+		[ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${APPRCS} start ${OPTIONAL}
 	fi
 
 	
@@ -805,7 +805,7 @@ else
 				# monopse -a=app stop -f -t=3,10
 				# se aplica un fullthreaddump de 3 muestras cada 10 segundos antes de detener el proceso de manera forzada. 
 				log_action "DEBUG" "before kill the baby, we send 3 FTD's between 8 secs"
-				${APNAME} --application=${APPRCS} --threaddump=${MAXSAMPLES},${MAXSLEEP}
+				${APPATH}/${APNAME} --application=${APPRCS} --threaddump=${MAXSAMPLES},${MAXSLEEP}
 				THREADDUMP=false
 			fi
 			
@@ -871,7 +871,7 @@ else
 				for app in ${APPATH}/setup/*-*.conf
 				do
 					app=`basename ${app%-*}`
-					${APNAME} --application=$app --status ${OPTIONAL}
+					${APPATH}/${APNAME} --application=$app --status ${OPTIONAL}
 				done
 				echo  "\nTotal $count application(s)"
 			else
