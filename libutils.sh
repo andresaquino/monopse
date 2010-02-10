@@ -15,27 +15,20 @@ APHOST=`hostname `
 APUSER=`id -u -n`
 APDATE=`date "+%Y%m%d"`
 APHOUR=`date "+%H%M"`
-APLEVL="NOTICE"
 
 # globals
-#APNAME=
-APPATH=
-APLOGD=
 APLOGS=
 APLOGP=
 APPRCS=
-APTEMP=
 APFLTR=
-APVISUALS=true
 
 #
 # get the enviroment for the SO running
 set_environment () {
 	# terminal line settings
 	stty 2> /dev/null > /dev/null 
-	[ "$?" = "0" ] && APVISUALS=${APVISUALS}
 
-	if ${APVISUALS}
+	if [ "$?" = "0" ]
 	then
 		# terminal line settings
 		stty erase '^?'
@@ -69,37 +62,30 @@ set_environment () {
 	# /opt/usrapp/monopse
 
 	# applications's name
-	if [ -z "${APNAME}" ]
+	if [ ${#APNAME} -eq 0 ]
 	then
 		APNAME="`basename ${0}`"
 		APNAME="${APNAME%.*}"
 	fi
 
 	# application's path
-	if [ -z "${APPATH}" ]
+	if [ ${#APPATH} -eq 0 ]
 	then
-		APPATH=${HOME}/${APNAME}
+		APPATH=${APHOME}/${APNAME}
 	fi
 	[ ! -d ${APPATH} ] && mkdir -p ${APPATH}
 
 	# log's path
-	if [ -z "${APLOGD}" ]
+	if [ ${#APLOGD} -eq 0 ]
 	then
 		APLOGD=${APPATH}/logs
 		log_action "DEBUG" "APLOGD unset, using default values: ${APLOGD}"
 	fi
 	APLOGS=${APLOGD}/${APNAME}
-	[ ! -d ${APLOGD} ] && mkdir -p ${APLOGD}
-
-	# temporal's path
-	if [ -z "${APTEMP}" ]
-	then
-		APTEMP=${APLOGD}/temp
-		log_action "DEBUG" "APTEMP unset, using default values: ${APTEMP}"
-	fi
-	[ ! -d ${APTEMP} ] && mkdir -p ${APTEMP}
-
+	APTEMP=${APLOGD}/temp
 	APLOGP=${APTEMP}/${APNAME}
+	[ ! -d ${APLOGD} ] && mkdir -p ${APLOGD}
+	[ ! -d ${APTEMP} ] && mkdir -p ${APTEMP}
 	
 	case "${APSYSO}" in
 		"HP-UX")
@@ -108,10 +94,14 @@ set_environment () {
 			DFOPTS="-P -k"
 			MKOPTS="-d /tmp -p "
 			APUSER=`id -u -n`
+			ECOPTS=""
 			PING="`which ping`"
 			PINGPARAMS="-n"
 			IFCONFIG="`which ifconfig`"
 			IFPARAMS="lan"
+			MAIL=`which mailx`
+			TAR=`which tar`
+			ZIP=`which gzip`
 		;;
 			
 		"Linux")
@@ -120,11 +110,14 @@ set_environment () {
 			DFOPTS="-Pk"
 			MKOPTS="-t "
 			APUSER=`id -u `
+			ECOPTS=""
 			PING="`which ping`"
 			PINGPARAMS="-c"
 			IFCONFIG="`which ifconfig`"
 			IFPARAMS="eth"
-			alias echo='echo '
+			MAIL=`which mail`
+			TAR=`which tar`
+			ZIP=`which gzip`
 		;;
 		
 		"Darwin")
@@ -133,10 +126,14 @@ set_environment () {
 			DFOPTS="-P -k"
 			MKOPTS="-t "
 			APUSER=`id -u `
+			ECOPTS=""
 			PING="`which ping`"
 			PINGPARAMS="-c"
 			IFCONFIG="`which ifconfig`"
 			IFPARAMS="en"
+			MAIL=`which mail`
+			TAR=`which tar`
+			ZIP=`which gzip`
 		;;
 			
 		*)
@@ -144,6 +141,11 @@ set_environment () {
 			PSPOS=0
 		;;
 	esac
+	IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z][a-zA-Z]*[\.]*[ ]*//g"`
+  [ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
+  [ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
+	[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
+																																					
 	log_action "DEBUG" "starting ${APNAME}, using a ${APSYSO} Platform System"
 }
 
@@ -158,7 +160,7 @@ set_name () {
 	APPATH=${AP_PATH}
 	[ ! -d ${APPATH} ] && mkdir -p ${APPATH}
 	
-	APLOGD=${APPATH}/logs
+	#APLOGD=${APHOME}/logs
 	APLOGS=${APLOGD}/${APNAME}
 	[ ! -d ${APLOGD} ] && mkdir -p ${APLOGD}
 
@@ -214,7 +216,7 @@ get_process_id () {
 	# extraer procesos existentes y filtrar las cadenas del archivo de configuracion
 	ps ${PSOPTS} > ${PIDFILE}.allps
 	log_action "DEBUG" "filtering process list with [ps ${PSOPTS}]"
-	${VIEWLOG} && report_status "i" "Creating of ${PIDFILE}.allps"
+	${VIEWMLOG} && report_status "i" "Creating of ${PIDFILE}.allps"
 	
 	# extraer los procesos que nos interesan 
 	awk "/${WRDSLIST}/{print}" ${PIDFILE}.allps > ${PIDFILE}.ps
@@ -223,7 +225,7 @@ get_process_id () {
 	# el archivo existe y es mayor a 0 bytes 
 	if [ -s ${PIDFILE}.ps ]
 	then
-		${VIEWLOG} && report_status "i" "${PIDFILE}.allps < /${WRDSLIST}/ = uju!"
+		${VIEWMLOG} && report_status "i" "${PIDFILE}.allps < /${WRDSLIST}/ = uju!"
 		# extraer los procesos y reordenarlos
 		sort -n -k8 ${PIDFILE}.ps > ${PIDFILE}.pss
 		log_action "DEBUG" "hey, we have one ${APPRCS} process alive in ${PIDFILE}.ps "
@@ -235,7 +237,7 @@ get_process_id () {
 		awk -v P=${PSPOS} '{print $(4+P)}' ${PIDFILE}.pss | sort -rn | uniq > ${PIDFILE}.ppid
 
 	else
-		${VIEWLOG} && report_status "i" "${PIDFILE}.allps < /${WRDSLIST}/ = dawm!"
+		${VIEWMLOG} && report_status "i" "${PIDFILE}.allps < /${WRDSLIST}/ = dawm!"
 		# eliminar archivos ppid, en caso de que el proceso ya no exista
 		log_action "DEBUG" "hey, ${APPRCS} is not running in ${PIDFILE}.ps "
 		rm -f ${PIDFILE}.{pid,ppid}
@@ -260,12 +262,12 @@ process_running () {
 	if [ -s ${PIDFILE}.pid ]
 	then
 		PROCESS=`head -n1 ${PIDFILE}.pid`
-		${VIEWLOG} && report_status "i" "${PIDFILE}.pid > [ ${PROCESS} ]"
+		${VIEWMLOG} && report_status "i" "${PIDFILE}.pid > [ ${PROCESS} ]"
 		kill -0 ${PROCESS} > /dev/null 2>&1
 		RESULT=$?
 		[ ${RESULT} -ne 0 ] && STATUS="process ${APPRCS} is not running"
 		[ ${RESULT} -eq 0 ] && STATUS="process ${APPRCS} is running"
-		${VIEWLOG} && report_status "i" "Well, ${STATUS} (kill -0 PID)"
+		${VIEWMLOG} && report_status "i" "Well, ${STATUS} (kill -0 PID)"
 		log_action "DEBUG" "${STATUS}"
 		return ${RESULT}
 	else
@@ -309,7 +311,7 @@ log_action () {
 	local DATE="`date '+%Y-%m-%d'`"
 	local PID="$$"
 	# verificar que existe (mayor a 0 bytes) y ademas se cuenta con el process id
-	if [ -s "${APLOGS}.pid" ] 
+	if [ -s ${APLOGS}.pid ] 
 	then 
 		PID=`head -n1 ${APLOGP}.pid`
 	fi
@@ -344,11 +346,11 @@ log_action () {
 	
 	if ${LOGTHIS}
 	then
-		if [ ${#APLOGS} -ne 0 ]
+		if [ ${#APLOGS} -eq 0 ]
 		then
-			echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" >> ${APLOGS}.log
-		else
 			echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" 
+		else
+			echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" >> ${APLOGS}.log
 		fi
 	fi
 }
@@ -412,16 +414,18 @@ filter_in_log () {
 # waiting process indicator
 wait_for () {
 	local WAITSTR="- \ | / "
-	local STATUS="${1}"
-	local TIMETO=0
+	local STATUS=${1}
+	local TIMETO=${2}
 	local GOON=true
 	local WAITCHAR="-"
 	
+	[ ${#TIMETO} -eq 0 ] && TIMETO=1
+
 	if [ "${#CBLUE}" -ne 0 ] 
 	then
 		if [ "${STATUS}" != "CLEAR" ]
 		then
-			TIMETO=$((${2}*5))
+			TIMETO=$((${TIMETO}*5))
 			echo " >>${STATUS} " | awk '{print substr($0"                                                                                        ",1,80)}'
 			tput sc
 			CHARPOS=1
@@ -439,19 +443,23 @@ wait_for () {
 				TIMETO=$((${TIMETO}-1))
 				[ ${TIMETO} -eq 0 ] && GOON=false
 			done
+		else
+			# limpiar linea de mensajes
+			tput rc 
+			tput cuu1
+			tput el
 		fi
 		# limpiar linea de mensajes
 		tput rc 
 		tput cuu1
 		#tput el
 	else
-		TIMETO=${2}
 		echo " >>${STATUS} " | awk '{print substr($0"                                                                                        ",1,80)}'
 		while(${GOON})
 		do
 			sleep 1
 			TIMETO=$((${TIMETO}-1))
-			[ ${TIMETO} -eq 0 ] && GOON=false
+			[ ${TIMETO} -lt 0 ] && GOON=false
 		done
 	fi
 }
