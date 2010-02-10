@@ -73,6 +73,8 @@ APPTYPE="STAYRESIDENT"
 UNIQUELOG=false
 PREEXECUTION="_NULL_"
 OPTIONS=
+VERSION="`cat ${APPATH}/VERSION | sed -e 's/-rev/ Rev./g'`"
+RELEASE=`openssl dgst -md5 ${APPATH}/${APNAME}.sh | rev | cut -c-4 | rev`
 
 #
 # log_backup
@@ -317,9 +319,7 @@ reports_status () {
 #
 # show application's version
 show_version () {
-	VERSIONAPP="`cat ${APPATH}/VERSION | sed -e 's/-rev/ Rev./g'`"
-	RELEASE=`openssl dgst -md5 ${APPATH}/${APNAME}.sh | rev | cut -c-4 | rev`
-	echo "${APNAME} ${VERSIONAPP} (${RELEASE})"
+	echo "${APNAME} ${VERSION} (${RELEASE})"
 	echo "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
 	
 	if [ ${SVERSION} ]
@@ -531,8 +531,11 @@ done
 if ${SUPERTEST}
 then
 	echo "Apps Environment"
-	echo "APUSER   = ${APUSER}"
+	echo "--"
 	echo "APNAME   = ${APNAME}"
+	echo "APVERS   = ${VERSION}"
+	echo "APRELS   = ${RELEASE}"
+	echo "APUSER   = ${APUSER}"
 	echo "APHOME   = ${APHOME}"
 	echo "APPATH   = ${APPATH}"
 	echo "APLOGD   = ${APLOGD}"
@@ -540,6 +543,10 @@ then
 	echo "APLOGP   = ${APLOGP}"
 	echo "APTEMP   = ${APTEMP}"
 	echo "APLEVL   = ${APLEVL}"
+	for app in ${APPATH}/setup/*-*.conf
+	do
+		echo "APSETP   = ${app}"
+	done
 
 	exit 0
 fi
