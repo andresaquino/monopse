@@ -11,7 +11,7 @@
 # home de la aplicacion
 APHOME=/Users/Andres
 APPATH=$APHOME/monopse
-APLOGD=$APHOME/logs
+APLOGD=$APHOME/logs/monopse
 
 # ver el verbose 
 VIEWLOG=true
