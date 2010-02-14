@@ -34,6 +34,9 @@ ln -sf ~/monopse/monopserc ~/.monopserc
 echo "Siempre podras consultar el manual con monopse -h o man monopse"
 cp ~/monopse/man1/monopse.1 ~/manuals/man1/
 
+chmod 0640 ~/monopse/*.*
+chmod 0750 ~/monopse/monopse.sh
+
 # establecer nuevo path
 PATH=$HOME/bin:$PATH
 
