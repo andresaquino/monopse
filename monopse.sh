@@ -169,6 +169,9 @@ check_configuration () {
 		
 		[ ! -z "${UPSTRING}" ] || CHECKTEST=false
 		log_action "DEBUG" "Testing UPSTRING=${UPSTRING} ($CHECKTEST)"
+
+		[ ! -z "{DOMAIN_NAME}" ] && export DOMAIN_NAME
+
 	fi
 
 	if ${CHECKTEST}
