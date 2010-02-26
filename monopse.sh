@@ -754,6 +754,20 @@ else
 			exit 0
 		fi
 		
+		# ejecutar el postexecution
+		if [ ${POSTEXECUTION} != "_NULL_" ]
+		then
+			log_action "DEBUG" "Executing ${POSTEXECUTION}, logging to ${APLOGT}.post"
+			sh ${POSTEXECUTION} > ${APLOGT}.post 2>&1 
+			LASTSTATUS=$?
+			if [ ${LASTSTATUS} -ne 0 ]
+			then
+				report_status "?" "some problems with ${POSTEXECUTION}, ERROR_CODE: ${LASTSTATUS}"
+				exit 1
+			fi
+			report_status "*" "Good, all clear..."
+		fi
+
 		#
 		# si es necesario que el stop sea forzado
 		if ${NOTFORCE}
