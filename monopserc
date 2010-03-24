@@ -14,16 +14,16 @@ export APPATH=$APHOME/monopse
 export APLOGD=$APHOME/logs/monopse
 
 # ver el verbose 
-VIEWLOG=true
+export VIEWLOG=true
 
 # correo de los Administradores
-MAILTOADMIN="cesar.aquino@nextel.com.mx"
+export MAILTOADMIN="cesar.aquino@nextel.com.mx"
 
 # Aviso a los radios
-MAILTORADIO="5519419071@msgnextel.com.mx"
+export MAILTORADIO="5519419071@msgnextel.com.mx"
 
 # correo para desarrollo
-MAILTODEVELOPER="andres.aquino@gmail.com"
+export MAILTODEVELOPER="andres.aquino@gmail.com"
 
 
 #
