@@ -15,11 +15,13 @@ APHOST=`hostname `
 APUSER=`id -u -n`
 APDATE=`date "+%Y%m%d"`
 APHOUR=`date "+%H%M"`
+APLEVL="DEBUG"
 
 # globals
-APLOGS=
-APLOGP=
-APPRCS=
+export APLOGS=
+export APLOGP=
+export APLOGT=
+export APPRCS=
 APFLTR=
 
 #
@@ -480,12 +482,13 @@ wait_for () {
 
 #
 # [] test para verificar los procesos asociados a un .pid
-#set_enviroment
-#processes_running "gvfs"
-#wait_for "CLEAR"
+set_environment
+set_proc "gvfs"
+get_process_id "gvfs"
+wait_for "CLEAR"
 
 # [ok] test para mostrar procesos
-#get_enviroment
+#set_environment
 #report_status "OK" "Reinicio WebLogic 9.2 "
 #report_status "ERR" "Reinicio WebLogic 9.2 "
 
