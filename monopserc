@@ -9,9 +9,9 @@
 
 #
 # home de la aplicacion
-APHOME=/Users/Andres
-APPATH=$APHOME/monopse
-APLOGD=$APHOME/logs/monopse
+export APHOME=/home/andresaquino
+export APPATH=$APHOME/monopse
+export APLOGD=$APHOME/logs/monopse
 
 # ver el verbose 
 VIEWLOG=true
