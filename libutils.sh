@@ -198,9 +198,9 @@ set_proc () {
 	local AP_PROC=${1}
 
 	# process name
-	APPRCS=${AP_PROC}
-	APLOGP=${APLOGD}/${APPRCS}
-	APLOGT=${APTEMP}/${APPRCS}
+	export APPRCS=${AP_PROC}
+	export APLOGP=${APLOGD}/${APPRCS}
+	export APLOGT=${APTEMP}/${APPRCS}
 
 }
 
@@ -482,10 +482,10 @@ wait_for () {
 
 #
 # [] test para verificar los procesos asociados a un .pid
-set_environment
-set_proc "gvfs"
-get_process_id "gvfs"
-wait_for "CLEAR"
+#set_environment
+#set_proc "gvfs"
+#get_process_id "gvfs"
+#wait_for "CLEAR"
 
 # [ok] test para mostrar procesos
 #set_environment
