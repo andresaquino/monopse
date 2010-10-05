@@ -484,28 +484,28 @@ do
 			exit 0
 		;;
 		--help|-h)
-			echo  "Usage: ${APNAME} [OPTION]..."
-			echo  "start up or stop applications like WebLogic, Fuego, Resin, etc.\n"
-			echo  "Mandatory arguments in long format."
-			echo  "\t-a, --application=APPNAME        use this appName, required "
-			echo  "\t    --start                      start appName "
-			echo  "\t    --stop                       stop appName "
-			echo  "\t    --restart                    restart appName "
-			echo  "\t-r, --report                     show an small report about domains "
-			echo  "\t-m, --maintenance                execute all shell plugins in maintenance directory"
-			echo  "\t-s, --status                     verify the status of appName "
-			echo  "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
-			echo  "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
-			echo  "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
-			echo  "\t-v, --verbose                    send output execution to terminal "
-			echo  "\t-vv                              send output execution and monopse execution to terminal "
-			echo  "\t-d, --debug                      debug logs and processes in the system "
-			echo  "\t    --version                    show version "
-			echo  "\t-h, --help                       show help\n "
-			echo  "Each APPLIST refers to one application on the server."
-			echo  "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
-			echo  "INTERVAL time in seconds\n"
-			echo  "Report bugs to <andres.aquino@gmail.com>"
+			printto  "Usage: ${APNAME} [OPTION]..."
+			printto  "start up or stop applications like WebLogic, Fuego, Resin, etc."
+			printto  "Mandatory arguments in long format."
+			printto  "\t-a, --application=APPNAME        use this appName, required "
+			printto  "\t    --start                      start appName "
+			printto  "\t    --stop                       stop appName "
+			printto  "\t    --restart                    restart appName "
+			printto  "\t-r, --report                     show an small report about domains "
+			printto  "\t-m, --maintenance                execute all shell plugins in maintenance directory "
+			printto  "\t-s, --status                     verify the status of appName "
+			printto  "\t-t, --threaddump                 send a 3 signal via kernel by 3 times "
+			printto  "\t    --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL "
+			printto  "\t-c, --check-config               check config application (see ${APNAME}-${APNAME}.conf) "
+			printto  "\t-v, --verbose                    send output execution to terminal "
+			printto  "\t-vv                              send output execution and monopse execution to terminal "
+			printto  "\t-d, --debug                      debug logs and processes in the system "
+			printto  "\t    --version                    show version "
+			printto  "\t-h, --help                       show help "
+			printto  "Each APPLIST refers to one application on the server. "
+			printto  "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
+			printto  "INTERVAL time in seconds \n"
+			printto  "Report bugs to <andres.aquino@gmail.com> "
 			exit 0
 		;;
 		*)
@@ -934,8 +934,8 @@ else
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
 			processes_running
-			echo  "\n ${APHOST} (${IPADDRESS})\n"
-			echo  "APPLICATION:EXECUTED:PID:STATUS" | 
+			printto  "\n ${APHOST} (${IPADDRESS})"
+			printto  "APPLICATION:EXECUTED:PID:STATUS" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print " "substr($1"                             ",1,20),
@@ -943,7 +943,7 @@ else
 											substr($3"              ",1,6),
 											substr($4"              ",1,6)
 							}'
-			echo  " --------------------+---------------+-------+---------"
+			printto  " --------------------+---------------+-------+---------"
 			
 			for app in ${APPATH}/setup/*-*.conf
 			do
@@ -960,7 +960,7 @@ else
 				fi
 				[ ${#apppidn} -gt 0 ] && appstat="RUNNING" || appstat="STOPPED"
 				
-				echo "${appname}:${appdate}:${apppidn}:${appstat}" | 
+				printto "${appname}:${appdate}:${apppidn}:${appstat}" | 
 					awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print " "substr($1"                             ",1,20),
@@ -969,7 +969,7 @@ else
 											substr($4"              ",1,9)
 							}'
 			done
-			echo  "\nTotal $count application(s)"
+			printto  "\nTotal $count application(s)"
 		fi
 		
 

@@ -412,6 +412,29 @@ filter_in_log () {
 }
 
 
+printto() {
+  local message="$1"
+
+	case "${APSYSO}" in
+		"HP-UX")
+			echo "$message"
+		;;
+			
+		"Linux")
+			echo -en "$message \n"
+		;;
+		
+		"Darwin")
+			echo -en "$message \n"
+		;;
+			
+		*)
+			echo "$message *"
+		;;
+	esac
+
+}
+
 #
 # waiting process indicator
 wait_for () {
