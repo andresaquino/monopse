@@ -33,7 +33,7 @@ if [ "`id -u`" -eq "0" ]
 then
 	 if [ "${MAILACCOUNTS}" = "_NULL_" ]
 	 then
-			echo  "Hey, i can't run as root user "
+			printto  "Hey, i can't run as root user "
 	 else
 			${MAIL} -s "Somebody tried to run me as r00t user" "${MAILACCOUNTS}" < "$@" > /dev/null 2>&1 &
 			log_action "WARN" "Somebod tried to run me as r00t, sending warn to ${MAILACCOUNTS}"
@@ -178,7 +178,7 @@ check_configuration () {
 	then
 		if [ "${SHOWLOG}" = "YES" ]
 		then
-			echo  "File: ${FILESETUP}\n--"
+			printto  "File: ${FILESETUP}\n--"
 			awk '/^[a-zA-Z]/{print}' ${FILESETUP}
 		fi
 		log_action "DEBUG" "All parameters seem to be correct "
@@ -245,7 +245,7 @@ make_fullthreaddump() {
 	while [ $times -ne $MAXSAMPLES ]
 	do
 		kill -3 $PID
-		echo  "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
+		printto  "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
 		log_action "INFO" "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
 		sleep $MAXSLEEP
 		times=$(($times+1))
@@ -262,16 +262,16 @@ make_fullthreaddump() {
 	total=$(($tFILE-$gFILE+1))
 	log_action "DBUG" "Total: $total, where tFile=$tFILE and gFile=$gFILE"
 	tail -n${total} ${ftdFILE} > ${ftdFILE}.tmp
-	echo  "-------------------------------------------------------------------------------" > ${ftdFILE}
-	echo  "-------------------------------------------------------------------------------" >> ${ftdFILE}
-	echo  "JAVA FTD" >> ${ftdFILE}
-	echo  "-------------------------------------------------------------------------------" >> ${ftdFILE}
-	echo  "Host: `hostname`" >> ${ftdFILE}
-	echo  "ID's: `id`" >> ${ftdFILE}
-	echo  "Date: ${timeStart}" >> ${ftdFILE}
-	echo  "Appl: ${APPRCS}" >> ${ftdFILE}
-	echo  "Smpl: ${MAXSAMPLES}" >> ${ftdFILE}
-	echo  "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	printto  "-------------------------------------------------------------------------------" > ${ftdFILE}
+	printto  "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	printto  "JAVA FTD" >> ${ftdFILE}
+	printto  "-------------------------------------------------------------------------------" >> ${ftdFILE}
+	printto  "Host: `hostname`" >> ${ftdFILE}
+	printto  "ID's: `id`" >> ${ftdFILE}
+	printto  "Date: ${timeStart}" >> ${ftdFILE}
+	printto  "Appl: ${APPRCS}" >> ${ftdFILE}
+	printto  "Smpl: ${MAXSAMPLES}" >> ${ftdFILE}
+	printto  "-------------------------------------------------------------------------------" >> ${ftdFILE}
 	cat ${ftdFILE}.tmp >> ${ftdFILE}
  
 	# enviar por correo 
@@ -308,7 +308,7 @@ reports_status () {
 	
 	#
 	# solo enviar si la operacion fue correcta o no
-	echo  "${APPRCS} ${TYPEOPERATION} ${STRSTATUS}, see also ${APLOGP}.log for information"
+	printto  "${APPRCS} ${TYPEOPERATION} ${STRSTATUS}, see also ${APLOGP}.log for information"
 	if [ "${MAILACCOUNTS}" != "_NULL_" ]
 	then
 		# y mandarlo a bg, por que si no el so se apendeja, y por este; este arremedo de programa :-P
@@ -322,13 +322,13 @@ reports_status () {
 #
 # show application's version
 show_version () {
-	echo "${APNAME} ${VERSION} (${RELEASE})"
-	echo "(c) 2008, 2009 Nextel de Mexico, S.A. de C.V.\n"
+	printto "${APNAME} ${VERSION} (${RELEASE})"
+	printto "(c) 2010 Nextel de Mexico, S.A. de C.V.\n"
 	
 	if [ ${SVERSION} ]
 	then
-		echo  "Written by"
-		echo  "Andres Aquino <andres.aquino@gmail.com>"
+		printto  "Written by"
+		printto  "Andres Aquino <andres.aquino@gmail.com>"
 	fi
 
 }
@@ -505,7 +505,7 @@ do
 			printto  "Each APPLIST refers to one application on the server. "
 			printto  "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
 			printto  "INTERVAL time in seconds \n"
-			printto  "Report bugs to <andres.aquino@gmail.com> "
+			printto  "Report bugs to <andres.aquino@gmail.com> \n"
 			exit 0
 		;;
 		*)
@@ -533,19 +533,19 @@ done
 # verificar opciones usadas
 if ${SUPERTEST}
 then
-	echo "Apps Environment"
-	echo "--"
-	echo "APNAME   = ${APNAME}"
-	echo "APVERS   = ${VERSION}"
-	echo "APRELS   = ${RELEASE}"
-	echo "APUSER   = ${APUSER}"
-	echo "APHOME   = ${APHOME}"
-	echo "APPATH   = ${APPATH}"
-	echo "APLOGD   = ${APLOGD}"
-	echo "APLOGS   = ${APLOGS}"
-	echo "APLOGP   = ${APLOGP}"
-	echo "APTEMP   = ${APTEMP}"
-	echo "APLEVL   = ${APLEVL}"
+	printto "Apps Environment"
+	printto "--"
+	printto "APNAME   = ${APNAME}"
+	printto "APVERS   = ${VERSION}"
+	printto "APRELS   = ${RELEASE}"
+	printto "APUSER   = ${APUSER}"
+	printto "APHOME   = ${APHOME}"
+	printto "APPATH   = ${APPATH}"
+	printto "APLOGD   = ${APLOGD}"
+	printto "APLOGS   = ${APLOGS}"
+	printto "APLOGP   = ${APLOGP}"
+	printto "APTEMP   = ${APTEMP}"
+	printto "APLEVL   = ${APLEVL}"
 	for app in ${APPATH}/setup/*-*.conf
 	do
 		echo "APSETP   = ${app}"
@@ -557,7 +557,7 @@ fi
 #
 if ${ERROR}
 then
-	echo  "Usage: ${APNAME} [OPTION]...[--help]"
+	printto  "Usage: ${APNAME} [OPTION]...[--help]"
 	exit 0
 else
 	#
@@ -596,7 +596,7 @@ else
 		${DEBUG} && CANCEL=false
 		if ${CANCEL}
 		then
-			echo  "Usage: ${APNAME} [OPTION]...[--help]"
+			printto  "Usage: ${APNAME} [OPTION]...[--help]"
 			exit 1
 		fi
 	fi
@@ -684,8 +684,8 @@ else
 			fi
 			date '+%Y%m%d-%H%M' > ${APLOGT}.date
 			# summary en lock para un post-analisis
-			echo  "Options used when monopse was called:\n ${OPTIONS}" > ${APLOGT}.lock
-			echo  "\nDate:\n`date '+%Y%m%d %H:%M'`" >> ${APLOGT}.lock
+			printto  "Options used when monopse was called:\n ${OPTIONS}" > ${APLOGT}.lock
+			printto  "\nDate:\n`date '+%Y%m%d %H:%M'`" >> ${APLOGT}.lock
 		fi
 
 		#
@@ -707,7 +707,7 @@ else
 			if [ "${LINE}" != "${LASTLINE}" ]
 			then 
 				${VIEWMLOG} && wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
-				${VIEWLOG} && echo  "   | ${LINE}" 
+				${VIEWLOG} && printto  "   | ${LINE}" 
 				LINE="$LASTLINE"
 			fi
 			ONSTOP="$(($ONSTOP+1))"
@@ -719,7 +719,7 @@ else
 		# buscar los PID's
 		sleep 3
 		get_process_id "${FILTERAPP},${FILTERLANG}"
-		echo  "\nPID:\n" >> "${APLOGT}.lock" 2>&1
+		printto  "\nPID:\n" >> "${APLOGT}.lock" 2>&1
 		cat ${APLOGT}.pid >> "${APLOGT}.lock" 2>&1
 
 		# le avisamos a los admins 
@@ -752,7 +752,7 @@ else
 		process_running
 		if [ ! -s ${APLOGT}.pid ]
 		then
-			echo  "uh, ${APPRCS} is not running currently, tip: ${APNAME} --report"
+			printto  "uh, ${APPRCS} is not running currently, tip: ${APNAME} --report"
 			log_action "INFO" "The application is down"
 			exit 0
 		fi
@@ -801,7 +801,7 @@ else
 				[ ${LASTSTATUS} -ne 0 ] && INWAIT=false
 				if [ "${LINE}" != "${LASTLINE}" ]
 				then 
-					${VIEWLOG} && echo "   | ${LINE}" 
+					${VIEWLOG} && printto "   | ${LINE}" 
 					LINE="$LASTLINE"
 				fi
 				
@@ -851,7 +851,7 @@ else
 					awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
 					${VIEWMLOG} && wait_for "Ok, sending the kill-bill signal, can you wait some seconds?" 2
 					LASTLINE="`tail -n1 ${APLOGP}.log `"
-					${VIEWLOG} && echo "   | ${LASTLINE}"
+					${VIEWLOG} && printto "   | ${LASTLINE}"
 				fi
 
 				# checar si existen los PID's, por si el archivo no regresa el shutdown
@@ -898,7 +898,7 @@ else
 					app=`basename ${app%-*}`
 					${APPATH}/${APNAME} --application=$app --status ${OPTIONAL}
 				done
-				echo  "\nTotal $count application(s)"
+				printto  "\nTotal $count application(s)"
 			else
 				# si se da el parametro de --application, procede sobre esa aplicacion 
 				process_running
@@ -986,15 +986,15 @@ else
 		then
 			count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
 			[ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
-			echo  "\n ${APHOST} (${IPADDRESS})\n"
-			echo  "START:STOP:APPLICATION:" | 
+			printto  "\n ${APHOST} (${IPADDRESS})\n"
+			printto  "START:STOP:APPLICATION:" | 
 				awk 'BEGIN{FS=":";OFS="| "}
 							{
 								print " "substr($1"                     ",1,18),
 											substr($2"                     ",1,18),
 											substr($3"                     ",1,28);
 							}'
-			echo  " ------------------+-------------------------------------------------"
+			printto  " ------------------+-------------------------------------------------"
 			log_action "DEBUG" "report from ${APLOGS}.log "
 			tail -n5000 ${APLOGS}.log |	tr -d ":[]()-" | sort -r | \
 						awk 'BEGIN{LAST="";OFS="| "}
@@ -1021,7 +1021,7 @@ else
 			else
 				cat ${APTEMP}/${APNAME}.history | uniq | sort | head -n25 | grep "${APPRCS} "
 			fi
-			echo  ""
+			printto  ""
 		fi
 
 		#
@@ -1082,41 +1082,41 @@ else
 		then
 			FLDEBUG="${APLOGT}.debug"
 			[ -f ${FLDEBUG} ] && rm -f ${FLDEBUG}
-			echo  "\nDEBUG" >> ${FLDEBUG}
-			echo  "-------------------------------------------------------------------------------\n" >> ${FLDEBUG}
-			echo  "HOSTNAME     : ${APHOST}" >> ${FLDEBUG}
-			echo  "USER         : ${APUSER}" >> ${FLDEBUG}
-			echo  "VERSION      : ${VERSION}" >> ${FLDEBUG}
-			echo  "RELEASE      : ${RELEASE}" >> ${FLDEBUG}
-			echo  "PROCESS      : ${APPRCS}" >> ${FLDEBUG}
-			echo  "CURRENT      : ${APDATE}" >> ${FLDEBUG}
-			echo  "IPADDRESS    : ${IPADDRESS}" >> ${FLDEBUG}
-			echo  "DESCRIPTION  : ${DESCRIPTION}" >> ${FLDEBUG}
-			echo  " " >> ${FLDEBUG}
-			echo  "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
-			echo  "\nDATE " >> ${FLDEBUG}
-			echo  "${APLOGT}.date" >> ${FLDEBUG}
+			printto  "\nDEBUG" >> ${FLDEBUG}
+			printto  "-------------------------------------------------------------------------------\n" >> ${FLDEBUG}
+			printto  "HOSTNAME     : ${APHOST}" >> ${FLDEBUG}
+			printto  "USER         : ${APUSER}" >> ${FLDEBUG}
+			printto  "VERSION      : ${VERSION}" >> ${FLDEBUG}
+			printto  "RELEASE      : ${RELEASE}" >> ${FLDEBUG}
+			printto  "PROCESS      : ${APPRCS}" >> ${FLDEBUG}
+			printto  "CURRENT      : ${APDATE}" >> ${FLDEBUG}
+			printto  "IPADDRESS    : ${IPADDRESS}" >> ${FLDEBUG}
+			printto  "DESCRIPTION  : ${DESCRIPTION}" >> ${FLDEBUG}
+			printto  " " >> ${FLDEBUG}
+			printto  "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
+			printto  "\nDATE " >> ${FLDEBUG}
+			printto  "${APLOGT}.date" >> ${FLDEBUG}
 			cat ${APLOGT}.date >> ${FLDEBUG} 2>&1
-			echo  "\nPIDFILE " >> ${FLDEBUG}
-			echo  "${APLOGT}.pid" >> ${FLDEBUG}
+			printto  "\nPIDFILE " >> ${FLDEBUG}
+			printto  "${APLOGT}.pid" >> ${FLDEBUG}
 			cat ${APLOGT}.pid >> ${FLDEBUG} 2>&1
-			echo  "\nPROCESSES TABLE" >> ${FLDEBUG}
+			printto  "\nPROCESSES TABLE" >> ${FLDEBUG}
 			process_running
 			PROCESSES=$?
 			if [ ${PROCESSES} -eq 0 ]
 			then
-				echo  "${APPRCS} is running" >> ${FLDEBUG} 2>&1
+				printto  "${APPRCS} is running" >> ${FLDEBUG} 2>&1
 				cat ${APLOGT}.ps >> ${FLDEBUG} 2>&1
 			else
-				echo  "${APPRCS} is not running." >> ${FLDEBUG} 2>&1
+				printto  "${APPRCS} is not running." >> ${FLDEBUG} 2>&1
 			fi
-			echo  "\nFILESYSTEM" >> ${FLDEBUG}
+			printto  "\nFILESYSTEM" >> ${FLDEBUG}
 			df ${DFOPTS} >> ${FLDEBUG} 2>&1
-			echo  "\nLOGFILE" >> ${FLDEBUG}
-			echo  "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
+			printto  "\nLOGFILE" >> ${FLDEBUG}
+			printto  "-------------------------------------------------------------------------------" >> ${FLDEBUG}			
 			tail -n100 ${APLOGP}.log >> ${FLDEBUG} 2>&1
-			echo  "	" >> ${FLDEBUG}
-			echo  "-------------------------------------------------------------------------------" >> ${FLDEBUG}
+			printto  "	" >> ${FLDEBUG}
+			printto  "-------------------------------------------------------------------------------" >> ${FLDEBUG}
 		 
 			#
 			# si no se solicita el --mailreport
