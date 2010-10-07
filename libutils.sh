@@ -104,6 +104,7 @@ set_environment () {
 			MAIL=`which mailx`
 			TAR=`which tar`
 			ZIP=`which gzip`
+			IPADDRESS=`${PING} ${HOSTNAME} -n 1 | awk '/icmp_seq=0/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
 		;;
 			
 		"Linux")
@@ -120,6 +121,7 @@ set_environment () {
 			MAIL=`which mail`
 			TAR=`which tar`
 			ZIP=`which gzip`
+			IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=0/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
 		;;
 		
 		"Darwin")
@@ -136,18 +138,15 @@ set_environment () {
 			MAIL=`which mail`
 			TAR=`which tar`
 			ZIP=`which gzip`
+			IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=0/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
 		;;
 			
 		*)
 			PSOPTS="-l"
 			PSPOS=0
+			IPADDRESS="127.0.0.1"
 		;;
 	esac
-	IPADDRESS=`${PING} ${APHOST} ${PINGPARAMS} 1 2> /dev/null | awk '/bytes from/{gsub(":","",$4);print $4}' | sed -e "s/[a-zA-Z][a-zA-Z]*[\.]*[ ]*//g"`
-  [ "x$IPADDRESS" = "x" ] && IPADDRESS=`echo $SSH_CONNECTION 2> /dev/null | awk '{print $3}' | sed -e "s/.*://g;s/ .*//g"`
-  [ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}0 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
-	[ "x$IPADDRESS" = "x" ] && IPADDRESS=`${IFCONFIG} ${IFPARAMS}1 2> /dev/null | awk '/ inet/{print $2}' | head -n1 | sed -e "s/[a-z]*://g"`
-																																					
 	log_action "DEBUG" "starting ${APNAME}, using a ${APSYSO} Platform System"
 }
 
@@ -372,13 +371,13 @@ report_status () {
 		tput cuu1 && tput cuf 80
 		case "${STATUS}" in
 			"*")
-				echo "${CCLEAR}[${CGREEN} ${STATUS} ${CCLEAR}]"
+				printto "${CCLEAR}[${CGREEN} ${STATUS} ${CCLEAR}]"
 			;;
 			"?")
-				echo "${CCLEAR}[${CRED} ${STATUS} ${CCLEAR}]"
+				printto "${CCLEAR}[${CRED} ${STATUS} ${CCLEAR}]"
 			;;
 			"i")
-				echo "${CCLEAR}[${CYELLOW} ${STATUS} ${CCLEAR}]"
+				printto "${CCLEAR}[${CYELLOW} ${STATUS} ${CCLEAR}]"
 			;;
 		esac
 	fi
@@ -451,7 +450,7 @@ wait_for () {
 		if [ "${STATUS}" != "CLEAR" ]
 		then
 			TIMETO=$((${TIMETO}*5))
-			echo " >>${STATUS} " | awk '{print substr($0"                                                                                        ",1,80)}'
+			printto " >>${STATUS} " | awk '{print substr($0"                                                                                        ",1,80)}'
 			tput sc
 			CHARPOS=1
 			while(${GOON})
@@ -460,7 +459,7 @@ wait_for () {
 				# recuperar la posicion en pantalla, ubicar en la columna 70 y subirse un renglon 
 				tput rc
 				tput cuu1 && tput cuf 80 
-				echo "${CCLEAR}[${CYELLOW} ${WAITCHAR} ${CCLEAR}]"
+				printto "${CCLEAR}[${CYELLOW} ${WAITCHAR} ${CCLEAR}]"
 				# incrementar posicion, si es igual a 5 regresar al primer caracter 
 				CHARPOS=$((${CHARPOS}+1))
 				[ ${CHARPOS} -eq 5 ] && CHARPOS=1
