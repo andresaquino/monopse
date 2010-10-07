@@ -1,0 +1,19 @@
+v3.02-rev2
+Ahora es posible ejecutarlo en HP-UX, Linux y MacOSX sin problemas, se corrige la funcion para mostrar texto
+en la pantalla.
+
+v3.02-rev3
+Agregar funcionalidad --all
+Ahora es posible detener, iniciar, reiniciar ó aplicar ftd's a todo el subconjunto de aplicaciones que
+esten referenciadas en el monopse.
+
+v3.02-rev4
+Corregir funcionalidad --threaddump=N,M
+De cuando en cuando, al solicitar un ftd se queda el proceso ligado a la terminal 
+y ya no es posible salir de la misma sin que esto implique terminar el proceso del FTD
+
+v3.02-rev5
+Implementar dependencias de ejecucion
+Seria bueno que ahora se pudiera manejar el esquema de administracion de aplicaciones
+por dependencias, no puedes iniciar una aplicacion si es que aun no has levantando otra.
+

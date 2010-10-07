@@ -54,6 +54,7 @@ START=false
 STOP=false
 RESTART=false
 STATUS=false
+ALLAPPLICATIONS=false
 NOTFORCE=true
 FASTSTOP=false
 MAILACCOUNTS="_NULL_"
@@ -363,6 +364,13 @@ do
 		--restart|restart)
 			RESTART=true
 			ERROR=false
+			if ${START} || ${STOP} || ${CHECKCONFIG}
+			then
+				ERROR=true
+			fi
+		;;
+		--all|all)
+			ALLAPPLICATIONS=true
 			if ${START} || ${STOP} || ${CHECKCONFIG}
 			then
 				ERROR=true
