@@ -7,21 +7,25 @@
 An small shell for those applications that nobody wants to restart ;)
 =-=
 
-A partir de la rama 3, cambiara de nombre: starter.
-
 GIT
-http://gitorious.org/starter
+http://gitorious.org/monopse
+
+SVN
+http://monopse.googlecode.com/svn/trunk/
 
 BUGTRACKER
-http://akin0.lighthouseapp.com/projects/43684-starter/overview
+[pending, we're moving to launchpad]
+http://code.google.com/p/monopse/issues/list
 
-TESTED ON
-	* WebLogic 10
-	* WebLogic 9.2
-	* WebLogic 8.1
-	* WebLogic 6
+
+TESTED WITH
+   * Oracle WebLogic 11
+	* Oracle WebLogic 10
+	* BEA WebLogic 9.2
+	* BEA WebLogic 8.1
+	* BEA WebLogic 6
    * Targys (install screen)
-   * otras aplicaciones
+   * local applications running on Linux and HP-UX
 
 
 # vim: set ts=3 et sw=3 sts=3 si ai:

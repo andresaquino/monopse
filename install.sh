@@ -3,8 +3,8 @@
 # 
 # install.sh -- instalar monopse en el directorio
 # =-=
-# (c) 2008, 2009 Nextel de Mexico
-# Andrés Aquino Morales <andres.aquino@gmail.com>
+# Developer
+# Andres Aquino Morales <andres.aquino@gmail.com>
 # 
 
 mkdir -p ~/bin

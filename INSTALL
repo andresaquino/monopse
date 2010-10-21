@@ -9,7 +9,7 @@ An small shell for those applications that nobody wants to restart ;)
 
 COMO INSTALAR ?
 
-Bajar el paquete monopse-v2.5Stable
+Bajar el paquete monopse-vX.YStable
 -
  $ wget http://10.103.22.44/applications/monopse-v2.5Stable.tar.gz 
 
@@ -48,12 +48,11 @@ _
 
 Verificar instalación
 _
- $ monopse -v
- monopse v2.50
- Copyright (C) 2008 Nextel de Mexico
-
- Incognito - Enigma
- Written by Andres Aquino <andres.aquino@gmail.com>
-
+dir $> monopse --version
+monopse v3.02 Rev.3 (86a9) 
+(c) 2010 Nextel de Mexico, S.A. DE C.V.
+ 
+ Developed by 
+ Andres Aquino <andres.aquino@gmail.com> 
 
 ... enjoy !

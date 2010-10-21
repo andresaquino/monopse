@@ -1,0 +1,42 @@
+  _ __ ___   ___  _ __   ___  _ __  ___  ___ 
+ | '_ ` _ \ / _ \| '_ \ / _ \| '_ \/ __|/ _ \
+ | | | | | | (_) | | | | (_) | |_) \__ \  __/
+ |_| |_| |_|\___/|_| |_|\___/| .__/|___/\___|
+                             |_|             
+                                
+An small shell for those applications that nobody wants to restart ;)
+=-=
+
+   v3.02-rev5
+      TODO: Implementar dependencias de ejecucion 
+      Seria bueno que ahora se pudiera manejar el esquema de administracion de aplicaciones por
+      dependencias, no puedes iniciar una aplicacion si es que aun no has levantando otra.
+
+
+   v3.02-rev4 
+      FIX: Corregir funcionalidad --threaddump=N,M 
+      De cuando en cuando, al solicitar un ftd se queda el proceso ligado a la terminal y ya no es
+      posible salir de la misma sin que esto implique terminar el proceso del FTD
+
+
+   v3.02-rev3 
+      TODO: Agregar funcionalidad --all 
+      Ahora es posible detener, iniciar, reiniciar ó aplicar ftd's a todo el subconjunto de
+      aplicaciones que esten referenciadas en el monopse.
+
+      TODO: Se quito el trademark (evitemos pedos con HP)
+      Como aun no se define que pedo con HP, vamos quitando trademark de nextel y se deja como
+      usuario de esta aplicacion
+
+      TODO: Registro de Cambios
+      Documentar en el archivo HISTORY los cambios realizados a la aplicacion en funcion del branch
+      que se esta liberando.
+
+
+   v3.02-rev2
+      TODO: Ejecucion plataforma Linux / OSX / HP-UX
+      Ahora es posible ejecutarlo en HP-UX, Linux y MacOSX sin problemas, se corrige la funcion para
+      mostrar texto en la pantalla.
+
+
+# vim: set ts=3 et sw=3 sts=3 si ai tw=100 lbr:

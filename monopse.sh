@@ -3,8 +3,8 @@
 
 # monopse.sh - An small shell for those applications that nobody wants to restart ;)
 # =-=
-# (c) 2008, 2009 Nextel de Mexico, S.A. de C.V.
-# Andrés Aquino Morales <andres.aquino@gmail.com>
+# Developer
+# Andres Aquino Morales <andres.aquino@gmail.com>
 # 
 
 #
@@ -223,7 +223,7 @@ check_weblogicserver() {
 # *
 # realizar un kernel full thread dump sobre el proceso indicado.
 # sobre procesos non-java va a valer queso, por que la señal 3 es para hacer un volcado de memoria.
-# monopse --application=resin --threaddump=5 --mailto=cesar.aquino@nextel.com.mx
+# monopse --application=resin --threaddump=5 --mailto=andres.aquino@gmail.com
 # por defecto, el ftd se almacena en el filesystem log de la aplicación; si se detecta que se esta
 # incrementando el uso del filesystem, conserva los mas recientes 
 make_fullthreaddump() {
@@ -324,11 +324,11 @@ reports_status () {
 # show application's version
 show_version () {
 	printto "${APNAME} ${VERSION} (${RELEASE})"
-	printto "(c) 2010 Nextel de Mexico, S.A. de C.V.\n"
+	printto "(c) 2010 ${APPROF}\n"
 	
 	if [ ${SVERSION} ]
 	then
-		printto  "Written by"
+		printto  "Developed by"
 		printto  "Andres Aquino <andres.aquino@gmail.com>"
 	fi
 
