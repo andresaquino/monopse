@@ -16,7 +16,8 @@ cd $HOME
 echo "Migrando configuraciones"
 if [ -d ~/monopse ]
 then
-   find ~/monopse -name '*-monopse.con' -exec mv {} ~/monopse.git/setup/ \;
+   find ~/monopse -name '*-monopse.conf' -exec mv {} ~/monopse.git/setup/ \;
+   find ~/monopse -name 'monopserc' -exec mv {} ~/monopse.git/ \;
 fi
 
 # mover actual como backup
@@ -31,8 +32,11 @@ then
    
    cd ~/monopse
    ln -sf ~/monopse/monopse.sh monopse
-   echo "Recuerda, la configuracion ahora se encuentra en $HOME/.monopserc"
+   
+	 echo "Recuerda, la configuracion ahora se encuentra en $HOME/.monopserc"
+	 rm -f ~/.monopserc
    ln -sf ~/monopse/monopserc ~/.monopserc
+
    echo "Siempre podras consultar el manual con monopse -h o man monopse"
    cp ~/monopse/man1/monopse.1 ~/manuals/man1/
 
