@@ -22,6 +22,11 @@ ROADMAP
          Seria bueno que ahora se pudiera manejar el esquema de administracion de aplicaciones por
          dependencias, no puedes iniciar una aplicacion si es que aun no has levantando otra.
 
+      rev20101103
+         ENHANCEMENT: Se agrega funcionalidad --fast | fast
+         Se agrega funcionalidad para iniciar los procesos en background, ya que en algunos casos se
+         require darle velocidad a los reinicios...
+
       rev20101102
          DEFECT: Corregir funcionalidad --threaddump=N,M 
          De cuando en cuando, al solicitar un ftd se queda el proceso ligado a la terminal y ya no es

@@ -64,6 +64,7 @@ SUPERTEST=false
 STATUS=false
 DEBUG=false
 ERROR=true
+FAST=false
 MAXLOGSIZE=500
 THREADDUMP=false
 VIEWREPORT=false
@@ -105,6 +106,7 @@ log_backup () {
   mv ${APLOGT}.ppid ${DAYOF}/ > /dev/null 2>&1
   mv ${APLOGT}.ps ${DAYOF}/ > /dev/null 2>&1
   mv ${APLOGT}.pss ${DAYOF}/ > /dev/null 2>&1
+  rm ${APLOGT}.inprogress > /dev/null 2>&1
   touch ${APLOGP}.log
   LOGSIZE=`du -sk "${DAYOF}" | cut -f1`
   RESULT=$((${LOGSIZE}/1024))
@@ -112,7 +114,7 @@ log_backup () {
   # Si esta habilitado el fast-stop(--forced), no se comprime la informacion
   #rm -f ${APLOGT}.lock
   ${FASTSTOP} && log_action "WARN" "Ups,(doesn't compress) hurry up is to late for sysadmin !"
-  ${FASTSTOP} && return 0
+  #${FASTSTOP} && return 0
   
   # reportar action
   log_action "DEBUG" "The sizeof ${APLOGP}.log is ${LOGSIZE}M, proceeding to compress"
@@ -455,6 +457,14 @@ do
       VIEWMLOG=false
       ERROR=false
     ;;
+    --fast|fast)
+      FAST=true
+      ERROR=false
+      if ${CHECKCONFIG} || ${THREADDUMP} || ${VIEWMLOG} || ${VIEWREPORT} || ${MAINTENANCE}
+      then
+        ERROR=true
+      fi
+    ;;
     --debug|-d)
       DEBUG=true
       ERROR=false
@@ -488,19 +498,21 @@ do
       printto  "\t    --start                     start appName "
       printto  "\t    --stop                      stop appName "
       printto  "\t    --restart                   restart appName "
+      printto  "\t    --fast                      send execution to background "
+      printto  "\t-s, --status                    verify the status of appName "
+      printto  "\t    --quiet                     doesn't show execution output of application "
+      printto  "\t-v, --verbose                   send output execution to terminal "
       printto  "\t-r, --report                    show an small report about domains "
       printto  "\t-m, --maintenance               execute all shell plugins in maintenance directory "
-      printto  "\t-s, --status                    verify the status of appName "
       printto  "\t-t, --threaddump                send a 3 signal via kernel by 3 times "
       printto  "\t    --threaddump=COUNT,INTERVAL send a 3 signal via kernel, COUNT times between INTERVAL "
       printto  "\t-c, --check-config              check config application (see ${APNAME}-${APNAME}.conf) "
-      printto  "\t-v, --verbose                   send output execution to terminal "
-      printto  "\t-vv                             send output execution and monopse execution to terminal "
+      printto  "\t-vv                             send output execution and ${APNAME} execution to terminal "
       printto  "\t-d, --debug                     debug logs and processes in the system "
       printto  "\t    --version                   show version "
       printto  "\t-h, --help                      show help "
-      printto  "Each APPLIST refers to one application on the server. "
-      printto  "In case of threaddump options, COUNT refers to times sending kill -3 signal between "
+      printto  "Each APPNAME refers to one application on the server. "
+      printto  "In case of threaddump options, COUNT refers of times sending kill -3 signal between "
       printto  "INTERVAL time in seconds \n"
       printto  "Report bugs to <andres.aquino@gmail.com> \n"
       exit 0
@@ -610,7 +622,10 @@ else
   # RESTART -- guess... ?
   if ${RESTART}
   then
-    ${VIEWLOG} && OPTIONAL=" --verbose"
+    OPTIONAL=
+    ${VIEWLOG} && OPTIONAL="${OPTIONAL} --verbose" || OPTIONAL="${OPTIONAL} --quiet"
+    ${FAST} && OPTIONAL="${OPTIONAL} --fast"
+
     if ${ALLAPPLICATIONS} 
     then
       for APMAIN in ${APPATH}/setup/*.conf
@@ -618,10 +633,10 @@ else
         MAPPFILE=`basename ${APMAIN%-*.conf}`
         log_action "DEBUG" "Executing restart over ${MAPPFILE} "
         wait_for "Stopping ${MAPPFILE} application" 1
-        ${APPATH}/${APNAME} --application=${MAPPFILE} stop --quiet
+        ${APPATH}/${APNAME} --application=${MAPPFILE} stop --forced --quiet 
         RESULT=$?
         wait_for "Starting ${MAPPFILE} application" 1
-        [ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${MAPPFILE} start --quiet
+        [ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${MAPPFILE} start ${OPTIONAL}
       done
     else
       wait_for "Stopping ${APPRCS} application" 2
@@ -642,10 +657,14 @@ else
     # verificamos que no exista un bloqueo (Dummies of Proof) 
     if ${ALLAPPLICATIONS}
     then
+      OPTIONAL=
+      ${VIEWLOG} && OPTIONAL="${OPTIONAL} --verbose" || OPTIONAL="${OPTIONAL} --quiet"
+      ${FAST} && OPTIONAL="${OPTIONAL} --fast"
+
       for APMAIN in ${APPATH}/setup/*.conf
       do
         MAPPFILE=`basename ${APMAIN%-*}`
-        ${APPATH}/${APNAME} --application=${MAPPFILE} start --quiet
+        ${APPATH}/${APNAME} --application=${MAPPFILE} start ${OPTIONAL}
       done
       # como ya termino, no tiene caso seguir
       exit 0
@@ -700,7 +719,7 @@ else
          
       #
       # iniciar la aplicación
-      wait_for "${APPRCS} in process" 1
+      wait_for "${APPRCS} in progress of execution" 1
       wait_for "CLEAR"
       if ${UNIQUELOG}
       then
@@ -722,23 +741,31 @@ else
     # a trabajar ... !
     LASTSTATUS=1
     ONSTOP=1
-    INWAIT=true
     LASTLINE=""
     LINE="`tail -n1 ${APLOGP}.log`"
-    while ($INWAIT)
+    INWAIT=true
+    if ${FAST}
+    then
+      touch ${APLOGT}.inprogress 
+      INWAIT=false
+    fi
+
+    wait_for "Getting PID's and lock process files ..." 1
+    while (${INWAIT})
     do
       filter_in_log "${UPSTRING}"
       LASTSTATUS=$?
-      wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
+      wait_for "Waiting for ${APPRCS} execution, be patient ..." 2
       [ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} start successfully"
       [ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "Great!, the ${APPRCS} start successfully"
       [ ${LASTSTATUS} -eq 0 ] && INWAIT=false
       [ ${LASTSTATUS} -eq 0 ] && break
       if [ "${LINE}" != "${LASTLINE}" ]
       then 
-        #${VIEWMLOG} && wait_for "Waiting for ${APPRCS} execution, be patient ...\n" 1
         ${VIEWLOG} && printto  "   | ${LINE}" 
         LINE="$LASTLINE"
+        wait_for "CLEAR"
+        printto  "   | ${LINE}"
       fi
       ONSTOP="$(($ONSTOP+1))"
       [ $ONSTOP -ge $TOSLEEP ] && report_status "?" "Uhm, something goes wrong with ${APPRCS}"
@@ -747,14 +774,11 @@ else
     done
     
     # buscar los PID's
-    sleep 1
+    ${FAST} && report_status "*" "process ${APPRCS} started, please verify..."
     get_process_id "${FILTERAPP},${FILTERLANG}"
     printto  "\nPID:\n" >> "${APLOGT}.lock" 2>&1
     cat ${APLOGT}.pid >> "${APLOGT}.lock" 2>&1
 
-    # le avisamos a los admins 
-    #[ "${LASTSTATUS}" -ne "0" ] && DEBUG=true
-    
     # FIX
     # SI LA APLPICACION CORRE UNA SOLA VEZ, ELIMINAR EL .lock
     [ $APPTYPE = "RUNONCE" ] && rm -f "${APLOGT}.lock" && log_backup
@@ -769,10 +793,15 @@ else
     # para todas las aplicaciones
     if ${ALLAPPLICATIONS}
     then
+      OPTIONAL=
+      ${VIEWLOG} && OPTIONAL="${OPTIONAL} --verbose" || OPTIONAL="${OPTIONAL} --quiet"
+      ${FASTSTOP} && OPTIONAL="${OPTIONAL} --forced"
+      ${FAST} && OPTIONAL="${OPTIONAL} --fast"
+
       for APMAIN in ${APPATH}/setup/*.conf
       do
         MAPPFILE=`basename ${APMAIN%-*.conf}`
-        ${APPATH}/${APNAME} --application=${MAPPFILE} stop --forced --quiet
+        ${APPATH}/${APNAME} --application=${MAPPFILE} stop ${OPTIONAL}
       done
       
       # como ya termino, no tiene caso seguir 
@@ -889,15 +918,18 @@ else
       do
         #
         # obtenemos los PID, armamos los kills y shelleamos
-        wait_for "Uhmmm, you're a impatient guy !!" 2
+        wait_for "Uhmmm, you're a impatient guy !!" 1
         wait_for "CLEAR"
         process_running
         if [ $? -eq 0 ]
         then
           awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
           ${VIEWMLOG} && wait_for "Ok, sending the kill-bill signal, can you wait some seconds?\n" 2
-          LASTLINE="`tail -n1 ${APLOGP}.log `"
-          ${VIEWLOG} && printto "   | ${LASTLINE}"
+          if ! ${FAST}
+          then
+            LASTLINE="`tail -n1 ${APLOGP}.log `"
+            ${VIEWLOG} && printto "   | ${LASTLINE}"
+          fi
         fi
 
         # checar si existen los PID's, por si el archivo no regresa el shutdown
@@ -1006,8 +1038,10 @@ else
           apppidn=`head -n1 "${APTEMP}/${appname}.pid"`
           [ ${#apppidn} -gt 0 ] && kill -0 $apppidn > /dev/null 2>&1
           [ $? -ne 0 ] && rm -f ${APTEMP}/${appname}.p* && apppidn=
+          [ $? -ne 0 ] && rm -f ${APTEMP}/${appname}.inprogress > /dev/null 2>&1
         fi
         [ ${#apppidn} -gt 0 ] && appstat="RUNNING" || appstat="STOPPED"
+        [ -f ${APTEMP}/${appname}.inprogress ] && appstat="INPROGRESS"
         
         printto "${appname}:${appdate}:${apppidn}:${appstat}" | 
           awk 'BEGIN{FS=":";OFS="| "}
