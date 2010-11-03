@@ -9,7 +9,7 @@
 
 #
 # home de la aplicacion
-export APHOME=/Users/andresaquino
+export APHOME=$HOME
 export APPATH=$APHOME/monopse
 export APLOGD=$APHOME/logs/monopse
 
