@@ -7,40 +7,69 @@
 An small shell for those applications that nobody wants to restart ;)
 =-=
 
-   v3.02-rev5
-      TODO: Implementar dependencias de ejecucion 
-      Seria bueno que ahora se pudiera manejar el esquema de administracion de aplicaciones por
-      dependencias, no puedes iniciar una aplicacion si es que aun no has levantando otra.
+INFORMATION
+	Usar las banderas correspondientes para indicar que tipo de issue fue implementado
+		 DEFECT         : Report a Software Defect
+		 ENHANCEMENT    : Request for a Enhancement
+		 TASK           : Work item that change code or documentation
+		 REVIEW         : Request for a source code review
+		 OTHER          : Some other kind of issue
 
+ROADMAP
+   v3.04
+      {rev}
+         ENHANCEMENT: Implementar dependencias de ejecucion 
+         Seria bueno que ahora se pudiera manejar el esquema de administracion de aplicaciones por
+         dependencias, no puedes iniciar una aplicacion si es que aun no has levantando otra.
 
-   v3.02-rev4 
-      FIX: Corregir funcionalidad --threaddump=N,M 
-      De cuando en cuando, al solicitar un ftd se queda el proceso ligado a la terminal y ya no es
-      posible salir de la misma sin que esto implique terminar el proceso del FTD
+      {rev}
+         DEFECT: Corregir funcionalidad --threaddump=N,M 
+         De cuando en cuando, al solicitar un ftd se queda el proceso ligado a la terminal y ya no es
+         posible salir de la misma sin que esto implique terminar el proceso del FTD
 
+   v3.03
+      rev20101102
+         TASK: definir como llevar el orden de liberaciones
+         No se como o aun no me queda claro como llevar el orden de liberaciones, alguna idea?
+         Yo tengo esta, asi que es la que usare... =)
+         v3.{00,01,02,03,04,05,06,07,08,09}-rev20101102
+         Subo de major v{0,1,2,3,4,5,6,7,8,9} si el minor es mayor a 9.
+         Agrego la revision del dia que estoy liberando el commit, no importando cuantos se hayan
+         realizado: rev{FECHA.FORMATO.US YEAR MONTH DAY}
+         ej
+            v3.02-rev20101102
+         
+         TASK: documentar de acuerdo a las banderas para indicar el tipo de actividad
+         Usar las banderas correspondientes para indicar que tipo de issue fue corregido:
+            DEFECT         : Report a Software Defect
+            ENHANCEMENT    : Request for a Enhancement
+            TASK           : Work item that doesnt change code or documentation
+            REVIEW         : Request for a source code review
+            OTHER          : Some other kind of issue
 
-   v3.02-rev3 
-      TODO: Agregar funcionalidad --all 
-      Ahora es posible detener, iniciar, reiniciar ó aplicar ftd's a todo el subconjunto de
-      aplicaciones que esten referenciadas en el monopse.
+   v3.02
+      rev20101102
+         ENHANCEMENT: Agregar funcionalidad --all 
+         Ahora es posible detener, iniciar, reiniciar ó aplicar ftd's a todo el subconjunto de
+         aplicaciones que esten referenciadas en el monopse.
 
-      FIX: Corregir migraciones en nuevas instalaciones
-      Si el directorio no existe, se crea y migran correctamente las configuraciones anteriores.
+         DEFECT: Corregir migraciones en nuevas instalaciones
+         Si el directorio no existe, se crea y migran correctamente las configuraciones anteriores.
 
-      UPDATE: Ahora HP. Ya somos parte de esa empresa pedorra.
-      TODO: Se quito el trademark (evitemos pedos con HP)
-      Como aun no se define que pedo con HP, vamos quitando trademark de nextel y se deja como
-      usuario de esta aplicacion
+         OTHER: Ahora HP. Ya somos parte de esa empresa pedorra.
+         
+         REVIEW: Se quito el trademark (evitemos pedos con HP)
+         Como aun no se define que pedo con HP, vamos quitando trademark de nextel y se deja como
+         usuario de esta aplicacion
 
-      TODO: Registro de Cambios
-      Documentar en el archivo HISTORY los cambios realizados a la aplicacion en funcion del branch
-      que se esta liberando.
+         ENHANCEMENT: Registro de Cambios
+         Documentar en el archivo HISTORY los cambios realizados a la aplicacion en funcion del branch
+         que se esta liberando.
 
+         ENHANCEMENT: Ejecucion plataforma Linux / OSX / HP-UX
+         Ahora es posible ejecutarlo en HP-UX, Linux y MacOSX sin problemas, se corrige la funcion para
+         mostrar texto en la pantalla.
 
-   v3.02-rev2
-      TODO: Ejecucion plataforma Linux / OSX / HP-UX
-      Ahora es posible ejecutarlo en HP-UX, Linux y MacOSX sin problemas, se corrige la funcion para
-      mostrar texto en la pantalla.
 
 
 # vim: set ts=3 et sw=3 sts=3 si ai tw=100 lbr:
