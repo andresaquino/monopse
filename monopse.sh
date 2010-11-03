@@ -620,10 +620,10 @@ else
 				MAPPFILE=`basename ${APMAIN%-*.conf}`
 				log_action "DEBUG" "Executing restart over ${MAPPFILE} "
 				wait_for "Stopping ${MAPPFILE} application" 1
-				${APPATH}/${APNAME} --application=${MAPPFILE} stop ${OPTIONAL}
+				${APPATH}/${APNAME} --application=${MAPPFILE} stop --quiet
 				RESULT=$?
 				wait_for "Starting ${MAPPFILE} application" 1
-				[ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${MAPPFILE} start ${OPTIONAL}
+				[ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${MAPPFILE} start --quiet
 			done
 		else
 			wait_for "Stopping ${APPRCS} application" 2
@@ -647,7 +647,7 @@ else
 			for APMAIN in ${APPATH}/setup/*.conf
 			do
 				MAPPFILE=`basename ${APMAIN%-*}`
-				${APPATH}/${APNAME} --application=${MAPPFILE} start ${OPTIONAL}
+				${APPATH}/${APNAME} --application=${MAPPFILE} start --quiet
 			done
 			# como ya termino, no tiene caso seguir
 			exit 0
@@ -774,7 +774,7 @@ else
 			for APMAIN in ${APPATH}/setup/*.conf
 			do
 				MAPPFILE=`basename ${APMAIN%-*.conf}`
-				${APPATH}/${APNAME} --application=${MAPPFILE} stop --forced
+				${APPATH}/${APNAME} --application=${MAPPFILE} stop --forced --quiet
 			done
 			
 			# como ya termino, no tiene caso seguir 
