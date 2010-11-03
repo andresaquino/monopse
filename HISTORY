@@ -27,6 +27,19 @@ ROADMAP
          Se agrega funcionalidad para iniciar los procesos en background, ya que en algunos casos se
          require darle velocidad a los reinicios...
 
+         DEFECT: Cuando se actualiza, sobreescribe el monopserc
+         Se corrigio defecto, cuando se actualiza tambien se migra el archivo de
+         configuracion monopserc y se reestablece la liga
+
+         ENHANCEMENT: Se agrega funcionalidad --fast | fast
+         Se agrega funcionalidad para iniciar los procesos en background, ya que
+         en algunos casos se require darle velocidad a los reinicios...
+
+         ENHANCEMENT: Opcional si se require comprimir archivos de log
+         Si los archivos de log llegan a ser demasiado grandes cuando se comprimen es posible que el
+         proceso de baja se tarde en regresar la consola, por lo tanto es mejor dejar opcional el
+         respaldo de los mismos
+
       rev20101102
          DEFECT: Corregir funcionalidad --threaddump=N,M 
          De cuando en cuando, al solicitar un ftd se queda el proceso ligado a la terminal y ya no es

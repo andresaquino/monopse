@@ -114,7 +114,7 @@ log_backup () {
   # Si esta habilitado el fast-stop(--forced), no se comprime la informacion
   #rm -f ${APLOGT}.lock
   ${FASTSTOP} && log_action "WARN" "Ups,(doesn't compress) hurry up is to late for sysadmin !"
-  #${FASTSTOP} && return 0
+  ${FASTSTOP} && return 0
   
   # reportar action
   log_action "DEBUG" "The sizeof ${APLOGP}.log is ${LOGSIZE}M, proceeding to compress"
