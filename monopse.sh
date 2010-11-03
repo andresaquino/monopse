@@ -223,7 +223,7 @@ check_weblogicserver() {
 # *
 # realizar un kernel full thread dump sobre el proceso indicado.
 # sobre procesos non-java va a valer queso, por que la señal 3 es para hacer un volcado de memoria.
-# monopse --application=resin --threaddump=5 --mailto=andres.aquino@gmail.com
+# monopse --application=resin --threaddump=5 
 # por defecto, el ftd se almacena en el filesystem log de la aplicación; si se detecta que se esta
 # incrementando el uso del filesystem, conserva los mas recientes 
 make_fullthreaddump() {
@@ -441,17 +441,6 @@ do
 			then
 				ERROR=true
 			fi
-		;;
-		--mailto=*)
-			# deprecated option since 3.01-rev27
-			MAILACCOUNTS=`echo "$1" | sed 's/^--[a-z-]*=//'`
-			ERROR=false
-		;;
-		--mailreport)
-			# deprecated option since 3.01-rev27
-			MAILACCOUNTS="${MAILTOADMIN} ${MAILTODEVELOPER} ${MAILTORADIO}"
-			VIEWLOG=false
-			ERROR=false
 		;;
 		-v|--verbose)
 			VIEWLOG=true
@@ -1132,14 +1121,7 @@ else
 			printto  "-------------------------------------------------------------------------------" >> ${FLDEBUG}
 		 
 			#
-			# si no se solicita el --mailreport
-			if [ "${MAILACCOUNTS}" = "_NULL_" ]
-			then
-				cat ${FLDEBUG}
-			else
-				${MAIL} -s "${APPRCS} DEBUG INFO " "${MAILACCOUNTS}" < ${FLDEBUG} > /dev/null 2>&1 &
-				log_action "INFO" "Send information from debug application to ${MAILACCOUNTS}"
-			fi
+			cat ${FLDEBUG}
 			log_action "INFO" "Show the application debug information"
 	 fi
 	 
