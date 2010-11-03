@@ -4,24 +4,25 @@ monopse - An small shell for those applications that nobody wants to restart ;)
 
 =head1 SYNOPSIS
 
-Usage: monopse [OPTION]...
-start up or stop applications like WebLogic, Fuego, Resin, etc.
-
-Mandatory arguments in long format.
-   -a, --application=APPNAME        use this appName, required 
-       --start                      start appName 
-       --stop                       stop appName 
-   -s, --status                     verify the status of appName 
-   -t, --threaddump=COUNT,INTERVAL  send a 3 signal via kernel, COUNT times between INTERVAL 
-   -d, --debug                      debug logs and processes in the system 
-   -c, --check-config               check config application (see monopse-monopse.conf) 
-   -r, --report                     show an small report about domains 
-   -m, --mail                       send output to mail accounts configured in monopse.conf 
-       --mailto=user@mail.com       send output to mail accounts or specified mail 
-   -q, --quiet                      don't send output to terminal 
-   -v, --version                    show version 
-   -h, --help                       show help
- 
+Usage: monopse [OPTION]... 
+start up or stop applications like WebLogic, Fuego, Resin, etc. 
+Mandatory arguments in long format. 
+        -a, --application=APPNAME       use this application, required  
+            --all                       all registered applications  
+            --start                     start appName  
+            --stop                      stop appName  
+            --restart                   restart appName  
+        -r, --report                    show an small report about domains  
+        -m, --maintenance               execute all shell plugins in maintenance directory  
+        -s, --status                    verify the status of appName  
+        -t, --threaddump                send a 3 signal via kernel by 3 times  
+            --threaddump=COUNT,INTERVAL send a 3 signal via kernel, COUNT times between INTERVAL  
+        -c, --check-config              check config application (see monopse-monopse.conf)  
+        -v, --verbose                   send output execution to terminal  
+        -vv                             send output execution and monopse execution to terminal  
+        -d, --debug                     debug logs and processes in the system  
+            --version                   show version  
+        -h, --help                      show help  
 Each APPLIST refers to one application on the server.
 In case of threaddump options, COUNT refers to times sending kill -3 signal between 
 INTERVAL time in seconds
@@ -172,8 +173,8 @@ DOMINIOS
 
 =head1 AUTHOR
 
- monopse v3.02 Rev.3 (f2a5) 
- (c) 2010 Nextel de Mexico, S.A. DE C.V.
+ monopse v3.04 Rev.20101102 (28ae) 
+ (c) 2010 Nextel de Mexico, S.A. de C.V.
  
  Developed by 
  Andres Aquino <andres.aquino@gmail.com> 
