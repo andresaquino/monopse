@@ -24,6 +24,10 @@ An small shell for those applications that nobody wants to restart ;)
       Ahora es posible detener, iniciar, reiniciar ó aplicar ftd's a todo el subconjunto de
       aplicaciones que esten referenciadas en el monopse.
 
+      FIX: Corregir migraciones en nuevas instalaciones
+      Si el directorio no existe, se crea y migran correctamente las configuraciones anteriores.
+
+      UPDATE: Ahora HP. Ya somos parte de esa empresa pedorra.
       TODO: Se quito el trademark (evitemos pedos con HP)
       Como aun no se define que pedo con HP, vamos quitando trademark de nextel y se deja como
       usuario de esta aplicacion
