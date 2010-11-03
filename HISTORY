@@ -22,10 +22,14 @@ ROADMAP
          Seria bueno que ahora se pudiera manejar el esquema de administracion de aplicaciones por
          dependencias, no puedes iniciar una aplicacion si es que aun no has levantando otra.
 
-      {rev}
+      rev20101102
          DEFECT: Corregir funcionalidad --threaddump=N,M 
          De cuando en cuando, al solicitar un ftd se queda el proceso ligado a la terminal y ya no es
          posible salir de la misma sin que esto implique terminar el proceso del FTD
+         Al parecer estaba mal implementada la funcion, listo!
+
+         DEFECT: Corregir la manera en como se obtiene la IP
+         Laobtengo mal, el pinche filtro lo hice mal pero ya esta =)
 
    v3.03
       rev20101102
