@@ -229,40 +229,38 @@ check_weblogicserver() {
 # incrementando el uso del filesystem, conserva los mas recientes 
 make_fullthreaddump() {
 	# para cuando son procesos JAVA StandAlone (WL, Tomcat, etc...) 
-	log_action "DBUG" "Change to ${PATHAPP}"
+	log_action "DEBUG" "Change to ${PATHAPP}"
 	[ -r ${APLOGT}.pid ] && PID=`tail -n1 ${APLOGT}.pid`
 
 	# para cuando son procesos ONDemand (iPlanet, ...)
 	[ -r ${APLOGT}.plist -a ${FILTERAPP} ] && PID=`head -n1 ${APLOGT}.pid`
 	
-	# hacer un mark para saber desde donde vamos a sacar datos del log
+	# meter una marca para saber desde donde vamos a sacar datos del log
 	ftdFILE="${APLOGP}_`date '+%Y%m%d-%H%M%S'`.ftd"
 	touch "${ftdFILE}"
-	log_action "DBUG" "Taking ${APLOGP}.log to extract the FTP on ${ftdFILE}"
-	tail -f "${APLOGP}.log" > ${ftdFILE} &
+	log_action "DEBUG" "Taking ${APLOGP}.log to extract the FTP on ${ftdFILE}"
+	tail -f "${APLOGP}.log" > ${ftdFILE} 2>&1 & 
 
 	# enviar el FTD al PID, N muestras cada T segs
 	times=0
 	timeStart=`date`
 	while [ $times -ne $MAXSAMPLES ]
 	do
-		kill -3 $PID
-		printto  "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
-		log_action "INFO" "Sending a FTD to PID $PID at `date '+%H:%M:%S'`, saving in $ftdFILE"
-		sleep $MAXSLEEP
+		#kill -3 $PID
+		printto  "Sending a FTD to PID $PID at `date '+%H:%M:%S'`"
+		log_action "INFO" "Sending a FTD to PID $PID at `date '+%H:%M:%S'`"
+		wait_for "Getting information of $PID... " $MAXSLEEP
 		times=$(($times+1))
 	done
-	 
-	# quitar el proceso de copia del log
-	PROCESSES=`ps ${PSOPTS} | grep "tail -f ${APLOGP}.log" | grep -v grep | awk '/tail/{print $2}'`
-	kill -15 ${PROCESSES}
 	
 	#
 	# generar encabezado y limpiar basura
+	log_action "INFO" "Check file: $ftdFILE"
+	printto  "Ok, check file $ftdFILE"
 	tFILE=`wc -l ${ftdFILE} | awk '{print $1}'`
 	gFILE=`nl -ba ${ftdFILE} | grep "Full thread dump" | grep "Java HotSpot" | head -n1 | awk '{print $1}'`
 	total=$(($tFILE-$gFILE+1))
-	log_action "DBUG" "Total: $total, where tFile=$tFILE and gFile=$gFILE"
+	log_action "DEBUG" "Total: $total, where tFile=$tFILE and gFile=$gFILE"
 	tail -n${total} ${ftdFILE} > ${ftdFILE}.tmp
 	printto  "-------------------------------------------------------------------------------" > ${ftdFILE}
 	printto  "-------------------------------------------------------------------------------" >> ${ftdFILE}
@@ -282,7 +280,6 @@ make_fullthreaddump() {
 		${MAIL} -s "${APPRCS} FULL THREAD DUMP ${timeStart} (${ftdFILE})" "${MAILACCOUNTS}" < ${ftdFILE} > /dev/null 2>&1 &
 		log_action "INFO" "Sending a full thread dump(${ftdFILE}) by mail to ${MAILACCOUNTS}"
 	fi
-	#rm -f ${ftdFILE}
 	rm -f ${ftdFILE}.tmp
 	return 0
 
@@ -872,7 +869,8 @@ else
 		if [ ${LASTSTATUS} -eq 0 ]
 		then
 			# si el stop es con FORCED, y es una aplicacion JAVA enviar FTD
-			if [ ${FILTERLANG} = "java" -a ${THREADDUMP} = true ]
+			#if [ ${FILTERLANG} = "java" -a ${THREADDUMP} = true ]
+			if [ ${THREADDUMP} = true ]
 			then
 				# monopse -a=app stop -f -t=3,10
 				# se aplica un fullthreaddump de 3 muestras cada 10 segundos antes de detener el proceso de manera forzada. 
@@ -916,9 +914,6 @@ else
 
 			[ ${LASTSTATUS} -ne 0 ] && exit 0
 			
-			#
-			# le avisamos a los admins 
-			#[ "${LASTSTATUS}" -ne "0" ] && DEBUG=true
 			processes_running
 		fi
 
@@ -927,6 +922,12 @@ else
 		if ${THREADDUMP}
 		then
 			make_fullthreaddump
+			
+			# quitar el proceso de copia del log
+			PROCESSES=`ps ${PSOPTS} | grep "tail -f ${APLOGP}.log" | grep -v grep | awk '/tail/{print $2}'`
+			log_action "DEBUG" "Killing tail processes of FTD: ${PROCESSES}"
+			kill -15 ${PROCESSES} > /dev/null 2>&1
+
 		fi
 
 		#
