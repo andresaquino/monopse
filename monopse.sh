@@ -73,6 +73,7 @@ SVERSION=false
 APPTYPE="STAYRESIDENT"
 UNIQUELOG=false
 PREEXECUTION="_NULL_"
+POSTEXECUTION="_NULL_"
 OPTIONS=
 VERSION="`cat ${APPATH}/VERSION | sed -e 's/-rev/ Rev./g'`"
 RELEASE=`openssl dgst -md5 ${APPATH}/${APNAME}.sh | rev | cut -c-4 | rev`
@@ -371,7 +372,8 @@ do
 		;;
 		--all|all)
 			ALLAPPLICATIONS=true
-			if ${START} || ${STOP} || ${CHECKCONFIG}
+			ERROR=false
+			if ${DEBUG} || ${VIEWHISTORY} || ${VIEWREPORT} || ${STATUS}
 			then
 				ERROR=true
 			fi
@@ -579,27 +581,30 @@ else
 
 	#
 	# verificar que la configuración exista, antes de ejecutar el servicio 
-	if [ ${#APPRCS} -ne 0 ]
+	if ! ${ALLAPPLICATIONS} 
 	then
-		BVIEWLOG=${VIEWLOG}
-		VIEWLOG=false
-		check_configuration "${APPRCS}" 
-		get_process_id "${FILTERAPP},${FILTERLANG}"
-		[ $? -ne 0 ] && CHECKCONFIG=true
-		[ ${TOSLEEP} -eq 0 ] && TOSLEEP=5
-		TOSLEEP="$((60*$TOSLEEP))"
-		VIEWLOG=${BVIEWLOG}
-	else
-		CANCEL=true
-		${STATUS} && CANCEL=false
-		${VIEWREPORT} && CANCEL=false
-		${VIEWHISTORY} && CANCEL=false
-		${MAINTENANCE} && CANCEL=false
-		${DEBUG} && CANCEL=false
-		if ${CANCEL}
+		if [ ${#APPRCS} -ne 0 ]
 		then
-			printto  "Usage: ${APNAME} [OPTION]...[--help]"
-			exit 1
+			BVIEWLOG=${VIEWLOG}
+			VIEWLOG=false
+			check_configuration "${APPRCS}" 
+			get_process_id "${FILTERAPP},${FILTERLANG}"
+			[ $? -ne 0 ] && CHECKCONFIG=true
+			[ ${TOSLEEP} -eq 0 ] && TOSLEEP=5
+			TOSLEEP="$((60*$TOSLEEP))"
+			VIEWLOG=${BVIEWLOG}
+		else
+			CANCEL=true
+			${STATUS} && CANCEL=false
+			${VIEWREPORT} && CANCEL=false
+			${VIEWHISTORY} && CANCEL=false
+			${MAINTENANCE} && CANCEL=false
+			${DEBUG} && CANCEL=false
+			if ${CANCEL}
+			then
+				printto  "Usage: ${APNAME} [OPTION]...[--help]"
+				exit 1
+			fi
 		fi
 	fi
 
@@ -607,12 +612,26 @@ else
 	# RESTART -- guess... ?
 	if ${RESTART}
 	then
-		wait_for "Stopping ${APPRCS} application" 2
 		${VIEWLOG} && OPTIONAL=" --verbose"
-		${APPATH}/${APNAME} --application=${APPRCS} stop --forced ${OPTIONAL}
-		RESULT=$?
-		wait_for "Starting ${APPRCS} application" 3
-		[ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${APPRCS} start ${OPTIONAL}
+		if ${ALLAPPLICATIONS} 
+		then
+			for APMAIN in ${APPATH}/setup/*.conf
+			do
+				MAPPFILE=`basename ${APMAIN%-*.conf}`
+				log_action "DEBUG" "Executing restart over ${MAPPFILE} "
+				wait_for "Stopping ${MAPPFILE} application" 1
+				${APPATH}/${APNAME} --application=${MAPPFILE} stop ${OPTIONAL}
+				RESULT=$?
+				wait_for "Starting ${MAPPFILE} application" 1
+				[ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${MAPPFILE} start ${OPTIONAL}
+			done
+		else
+			wait_for "Stopping ${APPRCS} application" 2
+			${APPATH}/${APNAME} --application=${APPRCS} stop --forced ${OPTIONAL}
+			RESULT=$?
+			wait_for "Starting ${APPRCS} application" 2
+			[ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${APPRCS} start ${OPTIONAL}
+		fi
 	fi
 
 	
@@ -623,6 +642,17 @@ else
 		#
 		# que sucede si intentan dar de alta el proceso nuevamente
 		# verificamos que no exista un bloqueo (Dummies of Proof) 
+		if ${ALLAPPLICATIONS}
+		then
+			for APMAIN in ${APPATH}/setup/*.conf
+			do
+				MAPPFILE=`basename ${APMAIN%-*}`
+				${APPATH}/${APNAME} --application=${MAPPFILE} start ${OPTIONAL}
+			done
+			# como ya termino, no tiene caso seguir
+			exit 0
+		fi
+	
 		TOSLEEP="$(($TOSLEEP*2))"
 		process_running
 		LASTSTATUS=$?
@@ -676,11 +706,11 @@ else
 			wait_for "CLEAR"
 			if ${UNIQUELOG}
 			then
-				${VIEWMLOG} && wait_for "${APPRCS} executing, wait wait wait! (uniquelog)" 1
+				${VIEWMLOG} && wait_for "${APPRCS} executing, wait wait wait! (uniquelog)\n" 1
 				nohup sh ${STARTAPP} > ${APLOGP}.log 2>&1 &
 				log_action "DEBUG" "Executing ${STARTAPP} with ${APLOGP}.log as logfile, with unique output ..." 
 			else
-				${VIEWMLOG} && wait_for "${APPRCS} executing, wait wait wait! (log and err)" 1
+				${VIEWMLOG} && wait_for "${APPRCS} executing, wait wait wait! (log and err)\n" 1
 				nohup sh ${STARTAPP} 2> ${APLOGP}.err > ${APLOGP}.log &
 				log_action "DEBUG" "Executing ${STARTAPP}, ${APLOGP}.log as logfile, ${APLOGP}.err as errfile ..."
 			fi
@@ -701,14 +731,14 @@ else
 		do
 			filter_in_log "${UPSTRING}"
 			LASTSTATUS=$?
+			wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
 			[ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} start successfully"
 			[ ${LASTSTATUS} -eq 0 ] && log_action "DEBUG" "Great!, the ${APPRCS} start successfully"
 			[ ${LASTSTATUS} -eq 0 ] && INWAIT=false
-			sleep 1
 			[ ${LASTSTATUS} -eq 0 ] && break
 			if [ "${LINE}" != "${LASTLINE}" ]
 			then 
-				${VIEWMLOG} && wait_for "Waiting for ${APPRCS} execution, be patient ..." 1
+				#${VIEWMLOG} && wait_for "Waiting for ${APPRCS} execution, be patient ...\n" 1
 				${VIEWLOG} && printto  "   | ${LINE}" 
 				LINE="$LASTLINE"
 			fi
@@ -719,7 +749,7 @@ else
 		done
 		
 		# buscar los PID's
-		sleep 3
+		sleep 1
 		get_process_id "${FILTERAPP},${FILTERLANG}"
 		printto  "\nPID:\n" >> "${APLOGT}.lock" 2>&1
 		cat ${APLOGT}.pid >> "${APLOGT}.lock" 2>&1
@@ -738,6 +768,19 @@ else
 	# STOP -- Detener la aplicación sea por instrucción o deteniendo el proceso, indicado en el archivo de configuración
 	if ${STOP} 
 	then
+		# para todas las aplicaciones
+		if ${ALLAPPLICATIONS}
+		then
+			for APMAIN in ${APPATH}/setup/*.conf
+			do
+				MAPPFILE=`basename ${APMAIN%-*.conf}`
+				${APPATH}/${APNAME} --application=${MAPPFILE} stop --forced
+			done
+			
+			# como ya termino, no tiene caso seguir 
+			exit 0
+		fi
+
 		#
 		# verificar que la aplicación para hacer shutdown se encuentre en el dir 
 		# checar en 10 ocasiones hasta que el servicio se encuentre abajo 
@@ -752,7 +795,9 @@ else
 		log_action "DEBUG" "Stopping the application, please wait ..."
 		TOSLEEP="$(($TOSLEEP/2))"
 		process_running
-		if [ ! -s ${APLOGT}.pid ]
+		FNEXIST=true
+		[ -s ${APLOGT}.pid ] && FNEXIST=false
+		if ${FNEXIST}
 		then
 			printto  "uh, ${APPRCS} is not running currently, tip: ${APNAME} --report"
 			log_action "INFO" "The application is down"
@@ -851,7 +896,7 @@ else
 				if [ $? -eq 0 ]
 				then
 					awk '{print "kill -9 "$0}' ${APLOGT}.pid | sh
-					${VIEWMLOG} && wait_for "Ok, sending the kill-bill signal, can you wait some seconds?" 2
+					${VIEWMLOG} && wait_for "Ok, sending the kill-bill signal, can you wait some seconds?\n" 2
 					LASTLINE="`tail -n1 ${APLOGP}.log `"
 					${VIEWLOG} && printto "   | ${LASTLINE}"
 				fi
@@ -949,7 +994,7 @@ else
 			
 			for app in ${APPATH}/setup/*-*.conf
 			do
-				appname=`basename ${app%-*}`
+				appname=`basename ${app%-*.conf}`
 				apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
 				apppidn=""
 				log_action "DEBUG" "report from ${APTEMP}/${appname}"
