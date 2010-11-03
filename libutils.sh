@@ -11,7 +11,7 @@
 # constants
 # initialize app enviroment
 APSYSO="`uname -s`"
-APHOST=`hostname `
+APHOST=`hostname | sed -e "s/\..*//g"`
 APUSER=`id -u -n`
 APDATE=`date "+%Y%m%d"`
 APHOUR=`date "+%H%M"`
