@@ -90,6 +90,7 @@ set_environment () {
 	[ ! -d ${APLOGD} ] && mkdir -p ${APLOGD}
 	[ ! -d ${APTEMP} ] && mkdir -p ${APTEMP}
 	
+	HOSTNAME=`hostname`
 	case "${APSYSO}" in
 		"HP-UX")
 			PSOPTS="-l -f -a -x -e"

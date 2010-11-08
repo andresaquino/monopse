@@ -781,7 +781,7 @@ else
 
     # FIX
     # SI LA APLPICACION CORRE UNA SOLA VEZ, ELIMINAR EL .lock
-    [ $APPTYPE = "RUNONCE" ] && rm -f "${APLOGT}.lock" && log_backup
+    [ ${APPTYPE} = "RUNONCE" ] && rm -f "${APLOGT}.lock" && log_backup
     exit ${LASTSTATUS}
   fi
   

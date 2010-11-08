@@ -7,6 +7,14 @@
 An small shell for those applications that nobody wants to restart ;)
 =-=
 
+Monopse is a command line tool for start, stop and check status for applications specified by user
+as a parameter, find out how to use and install Monopse by reading man1/monopse.1 
+
+
+CONTACT
+Monopse was developed and nowadays mainteined by 
+Andres Aquino <andres.aquino@gmail.com>
+
 GIT
 http://gitorious.org/monopse
 
@@ -28,4 +36,4 @@ TESTED WITH
    * local applications running on Linux and HP-UX
 
 
-# vim: set ts=3 et sw=3 sts=3 si ai:
+# vim: set ts=3 et sw=3 sts=3 si ai tw=100 lbr:
