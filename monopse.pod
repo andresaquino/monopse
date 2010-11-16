@@ -173,7 +173,7 @@ DOMINIOS
 
 =head1 AUTHOR
 
- monopse v3.04 Rev.20101102 (28ae) 
+ monopse v3.04 Rev.20101103 (2bc6) 
  (c) 2010 Nextel de Mexico, S.A. de C.V.
  
  Developed by 
@@ -184,4 +184,4 @@ DOMINIOS
  Se necesitan traductores... !!!
 
 =cut
-# vim: set ts=3 sw=3 sts=3 et si ai:
+# vim: set ts=3 et sw=3 sts=3 si ai tw=100 lbr:

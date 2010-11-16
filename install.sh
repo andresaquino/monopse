@@ -1,5 +1,5 @@
 #!/bin/sh 
-# vim: set ts=2 sw=2 sts=2 si ai: 
+# vim: set ts=2 sw=2 sts=2 si ai et: 
 
 # install.sh -- instalar monopse en el directorio
 # =-=
@@ -33,8 +33,8 @@ then
    cd ~/monopse
    ln -sf ~/monopse/monopse.sh monopse
    
-	 echo "Recuerda, la configuracion ahora se encuentra en $HOME/.monopserc"
-	 rm -f ~/.monopserc
+   echo "Recuerda, la configuracion ahora se encuentra en $HOME/.monopserc"
+   rm -f ~/.monopserc
    ln -sf ~/monopse/monopserc ~/.monopserc
 
    echo "Siempre podras consultar el manual con monopse -h o man monopse"
