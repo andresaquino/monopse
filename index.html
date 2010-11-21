@@ -10,8 +10,8 @@
 	<style type="text/css">
 		body {
   		margin-top: 1.0em;
-  		background-color: #496c1b;
-		  font-family: "Helvetica,Arial,FreeSans";
+  		background-color: #FFF;
+		  font-family: "Arial,FreeSans";
   		color: #ffffff;
     }
     #container {
@@ -52,14 +52,35 @@
       Monopse is a command line tool for start, stop and check status for applications specified by user as a parameter, find out how to use and install Monopse by reading man1/monopse.1 
     </div>
 
-    <h2>Install</h2>
-<p>=head1 NAME
+		<h2>Manual</h2>
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 
-monopse - An small shell for those applications that nobody wants to restart ;)
+<ul>
 
-=head1 SYNOPSIS
+        <li><a href="#name">NAME</a></li>
+        <li><a href="#synopsis">SYNOPSIS</a></li>
+        <li><a href="#options">OPTIONS</a></li>
+        <li><a href="#description">DESCRIPTION</a></li>
+        <li><a href="#examples">EXAMPLES</a></li>
+        <li><a href="#author">AUTHOR</a></li>
+        <li><a href="#bugs">BUGS</a></li>
+</ul>
 
-Usage: monopse [OPTION]... 
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>monopse - An small shell for those applications that nobody wants to restart ;)</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<p>Usage: monopse [OPTION]... 
 start up or stop applications like WebLogic, Fuego, Resin, etc. 
 Mandatory arguments in long format. 
         -a, --application=APPNAME       use this application, required  
@@ -80,42 +101,53 @@ Mandatory arguments in long format.
         -h, --help                      show help  
 Each APPLIST refers to one application on the server.
 In case of threaddump options, COUNT refers to times sending kill -3 signal between 
-INTERVAL time in seconds
+INTERVAL time in seconds</p>
+<p>Report bugs to &lt;<a href="mailto:andres.aquino@gmail.com">andres.aquino@gmail.com</a>&gt;</p>
+<p>
+</p>
+<hr />
+<h1><a name="options">OPTIONS</a></h1>
+<dl>
+<dt><strong><a name="application_appname_start_stop" class="item"><strong>--application=appName [--start | --stop]</strong></a></strong></dt>
 
-Report bugs to <andres.aquino@gmail.com>
+<dd>
+<pre>
+ Especifica sobre que aplicacion _appName_ se realizara la accion: iniciar o detener el proceso.</pre>
+</dd>
+<dt><strong><a name="threaddump_count_interval" class="item"><strong>--threaddump[=COUNT,INTERVAL]</strong></a></strong></dt>
 
-=head1 OPTIONS
-
-=over 4
-
-=item B<--application=appName [--start | --stop]>
-
- Especifica sobre que aplicacion _appName_ se realizara la accion: iniciar o detener el proceso.
-
-=item B<--threaddump[=COUNT,INTERVAL]>
-
+<dd>
+<pre>
  Se busca el PID del proceso o aplicación indicado en _appName_ y sobre este mismo se envia una señal -3
  que la maquina virtual de JAVA (caso especifico) interpretara como bandera para general un core o volcado
- de los procesos internos en ejecucion.
+ de los procesos internos en ejecucion.</pre>
+</dd>
+<dt><strong><a name="debug" class="item"><strong>--debug</strong></a></strong></dt>
 
-=item B<--debug>
+<dd>
+<pre>
+ Genera un reporte de analisis sobre la aplicacion para determinar si se encuentra algun problema.</pre>
+</dd>
+<dt><strong><a name="check_config" class="item"><strong>--check-config</strong></a></strong></dt>
 
- Genera un reporte de analisis sobre la aplicacion para determinar si se encuentra algun problema.
+<dd>
+<pre>
+ Permite checar el archivo de configuracion para una aplicacion en particular</pre>
+</dd>
+<dt><strong><a name="status" class="item"><strong>--status</strong></a></strong></dt>
 
-=item B<--check-config>
+<dd>
+<pre>
+ Verifica si la aplicacion se encuentra en ejecucion, enviando una señal 0 via el kernel al proceso.</pre>
+</dd>
+<dt><strong><a name="report" class="item"><strong>--report</strong></a></strong></dt>
 
- Permite checar el archivo de configuracion para una aplicacion en particular
-
-=item B<--status>
-
- Verifica si la aplicacion se encuentra en ejecucion, enviando una señal 0 via el kernel al proceso.
-
-=item B<--report>
-
+<dd>
+<pre>
  Genera un reporte para determinar que aplicaciones se encuentran en ejecucion
  
  [10.103.18.144(asc3)]:/opt/apps
- weblogi9 $> monopse -r
+ weblogi9 $&gt; monopse -r
  
   mxhpasc3 (10.103.18.144)
  
@@ -130,116 +162,155 @@ Report bugs to <andres.aquino@gmail.com>
    wls-prepa01         | 20100210-0413 | 18385 | RUNNING  
    wlsadmin            | 20100210-0412 | 14613 | RUNNING  
  
- Total 8 application(s)
+ Total 8 application(s)</pre>
+</dd>
+<dt><strong><a name="quiet" class="item"><strong>--quiet</strong></a></strong></dt>
 
-=item B<--quiet>
+<dd>
+<pre>
+ Omite la salida generada por monopse.</pre>
+</dd>
+<dt><strong><a name="help" class="item"><strong>--help</strong></a></strong></dt>
 
- Omite la salida generada por monopse.
+<dd>
+<pre>
+ Muestra la ayuda de monopse.</pre>
+</dd>
+<dt><strong><a name="version" class="item"><strong>--version</strong></a></strong></dt>
 
-=item B<--help>
-
- Muestra la ayuda de monopse.
-
-=item B<--version>
-
- Muestra la version de monopse
-
-=back
-
-=head1 DESCRIPTION 
-
+<dd>
+<pre>
+ Muestra la version de monopse</pre>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<pre>
  monopse
  Aplicacion que sirve como auxiliar en la administracion de aplicaciones
  basadas en WebLogic, con posibilidad de extenderla a cualquier otra aplicacion
- que se ejecute en un sistema like UNIX*
-
+ que se ejecute en un sistema like UNIX*</pre>
+<pre>
  Utiliza un directorio de configuracion, donde se almacenan los siguientes
  archivos:
   * monopse.sh
-    Aplicacion principal
-
+    Aplicacion principal</pre>
+<pre>
   * monopserc
-    Configuracion de parametros generales a la aplicacion
-
+    Configuracion de parametros generales a la aplicacion</pre>
+<pre>
   * setup/[appname]-monopse.conf
-    Configuracion para una aplicacion en particular.
-
+    Configuracion para una aplicacion en particular.</pre>
+<pre>
   * monopse.log
-    Log de ejecucion
-
-DOMINIOS
+    Log de ejecucion</pre>
+<p>DOMINIOS
  El archivo para configurar una aplicacion en particular tiene los
- siguientes parametros posibles:
- 
+ siguientes parametros posibles:</p>
+<pre>
+
  Para indicar cual es el shell que inicia la aplicacion
- STARTAPP=[bin/start-app.sh]
- 
+ STARTAPP=[bin/start-app.sh]</pre>
+<pre>
+
  Para indicar cual es el shell que detiene la aplicacion
- STOPAPP=[stop-app.sh]
- 
+ STOPAPP=[stop-app.sh]</pre>
+<pre>
+
  Si es necesario ejecutar un shell antes de iniciar la aplicacion
- PREEXECUTION=[bin/before-start.sh]
- 
+ PREEXECUTION=[bin/before-start.sh]</pre>
+<pre>
+
  La ruta del dominio
- PATHAPP=[path/to/app/or/domain]
- 
+ PATHAPP=[path/to/app/or/domain]</pre>
+<pre>
+
  Claves para filtrar la ejecucion de la aplicacion
- FILTERAPP=["domainUp=1"]
- 
- FILTERLANG=["perl"]
- 
+ FILTERAPP=[&quot;domainUp=1&quot;]</pre>
+<pre>
+
+ FILTERLANG=[&quot;perl&quot;]</pre>
+<pre>
+
  En caso de que se manejen dominios administrados, indicar con que
  aplicacion se inicia el administrador y cual es la Clave para filtrar
  el proceso
- WLSAPP=[bin/app-manager.sh]
- 
- FILTERWL=["app=manager"]
- 
+ WLSAPP=[bin/app-manager.sh]</pre>
+<pre>
+
+ FILTERWL=[&quot;app=manager&quot;]</pre>
+<pre>
+
  Si se quiere indicar que no se genere un archivo con el stderr, o se
  concentre toda la salida en unico archivo de bitacora
- UNIQUELOG=[true|false]
- 
+ UNIQUELOG=[true|false]</pre>
+<pre>
+
  Clave para verificar si la aplicacion se encuentra en ejecucion, se
  buscara en el archivo de bitacora
- UPSTRING=["Startup Success"]
- 
+ UPSTRING=[&quot;Startup Success&quot;]</pre>
+<pre>
+
  Clave para verificar que la aplicacion ya no se encuentra en ejecucion,
  se buscara en el archivo de bitacora y posteriormente el PID del proceso
- DOWNSTRING=["thanks for using monopse"]
- 
+ DOWNSTRING=[&quot;thanks for using monopse&quot;]
+</pre>
+<pre>
+
  Tiempo de espera antes de verificar si se encuentra en ejecucion o no
  la aplicacion
- TOSLEEP=[0-99]
-
-=head1 EXAMPLES
-
+ TOSLEEP=[0-99]</pre>
+<p>
+</p>
+<hr />
+<h1><a name="examples">EXAMPLES</a></h1>
+<pre>
  Para usar monopse es necesario tener configurado al menos un dominio, supongamos
  el super proyecto NOE:
 
+</pre>
+<pre>
  * para iniciar NOE
    $ ~/bin/monopse --application=wliNOEdes --start
 
+</pre>
+<pre>
  * con opciones cortas
    $ ~/bin/monopse wliNOEdes start
 
+</pre>
+<pre>
  * de plano si ya es muy grande la hueva (TIP)
    $ alias noedes='~/bin/monopse wliNOEdes'
-	$ noedes start
+        $ noedes start
 
-=head1 AUTHOR
-
+</pre>
+<p>
+  1 
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<pre>
  monopse v3.04 Rev.20101103 (2bc6) 
  (c) 2010 Nextel de Mexico, S.A. de C.V.
  
  Developed by 
- Andres Aquino <andres.aquino@gmail.com> 
+ Andres Aquino &lt;andres.aquino@gmail.com&gt; 
 
-=head1 BUGS
-
+</pre>
+<p>
+</p>
+<hr />
+<h1><a name="bugs">BUGS</a></h1>
+<pre>
  Se necesitan traductores... !!!
 
-=cut
-# vim: set ts=3 et sw=3 sts=3 si ai tw=100 lbr:</p>
+</pre>
+
+    <h2>Install</h2>
+		
 <h2>Authors</h2>
 <p>Andres Aquino (andres.aquino@gmail.com)<br/>      </p>
 <h2>Contact</h2>
