@@ -17,7 +17,7 @@ export APLOGD=$APHOME/logs/monopse
 export VIEWLOG=true
 
 # correo de los Administradores
-export MAILTOADMIN="andres.aquino@gmail.com"
+export MAILTOADMIN="aquino@hp.com"
 
 # Aviso a los radios
 export MAILTORADIO="5519419071@msg.com.mx"
