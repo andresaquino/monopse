@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>akin0/monopse @ GitHub</title>
+	
+	<style type="text/css">
+		body {
+  		margin-top: 1.0em;
+  		background-color: #496c1b;
+		  font-family: "Helvetica,Arial,FreeSans";
+  		color: #ffffff;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+		h1 { font-size: 3.8em; color: #b693e4; margin-bottom: 3px; }
+		h1 .small { font-size: 0.4em; }
+		h1 a { text-decoration: none }
+		h2 { font-size: 1.5em; color: #b693e4; }
+    h3 { text-align: center; color: #b693e4; }
+    a { color: #b693e4; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+		pre { background: #000; color: #fff; padding: 15px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+	</style>
+	
+</head>
+
+<body>
+  <a href="http://github.com/akin0/monopse"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="container">
+
+    <div class="download">
+      <a href="http://github.com/akin0/monopse/zipball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/akin0/monopse/tarball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+    </div>
+
+    <h1><a href="http://github.com/akin0/monopse">monopse</a>
+      <span class="small">by <a href="http://github.com/akin0">akin0</a></span></h1>
+
+    <div class="description">
+      Monopse is a command line tool for start, stop and check status for applications specified by user as a parameter, find out how to use and install Monopse by reading man1/monopse.1 
+    </div>
+
+    <h2>Install</h2>
+<p>=head1 NAME
+
+monopse - An small shell for those applications that nobody wants to restart ;)
+
+=head1 SYNOPSIS
+
+Usage: monopse [OPTION]... 
+start up or stop applications like WebLogic, Fuego, Resin, etc. 
+Mandatory arguments in long format. 
+        -a, --application=APPNAME       use this application, required  
+            --all                       all registered applications  
+            --start                     start appName  
+            --stop                      stop appName  
+            --restart                   restart appName  
+        -r, --report                    show an small report about domains  
+        -m, --maintenance               execute all shell plugins in maintenance directory  
+        -s, --status                    verify the status of appName  
+        -t, --threaddump                send a 3 signal via kernel by 3 times  
+            --threaddump=COUNT,INTERVAL send a 3 signal via kernel, COUNT times between INTERVAL  
+        -c, --check-config              check config application (see monopse-monopse.conf)  
+        -v, --verbose                   send output execution to terminal  
+        -vv                             send output execution and monopse execution to terminal  
+        -d, --debug                     debug logs and processes in the system  
+            --version                   show version  
+        -h, --help                      show help  
+Each APPLIST refers to one application on the server.
+In case of threaddump options, COUNT refers to times sending kill -3 signal between 
+INTERVAL time in seconds
+
+Report bugs to <andres.aquino@gmail.com>
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--application=appName [--start | --stop]>
+
+ Especifica sobre que aplicacion _appName_ se realizara la accion: iniciar o detener el proceso.
+
+=item B<--threaddump[=COUNT,INTERVAL]>
+
+ Se busca el PID del proceso o aplicación indicado en _appName_ y sobre este mismo se envia una señal -3
+ que la maquina virtual de JAVA (caso especifico) interpretara como bandera para general un core o volcado
+ de los procesos internos en ejecucion.
+
+=item B<--debug>
+
+ Genera un reporte de analisis sobre la aplicacion para determinar si se encuentra algun problema.
+
+=item B<--check-config>
+
+ Permite checar el archivo de configuracion para una aplicacion en particular
+
+=item B<--status>
+
+ Verifica si la aplicacion se encuentra en ejecucion, enviando una señal 0 via el kernel al proceso.
+
+=item B<--report>
+
+ Genera un reporte para determinar que aplicaciones se encuentran en ejecucion
+ 
+ [10.103.18.144(asc3)]:/opt/apps
+ weblogi9 $> monopse -r
+ 
+  mxhpasc3 (10.103.18.144)
+ 
+  APPLICATION         | EXECUTED      | PID   | STATUS
+   --------------------+---------------+-------+---------
+   test-1              |               |       | STOPPED  
+   test-2              |               |       | STOPPED  
+   wls-atm01           | 20100210-0413 | 18388 | RUNNING  
+   wls-credit01        | 20100210-0413 | 18393 | RUNNING  
+   wls-kioskos01       | 20100210-0413 | 18453 | RUNNING  
+   wls-pisweb01        | 20100210-0413 | 18460 | RUNNING  
+   wls-prepa01         | 20100210-0413 | 18385 | RUNNING  
+   wlsadmin            | 20100210-0412 | 14613 | RUNNING  
+ 
+ Total 8 application(s)
+
+=item B<--quiet>
+
+ Omite la salida generada por monopse.
+
+=item B<--help>
+
+ Muestra la ayuda de monopse.
+
+=item B<--version>
+
+ Muestra la version de monopse
+
+=back
+
+=head1 DESCRIPTION 
+
+ monopse
+ Aplicacion que sirve como auxiliar en la administracion de aplicaciones
+ basadas en WebLogic, con posibilidad de extenderla a cualquier otra aplicacion
+ que se ejecute en un sistema like UNIX*
+
+ Utiliza un directorio de configuracion, donde se almacenan los siguientes
+ archivos:
+  * monopse.sh
+    Aplicacion principal
+
+  * monopserc
+    Configuracion de parametros generales a la aplicacion
+
+  * setup/[appname]-monopse.conf
+    Configuracion para una aplicacion en particular.
+
+  * monopse.log
+    Log de ejecucion
+
+DOMINIOS
+ El archivo para configurar una aplicacion en particular tiene los
+ siguientes parametros posibles:
+ 
+ Para indicar cual es el shell que inicia la aplicacion
+ STARTAPP=[bin/start-app.sh]
+ 
+ Para indicar cual es el shell que detiene la aplicacion
+ STOPAPP=[stop-app.sh]
+ 
+ Si es necesario ejecutar un shell antes de iniciar la aplicacion
+ PREEXECUTION=[bin/before-start.sh]
+ 
+ La ruta del dominio
+ PATHAPP=[path/to/app/or/domain]
+ 
+ Claves para filtrar la ejecucion de la aplicacion
+ FILTERAPP=["domainUp=1"]
+ 
+ FILTERLANG=["perl"]
+ 
+ En caso de que se manejen dominios administrados, indicar con que
+ aplicacion se inicia el administrador y cual es la Clave para filtrar
+ el proceso
+ WLSAPP=[bin/app-manager.sh]
+ 
+ FILTERWL=["app=manager"]
+ 
+ Si se quiere indicar que no se genere un archivo con el stderr, o se
+ concentre toda la salida en unico archivo de bitacora
+ UNIQUELOG=[true|false]
+ 
+ Clave para verificar si la aplicacion se encuentra en ejecucion, se
+ buscara en el archivo de bitacora
+ UPSTRING=["Startup Success"]
+ 
+ Clave para verificar que la aplicacion ya no se encuentra en ejecucion,
+ se buscara en el archivo de bitacora y posteriormente el PID del proceso
+ DOWNSTRING=["thanks for using monopse"]
+ 
+ Tiempo de espera antes de verificar si se encuentra en ejecucion o no
+ la aplicacion
+ TOSLEEP=[0-99]
+
+=head1 EXAMPLES
+
+ Para usar monopse es necesario tener configurado al menos un dominio, supongamos
+ el super proyecto NOE:
+
+ * para iniciar NOE
+   $ ~/bin/monopse --application=wliNOEdes --start
+
+ * con opciones cortas
+   $ ~/bin/monopse wliNOEdes start
+
+ * de plano si ya es muy grande la hueva (TIP)
+   $ alias noedes='~/bin/monopse wliNOEdes'
+	$ noedes start
+
+=head1 AUTHOR
+
+ monopse v3.04 Rev.20101103 (2bc6) 
+ (c) 2010 Nextel de Mexico, S.A. de C.V.
+ 
+ Developed by 
+ Andres Aquino <andres.aquino@gmail.com> 
+
+=head1 BUGS
+
+ Se necesitan traductores... !!!
+
+=cut
+# vim: set ts=3 et sw=3 sts=3 si ai tw=100 lbr:</p>
+<h2>Authors</h2>
+<p>Andres Aquino (andres.aquino@gmail.com)<br/>      </p>
+<h2>Contact</h2>
+<p>Andrés Aquino (andres.aquino@gmail.com)<br/>      </p>
+
+
+    <h2>Download</h2>
+    <p>
+      You can download this project in either
+      <a href="http://github.com/akin0/monopse/zipball/master">zip</a> or
+      <a href="http://github.com/akin0/monopse/tarball/master">tar</a> formats.
+    </p>
+    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+      by running:
+      <pre>$ git clone git://github.com/akin0/monopse</pre>
+    </p>
+
+    <div class="footer">
+      get the source code on GitHub : <a href="http://github.com/akin0/monopse">akin0/monopse</a>
+    </div>
+
+  </div>
+
+  
+</body>
+</html>
