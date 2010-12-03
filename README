@@ -1,0 +1,39 @@
+  _ __ ___   ___  _ __   ___  _ __  ___  ___ 
+ | '_ ` _ \ / _ \| '_ \ / _ \| '_ \/ __|/ _ \
+ | | | | | | (_) | | | | (_) | |_) \__ \  __/
+ |_| |_| |_|\___/|_| |_|\___/| .__/|___/\___|
+                             |_|             
+                                
+An small shell for those applications that nobody wants to restart ;)
+=-=
+
+Monopse is a command line tool for start, stop and check status for applications specified by user
+as a parameter, find out how to use and install Monopse by reading man1/monopse.1 
+
+
+CONTACT
+Monopse was developed and nowadays mainteined by 
+Andres Aquino <andres.aquino@gmail.com>
+
+GIT
+http://gitorious.org/monopse
+
+SVN
+http://monopse.googlecode.com/svn/trunk/
+
+BUGTRACKER
+[pending, we're moving to launchpad]
+http://code.google.com/p/monopse/issues/list
+
+
+TESTED WITH
+   * Oracle WebLogic 11
+	* Oracle WebLogic 10
+	* BEA WebLogic 9.2
+	* BEA WebLogic 8.1
+	* BEA WebLogic 6
+   * Targys (install screen)
+   * local applications running on Linux and HP-UX
+
+
+# vim: set ts=3 et sw=3 sts=3 si ai tw=100 lbr:
