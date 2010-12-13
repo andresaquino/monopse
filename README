@@ -11,22 +11,22 @@ Monopse is a command line tool for start, stop and check status for applications
 as a parameter, find out how to use and install Monopse by reading man1/monopse.1 
 
 
-CONTACT
-Monopse was developed and nowadays mainteined by 
+Contact
 Andres Aquino <andres.aquino@gmail.com>
 
-GIT
+GitHub
+http://github.com/andresaquino/monopse
+
+Gitorious
 http://gitorious.org/monopse
 
-SVN
+Subversion
 http://monopse.googlecode.com/svn/trunk/
 
-BUGTRACKER
-[pending, we're moving to launchpad]
-http://code.google.com/p/monopse/issues/list
+Bugtracker
+http://github.com/andresaquino/monopse/issues
 
-
-TESTED WITH
+Tested with
    * Oracle WebLogic 11
 	* Oracle WebLogic 10
 	* BEA WebLogic 9.2
