@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+		<title>andresaquino/monopse @ GitHub</title>
+
+		<style type="text/css">
+			body {
+				margin-top: 1.0em;
+				background-color: #ffffff;
+				font-family: "Verdana,Arial,FreeSans";
+				color: #000000;
+			}
+			#container {
+				margin: 0 auto;
+				width: 700px;
+			}
+			h1 { font-size: 3.8em; color: #000000; margin-bottom: 3px; }
+			h1 .small { font-size: 0.4em; }
+			h1 a { text-decoration: none }
+			h2 { font-size: 1.5em; color: #000000; }
+			h3 { text-align: center; color: #000000; }
+			a { color: #000000; }
+			.description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+			.download { float: right; }
+			pre { background: #000; color: #fff; padding: 15px;}
+			hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+			.footer { text-align:center; padding-top:30px; font-style: italic; }
+		</style>
+
+	</head>
+
+	<body>
+		<a href="http://github.com/andresaquino/monopse"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+		<div id="container">
+
+			<div class="download">
+				<a href="http://github.com/andresaquino/monopse/zipball/master">
+					<img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+				<a href="http://github.com/andresaquino/monopse/tarball/master">
+					<img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+			</div>
+
+			<h1><a href="http://github.com/andresaquino/monopse">monopse</a>
+				<span class="small">by <a href="http://github.com/andresaquino">andresaquino</a></span></h1>
+
+			<div class="description">
+				Platform Applications Container
+			</div>
+
+			<p>Main Project Text</p>
+			<h2>Dependencies</h2>
+			<p>Dependencies</p>
+			<h2>Manual</h2>
+<pre>
+NAME
+		 monopse - start or stop soi platform applications
+
+SYNOPSIS
+		 monopse
+
+DESCRIPTION
+		 monopse se puede usar  para  iniciar  cualquier proceso via el comando screen,
+		 es un metascript que indicando los comandos en un archivo de configuracion,
+		 facilita la ejecucion de los mismos.
+
+		 Utiliza un directorio de configuracion, donde se almacenan los siguientes
+		 archivos:
+			* monopse.sh
+				Aplicacion principal
+
+			* monopse.conf
+				Archivo de configuracion de parametros de aplicacion
+
+EXAMPLES
+		 Para activar una nueva aplicacion es necesario hacer lo siguiente:
+		 1. Crear una liga con el nombre de la aplicacion desde el directorio
+				$HOME/monopse/setup con el parametro start y stop, ej.
+				ln -sf $HOME/monopse/monopse.sh $HOME/monopse/setup/app.start 
+				ln -sf $HOME/monopse/monopse.sh $HOME/monopse/setup/app.stop 
+
+		 2. Crear un archivo de configuracion, donde se incluyan algunos de los
+				parametros necesarios para la aplicacion, ej:
+				# app.conf -- put here a short description.
+				# -----------------------------------------
+				apDebug=off
+				apType=CT
+				apCommand="sh ${HOME}/tomcat/bin/catalina.sh run"
+
+AUTHOR
+		 monopse v2.03 Rev.20101105 (bbd3) 
+		 (c) 2010 Hewlett-Packard Company
+
+		 Developed by 
+		 Andres Aquino <andres.aquino@gmail.com> 
+
+BUGS
+		 Muchos!
+
+		 Se necesitan traductores... !!!
+</pre>
+			<h2>Install</h2>
+<pre>
+[172.27.25.63(macuarrita)]: ~/Public                      
+andresaquino $> tar xvfz monopse-v2.03Stable.tar.gz 
+x monopse.git/
+x monopse.git/.gitignore
+x monopse.git/apptest/
+x monopse.git/HISTORY
+x monopse.git/INSTALL
+x monopse.git/install.sh
+x monopse.git/libutils.sh
+x monopse.git/LICENSE
+x monopse.git/man1/
+x monopse.git/PROFILE
+x monopse.git/README
+x monopse.git/screenrc
+x monopse.git/setup/
+x monopse.git/monopse.pod
+x monopse.git/monopse.sh
+x monopse.git/monopse.version
+x monopse.git/monopserc
+x monopse.git/VERSION
+x monopse.git/setup/test-1.check
+x monopse.git/setup/test-1.conf
+x monopse.git/setup/test-1.start
+x monopse.git/setup/test-1.stop
+x monopse.git/setup/test-2.check
+x monopse.git/setup/test-2.conf
+x monopse.git/setup/test-2.start
+x monopse.git/setup/test-2.stop
+x monopse.git/man1/monopse.1
+x monopse.git/apptest/stop.sh
+x monopse.git/apptest/test-1.sh
+x monopse.git/apptest/test-2.sh
+
+[172.27.25.63(macuarrita)]: ~/Public                      
+andresaquino $> cd monopse.git
+
+[172.27.25.63(macuarrita)]: ~/Public/monopse.git 
+andresaquino $> sh install.sh
+
+</pre>
+			<h2>License</h2>
+<pre>Copyright (c) 2010, Andres Aquino
+All rights reserved.
+
+Redistribution and use in  source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source  code must retain the above copyright notice, this list 
+of conditions and the following disclaimer.
+Redistributions in binary  form must reproduce  the  above copyright notice, this 
+list of conditions and the following disclaimer in the documentation and/or other 
+materials provided with the distribution.
+Neither the name of the Strategies Labs! nor the names of its contributors may be 
+used to endorse or promote  products derived  from this software without specific 
+prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE  COPYRIGHT  HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ANY EXPRESS OR  IMPLIED  WARRANTIES,  INCLUDING,  BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+IN NO EVENT SHALL THE COPYRIGHT  HOLDER OR  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+BUT NOT LIMITED TO, PROCUREMENT OF  SUBSTITUTE  GOODS  OR  SERVICES;  LOSS OF USE, 
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT,  STRICT  LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+See it on line
+http://creativecommons.org/licenses/BSD/
+</pre>
+			<h2>Author & Contact</h2>
+			<p>Andres Aquino (andres.aquino@gmail.com)<br/>      </p>
+
+			<h2>Download</h2>
+			<p>
+			You can download this project in either
+			<a href="http://github.com/andresaquino/monopse/zipball/master">zip</a> or
+			<a href="http://github.com/andresaquino/monopse/tarball/master">tar</a> formats.
+			</p>
+			<p>You can also clone the project with <a href="http://git-scm.com">Git</a>
+			by running:
+			<pre>$ git clone git://github.com/andresaquino/monopse</pre>
+			</p>
+
+			<div class="footer">
+				get the source code on GitHub : <a href="http://github.com/andresaquino/monopse">andresaquino/monopse</a>
+			</div>
+
+		</div>
+
+
+	</body>
+</html>
