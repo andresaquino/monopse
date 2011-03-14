@@ -3,8 +3,9 @@
 
 # libutils.sh -- library with some util functions
 # =-=
+#
 # Developer
-# Andres Aquino Morales <andres.aquino@gmail.com>
+# Andres Aquino <aquino@hp.com>
 # 
 
 #
@@ -40,14 +41,18 @@ set_environment () {
     stty susp '^Z'
     stty werase '^W'
 
+    # workaround
+    CLTYPE="\e"
+    [ "${APSYSO}" = "HP-UX" ] && CLTYPE="\033"
+ 
     # command line _eye candy_
-    CCLEAR="\033[00m"
-    CWHITE="\033[01;37m"
-    CRED="\033[01;31m"
-    CGREEN="\033[01;32m"
-    CYELLOW="\033[01;33m"
-    CBLUE="\033[01;34m"
-    CGRAY="\033[01;30m"
+    CCLEAR="${CLTYPE}[0m"
+    CGRAY="${CLTYPE}[01;30m"
+    CRED="${CLTYPE}[01;31m"
+    CGREEN="${CLTYPE}[01;32m"
+    CYELLOW="${CLTYPE}[01;33m"
+    CBLUE="${CLTYPE}[01;34m"
+    CWHITE="${CLTYPE}[01;37m"
   else
     # command line _eye candy_
     CCLEAR=
@@ -76,7 +81,7 @@ set_environment () {
     APPATH=${APHOME}/${APNAME}
   fi
   [ ! -d ${APPATH} ] && mkdir -p ${APPATH}
-  APPROF="`cat ${APPATH}/PROFILE`"
+  [ -s ${APPATH}/PROFILE ] && APPROF="`cat ${APPATH}/PROFILE`" || APPROF="(c) 2011, Andres Aquino <andres.aquino@gmail.com>"
 
   # log's path
   if [ ${#APLOGD} -eq 0 ]
@@ -106,7 +111,8 @@ set_environment () {
       MAIL=`which mailx`
       TAR=`which tar`
       ZIP=`which gzip`
-      IPADDRESS=`${PING} ${HOSTNAME} -n 1 | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
+      SCREEN=`which screen`
+      IPADDRESS=`${PING} ${HOSTNAME} -n 1 | awk '/icmp_=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
     ;;
       
     "Linux")
@@ -123,6 +129,7 @@ set_environment () {
       MAIL=`which mail`
       TAR=`which tar`
       ZIP=`which gzip`
+      SCREEN=`which screen`
       IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
     ;;
     
@@ -140,6 +147,7 @@ set_environment () {
       MAIL=`which mail`
       TAR=`which tar`
       ZIP=`which gzip`
+      SCREEN=`which screen`
       IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
     ;;
       
@@ -416,21 +424,22 @@ filter_in_log () {
 printto() {
   local message="$1"
 
+  _echo=`which echo`
   case "${APSYSO}" in
     "HP-UX")
-      echo "$message"
+      $_echo "$message"
     ;;
       
     "Linux")
-      echo -en "$message \n"
+      $_echo -e -n "$message \n"
     ;;
     
     "Darwin")
-      echo -en "$message \n"
+      $_echo -e -n "$message \n"
     ;;
       
     *)
-      echo "$message *"
+      $_echo "$message *"
     ;;
   esac
 
