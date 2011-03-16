@@ -3,48 +3,32 @@
 
 # install.sh -- instalar monopse en el directorio
 # =-=
+#
 # Developer
-# Andres Aquino Morales <andres.aquino@gmail.com>
+# Andres Aquino <aquino@hp.com>
 # 
 
+echo "[1] - Creating structure..."
 mkdir -p ~/bin
 mkdir -p ~/manuals/man1
 
-cd $HOME
+echo "[2] - Migrating all config files to new version..."
+[ -d ~/monopse ] && cp -rp ~/monopse/setup/*.conf ~/monopse.git/setup/
+[ -d ~/monopse ] && cp -rp ~/monopse/monopserc ~/monopse.git/
 
-# respaldar setup actual
-echo "Migrando configuraciones"
-if [ -d ~/monopse ]
-then
-   find ~/monopse -name '*-monopse.conf' -exec mv {} ~/monopse.git/setup/ \;
-   find ~/monopse -name 'monopserc' -exec mv {} ~/monopse.git/ \;
-fi
-
-# mover actual como backup
-echo "Se respaldo la anterior configuracion en $HOME/monopse.old"
+echo "[3] - Switching to new version..."
+cd ~
 [ -d ~/monopse.old ] && rm -fr ~/monopse.old
-[ -d ~/monopse ] && mv ~/monopse ~/monopse.old
+[ -d ~/monopse ] && mv ~/soya ~/monopse.old
+[ -d ~/monopse.git ] && mv ~/monopse.git ~/monopse
 
-# instalar nuevo componente
-if [ -d ~/monopse.git ]
-then
-   mv ~/monopse.git ~/monopse
-   
-   cd ~/monopse
-   ln -sf ~/monopse/monopse.sh monopse
-   
-   echo "Recuerda, la configuracion ahora se encuentra en $HOME/.monopserc"
-   rm -f ~/.monopserc
-   ln -sf ~/monopse/monopserc ~/.monopserc
+echo "[4] - Installing unix documentation..."
+cp ~/monopse/man1/monopse.1 ~/manuals/man1/
+ln -sf ~/monopse/monopserc ~/.monopserc
+ln -sf ~/monopse/monopse.sh ~/monopse/monopse
 
-   echo "Siempre podras consultar el manual con monopse -h o man monopse"
-   cp ~/monopse/man1/monopse.1 ~/manuals/man1/
+echo "[5] - Fixing permissiont..."
+chmod 0640 ~/monopse/install.sh 
+chmod 0750 ~/monopse/monopse.sh
 
-   chmod -R 0640 *.*
-   chmod 0750 monopse.sh
-
-   # establecer nuevo path
-   PATH=$HOME/monopse:$PATH
-fi
-
-#
+echo "[*] - That's all..."
