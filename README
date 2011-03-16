@@ -11,29 +11,30 @@ Monopse is a command line tool for start, stop and check status for applications
 as a parameter, find out how to use and install Monopse by reading man1/monopse.1 
 
 
-Contact
-Andres Aquino <andres.aquino@gmail.com>
+Developed by
+   Andres Aquino <aquino@hp.com>
 
-GitHub
-http://github.com/andresaquino/monopse
+Source Code
+   [GitHub]       http://andresaquino.github.com/monopse
+   [GoggleCode]   http://monopse.googlecode.com/svn/trunk/
+   [Bugtracker]   http://github.com/andresaquino/monopse/issues
 
-Gitorious
-http://gitorious.org/monopse
+Documentation
+   Please, use the next flags to indicate the issue to implement
+      DEFECT         : Report a Software Defect
+      ENHANCEMENT    : Request for a Enhancement
+      TASK           : Work item that change code or documentation
+      REVIEW         : Request for a source code review
+      OTHER          : Some other kind of issue
 
-Subversion
-http://monopse.googlecode.com/svn/trunk/
-
-Bugtracker
-http://github.com/andresaquino/monopse/issues
-
-Tested with
-   * Oracle WebLogic 11
-	* Oracle WebLogic 10
-	* BEA WebLogic 9.2
-	* BEA WebLogic 8.1
-	* BEA WebLogic 6
-   * Targys (install screen)
-   * local applications running on Linux and HP-UX
+   Tested with
+      * Oracle WebLogic 11
+	   * Oracle WebLogic 10
+	   * BEA WebLogic 9.2
+	   * BEA WebLogic 8.1
+	   * BEA WebLogic 6
+      * Targys (install screen)
+      * local applications running on Linux and HP-UX
 
 
-# vim: set ts=3 et sw=3 sts=3 si ai tw=100 lbr:
+# vim: set ts=3 sw=3 sts=3 et si ai tw=100 lbr:
