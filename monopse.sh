@@ -3,8 +3,9 @@
 
 # monopse.sh - An small shell for those applications that nobody wants to restart ;)
 # =-=
+#
 # Developer
-# Andres Aquino Morales <andres.aquino@gmail.com>
+# Andres Aquino <aquino@hp.com>
 # 
 
 #
