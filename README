@@ -29,10 +29,10 @@ Documentation
 
    Tested with
       * Oracle WebLogic 11
-	   * Oracle WebLogic 10
-	   * BEA WebLogic 9.2
-	   * BEA WebLogic 8.1
-	   * BEA WebLogic 6
+      * Oracle WebLogic 10
+      * BEA WebLogic 9.2
+      * BEA WebLogic 8.1
+      * BEA WebLogic 6
       * Targys (install screen)
       * local applications running on Linux and HP-UX
 
