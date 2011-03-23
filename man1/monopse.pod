@@ -173,11 +173,11 @@ DOMINIOS
 
 =head1 AUTHOR
 
- monopse v3.04 Rev.20101103 (2bc6) 
- (c) 2010 Nextel de Mexico, S.A. de C.V.
+ monopse v3.05 (95da) 
+ (c) 2011 Nextel de Mexico
  
  Developed by 
- Andres Aquino <andres.aquino@gmail.com> 
+ Andres Aquino <aquino@hp.com> 
 
 =head1 BUGS
 
