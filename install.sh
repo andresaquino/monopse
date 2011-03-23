@@ -19,7 +19,7 @@ echo "[2] - Migrating all config files to new version..."
 echo "[3] - Switching to new version..."
 cd ~
 [ -d ~/monopse.old ] && rm -fr ~/monopse.old
-[ -d ~/monopse ] && mv ~/soya ~/monopse.old
+[ -d ~/monopse ] && mv ~/monopse ~/monopse.old
 [ -d ~/monopse.git ] && mv ~/monopse.git ~/monopse
 
 echo "[4] - Installing unix documentation..."

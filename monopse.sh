@@ -325,7 +325,7 @@ reports_status () {
 # show application's version
 show_version () {
   printto "${APNAME} ${VERSION} (${RELEASE})"
-  printto "(c) 2010 ${APPROF}\n"
+  printto "${APPROF}\n"
   
   if [ ${SVERSION} ]
   then
