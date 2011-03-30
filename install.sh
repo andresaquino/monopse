@@ -5,7 +5,7 @@
 # =-=
 #
 # Developer
-# Andres Aquino <aquino@hp.com>
+# Andres Aquino <aquino(at)hp.com>
 # 
 
 echo "[1] - Creating structure..."

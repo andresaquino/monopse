@@ -5,7 +5,7 @@
 # =
 #
 # Developer
-# Andres Aquino <aquino@hp.com>
+# Andres Aquino <aquino(at)hp.com>
 #
 
 #
@@ -18,13 +18,13 @@ export APLOGD=$APHOME/logs/monopse
 export VIEWLOG=true
 
 # correo de los Administradores
-export MAILTOADMIN="aquino@hp.com"
+export MAILTOADMIN="aquino(at)hp.com"
 
 # Aviso a los radios
 export MAILTORADIO="5519419071@msg.com.mx"
 
 # correo para desarrollo
-export MAILTODEVELOPER="andres.aquino@gmail.com"
+export MAILTODEVELOPER="andres.aquino(at)gmail.com"
 
 
 #

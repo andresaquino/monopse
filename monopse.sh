@@ -5,7 +5,7 @@
 # =-=
 #
 # Developer
-# Andres Aquino <aquino@hp.com>
+# Andres Aquino <aquino(at)hp.com>
 # 
 
 #
@@ -330,7 +330,7 @@ show_version () {
   if [ ${SVERSION} ]
   then
     printto  "Developed by"
-    printto  "Andres Aquino <andres.aquino@gmail.com>"
+    printto  "Andres Aquino <andres.aquino(at)gmail.com>"
   fi
 
 }
@@ -515,7 +515,7 @@ do
       printto  "Each APPNAME refers to one application on the server. "
       printto  "In case of threaddump options, COUNT refers of times sending kill -3 signal between "
       printto  "INTERVAL time in seconds \n"
-      printto  "Report bugs to <andres.aquino@gmail.com> \n"
+      printto  "Report bugs to <andres.aquino(at)gmail.com> \n"
       exit 0
     ;;
     *)
