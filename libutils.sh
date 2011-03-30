@@ -2,10 +2,10 @@
 # vim: set ts=2 sw=2 sts=2 si ai et: 
 
 # libutils.sh -- library with some util functions
-# =-=
+# =
 #
 # Developer
-# Andres Aquino <aquino@hp.com>
+# Andres Aquino <aquino(at)hp.com>
 # 
 
 #
@@ -25,6 +25,10 @@ export APLOGT=
 export APPRCS=
 APFLTR=
 
+# Eye candy
+CLTYPE="\e"
+[ "${APSYSO}" = "HP-UX" ] && CLTYPE="\033"
+
 #
 # get the enviroment for the SO running
 set_environment () {
@@ -41,11 +45,26 @@ set_environment () {
     stty susp '^Z'
     stty werase '^W'
 
-    # workaround
-    CLTYPE="\e"
-    [ "${APSYSO}" = "HP-UX" ] && CLTYPE="\033"
- 
     # command line _eye candy_
+    CRESET="${CLTYPE}[0m"    # Text Reset
+    TXTBLK="${CLTYPE}[0;30m" # Black - Regular
+    TXTRED="${CLTYPE}[0;31m" # Red
+    TXTGRN="${CLTYPE}[0;32m" # Green
+    TXTYLW="${CLTYPE}[0;33m" # Yellow
+    TXTBLU="${CLTYPE}[0;34m" # Blue
+    TXTPUR="${CLTYPE}[0;35m" # Purple
+    TXTCYN="${CLTYPE}[0;36m" # Cyan
+    TXTWHT="${CLTYPE}[0;37m" # White
+    BLDBLK="${CLTYPE}[1;30m" # Black - Bold
+    BLDRED="${CLTYPE}[1;31m" # Red
+    BLDGRN="${CLTYPE}[1;32m" # Green
+    BLDYLW="${CLTYPE}[1;33m" # Yellow
+    BLDBLU="${CLTYPE}[1;34m" # Blue
+    BLDPUR="${CLTYPE}[1;35m" # Purple
+    BLDCYN="${CLTYPE}[1;36m" # Cyan
+    BLDWHT="${CLTYPE}[1;37m" # White
+ 
+    # DEPRECATED
     CCLEAR="${CLTYPE}[0m"
     CGRAY="${CLTYPE}[01;30m"
     CRED="${CLTYPE}[01;31m"
@@ -55,6 +74,25 @@ set_environment () {
     CWHITE="${CLTYPE}[01;37m"
   else
     # command line _eye candy_
+    CRESET="${CLTYPE}[0m"    # Text Reset
+    TXTBLK="${CLTYPE}[0;30m" # Black - Regular
+    TXTRED="" # Red
+    TXTGRN="" # Green
+    TXTYLW="" # Yellow
+    TXTBLU="" # Blue
+    TXTPUR="" # Purple
+    TXTCYN="" # Cyan
+    TXTWHT="${CLTYPE}[0;37m" # White
+    BLDBLK="${CLTYPE}[1;30m" # Black - Bold
+    BLDRED="" # Red
+    BLDGRN="" # Green
+    BLDYLW="" # Yellow
+    BLDBLU="" # Blue
+    BLDPUR="" # Purple
+    BLDCYN="" # Cyan
+    BLDWHT="${CLTYPE}[1;37m" # White
+ 
+    # DEPRECATED
     CCLEAR=
     CWHITE=
     CRED=
@@ -81,7 +119,7 @@ set_environment () {
     APPATH=${APHOME}/${APNAME}
   fi
   [ ! -d ${APPATH} ] && mkdir -p ${APPATH}
-  [ -s ${APPATH}/PROFILE ] && APPROF="`cat ${APPATH}/PROFILE`" || APPROF="(c) 2011, Andres Aquino <andres.aquino@gmail.com>"
+  [ -s ${APPATH}/PROFILE ] && APPROF="`cat ${APPATH}/PROFILE`" || APPROF="(c) 2011, Andres Aquino <andres.aquino(at)gmail.com>"
 
   # log's path
   if [ ${#APLOGD} -eq 0 ]
@@ -375,19 +413,19 @@ report_status () {
   
   # cadena para indicar proceso correcto o con error
   echo " ${MESSAGE} " | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,80),STATUS}'
-  if [ "${#CBLUE}" -ne 0 ] 
+  if [ "${#TXTBLU}" -ne 0 ] 
   then 
     tput sc 
     tput cuu1 && tput cuf 80
     case "${STATUS}" in
       "*")
-        printto "${CCLEAR}[${CGREEN} ${STATUS} ${CCLEAR}]"
+        printto "${CRESET}[${TXTGRN} ${STATUS} ${CRESET}]"
       ;;
       "?")
-        printto "${CCLEAR}[${CRED} ${STATUS} ${CCLEAR}]"
+        printto "${CRESET}[${TXTRED} ${STATUS} ${CRESET}]"
       ;;
       "i")
-        printto "${CCLEAR}[${CYELLOW} ${STATUS} ${CCLEAR}]"
+        printto "${CRESET}[${TXTYLW} ${STATUS} ${CRESET}]"
       ;;
     esac
   fi
@@ -456,7 +494,7 @@ wait_for () {
   
   [ ${#TIMETO} -eq 0 ] && TIMETO=1
 
-  if [ "${#CBLUE}" -ne 0 ] 
+  if [ "${#TXTBLU}" -ne 0 ] 
   then
     if [ "${STATUS}" != "CLEAR" ]
     then
@@ -470,7 +508,7 @@ wait_for () {
         # recuperar la posicion en pantalla, ubicar en la columna 70 y subirse un renglon 
         tput rc
         tput cuu1 && tput cuf 80 
-        printto "${CCLEAR}[${CYELLOW} ${WAITCHAR} ${CCLEAR}]"
+        printto "${CRESET}[${TXTYLW} ${WAITCHAR} ${CRESET}]"
         # incrementar posicion, si es igual a 5 regresar al primer caracter 
         CHARPOS=$((${CHARPOS}+1))
         [ ${CHARPOS} -eq 5 ] && CHARPOS=1
