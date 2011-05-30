@@ -177,7 +177,7 @@ DOMINIOS
  (c) 2011 Nextel de Mexico
  
  Developed by 
- Andres Aquino <aquino@hp.com> 
+ Andres Aquino <aquino(at)hp.com> 
 
 =head1 BUGS
 
