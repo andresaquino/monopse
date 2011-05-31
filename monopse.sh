@@ -290,7 +290,7 @@ make_fullthreaddump() {
 
 
 # *
-# report_status
+# reports_status
 # generar reporte via mail para los administradores
 reports_status () {
   local TYPEOPERATION STATUS STRSTATUS FILESTATUS 
@@ -1058,14 +1058,13 @@ else
     
 
     #
-    # LOG -- enerar un reporte de aplicaciones historico de operaciones realizadas
+    # TASK: Registro de ejecucion
+    #  $> monopse --log
+    #     AppName  Action        Day        Time
+    #     --------+-------------+----------+-----
+    #     CCI      STOP          20110520   1530
+    #     CCI      START         20110520   1532
     #
-    # PULGOSA
-    #
-    # DATE     | STOP | START | SERVER             | BACKUP
-    # ---------+-------+-------+--------------------+---------------------------
-    # 20080924 | 0046 | 0120  | test               | test_20080924_0120.tar.gz
-    # ...
     if ${VIEWHISTORY} 
     then
       count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`

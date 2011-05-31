@@ -8,8 +8,19 @@ An small shell for those applications that nobody wants to restart ;)
 =-=
 
 v3.06
-   * rev201105.30
-      Revisar informacion.
+   * rev201106.01
+      TASK: Registro de Ejecucion
+      Implementar funcionalidad para llevar el registro de ejecucion de comandos, para determinar en
+      que horarios de detuvo una aplicacion y cuando se inicio, para cubrir aspectos de auditoria.
+      $> monopse --log
+         AppName  Action        Day        Time
+         --------+-------------+----------+-----
+         CCI      STOP          20110520   1530
+         CCI      START         20110520   1532
+
+      TASK: Historico de ejecucion
+
+      TASK: Mantenimiento de logs
 
 v3.04
    * {rev}
