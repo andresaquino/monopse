@@ -27,7 +27,7 @@ APFLTR=
 
 # Eye candy
 CLTYPE="\e"
-[ "${APSYSO}" = "HP-UX" ] && CLTYPE="\033"
+[ "${APSYSO}" = "Linux" ] || CLTYPE="\033"
 
 #
 # get the enviroment for the SO running
@@ -462,6 +462,9 @@ filter_in_log () {
 printto() {
   local message="$1"
 
+  # TODO
+  # Using builtin echo function supports options like -n -e but for
+  # HP-UX is not a BSD compliance
   _echo=`which echo`
   case "${APSYSO}" in
     "HP-UX")
@@ -469,11 +472,11 @@ printto() {
     ;;
       
     "Linux")
-      $_echo -e -n "$message \n"
+      echo -e -n "$message \n"
     ;;
     
     "Darwin")
-      $_echo -e -n "$message \n"
+      echo -e -n "$message \n"
     ;;
       
     *)
