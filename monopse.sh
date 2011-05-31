@@ -1060,6 +1060,8 @@ else
     #
     # TASK: Registro de ejecucion
     #  $> monopse --log
+    #
+    #     macuarrita (192.168.0.27)
     #     AppName  Action        Day        Time
     #     --------+-------------+----------+-----
     #     CCI      STOP          20110520   1530
@@ -1067,42 +1069,43 @@ else
     #
     if ${VIEWHISTORY} 
     then
-      count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
+      _TL="\033(0l\033(B"
+      _TR="\033(0k\033(B"
+      _BL="\033(0m\033(B"
+      _BR="\033(0j\033(B"
+      _SL="\033(0t\033(B"
+      _SR="\033(0u\033(B"
+      _VE="\033(0x\033(B"
+      _HE="\033(0q\033(B"
+      _CD="\033(0w\033(B"
+      _CU="\033(0v\033(B"
+      _LH="\033(0p\033(B"
+      count=`ls -l ${APPATH}/setup/*-*.conf | wc -l`
       [ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
-      printto  "\n ${APHOST} (${IPADDRESS})\n"
-      printto  "START:STOP:APPLICATION:" | 
-        awk 'BEGIN{FS=":";OFS="| "}
-              {
-                print " "substr($1"                     ",1,18),
-                      substr($2"                     ",1,18),
-                      substr($3"                     ",1,28);
-              }'
-      printto  " ------------------+-------------------------------------------------"
+      printto "\n ${APHOST} (${IPADDRESS})"
+      printto " APPLICATION  $_CD ACTION $_CD DAY      $_CD TIME "
       log_action "DEBUG" "report from ${APLOGS}.log "
       tail -n5000 ${APLOGS}.log | tr -d ":[]()-" | sort -r | \
-            awk 'BEGIN{LAST="";OFS="| "}
+            awk '
+              BEGIN {OFS="| "}
                   /successfully/{
-                  if($0~"start")
-                  {
-                    LDATE=$1;
-                    LTIME=$2;
-                    PROCS=$8;
+                    if($0~"start"){
+                      STATUS="start";
+                    }else{
+                      STATUS="stop";
+                    }
+                    print " "substr($8"                     ",1,13),
+                             substr(STATUS"                     ",1,7),
+                             substr($1"                     ",1,9),
+                             substr($2"                     ",1,9);
                   }
-                  else
-                  {
-                    print " "substr(LDATE"                     ",1,9),
-                          substr(LTIME"                     ",1,7),
-                          substr($1"                     ",1,9),
-                          substr($2"                     ",1,7),
-                          substr($8"                     ",1,28);
-                  }
-            }' > ${APTEMP}/${APNAME}.history
+            ' > ${APTEMP}/${APNAME}.history
       
       if [ "${APPRCS}" = "NONSETUP" ]
       then
-        cat ${APTEMP}/${APNAME}.history | uniq | sort | head -n25
+        cat ${APTEMP}/${APNAME}.history | head -n25 
       else
-        cat ${APTEMP}/${APNAME}.history | uniq | sort | head -n25 | grep "${APPRCS} "
+        cat ${APTEMP}/${APNAME}.history | head -n25 | grep "${APPRCS} "
       fi
       printto  ""
     fi
