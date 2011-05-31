@@ -1,7 +1,7 @@
 #!/bin/sh 
 # vim: set ts=2 sw=2 sts=2 si ai et: 
 
-# install.sh -- instalar monopse en el directorio
+# install.sh 
 # =-=
 #
 # Developer
@@ -9,7 +9,6 @@
 # 
 
 echo "[1] - Creating structure..."
-mkdir -p ~/bin
 mkdir -p ~/manuals/man1
 
 echo "[2] - Migrating all config files to new version..."
