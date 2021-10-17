@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 # vim: set ts=2 sw=2 sts=2 si ai et: 
 
 # libutils.sh -- library with some util functions
@@ -27,7 +27,8 @@ APFLTR=
 
 # Eye candy
 CLTYPE="\e"
-[ "${APSYSO}" = "Linux" ] || CLTYPE="\033"
+[ "${APSYSO}" = "HP-UX" ] && CLTYPE="\033"
+[ "${APSYSO}" = "AIX" ] && CLTYPE="\033"
 
 #
 # get the enviroment for the SO running
@@ -168,7 +169,8 @@ set_environment () {
       TAR=`which tar`
       ZIP=`which gzip`
       SCREEN=`which screen`
-      IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
+      #IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
+      IPADDRESS=`ip a s | grep inet | grep -v inet6| sed -e 's/^[[:space:]]*//' |cut -d' ' -f2 | cut -d'/' -f1 | grep -v 127.0.0.1 | head -1`
     ;;
     
     "Darwin")
@@ -188,7 +190,13 @@ set_environment () {
       SCREEN=`which screen`
       IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
     ;;
-      
+     
+    "AIX")
+      PSOPTS="-fea"
+      PSPOS=-1
+      PING="`which ping`"
+      IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
+    ;; 
     *)
       PSOPTS="-l"
       PSPOS=0
@@ -270,7 +278,11 @@ get_process_id () {
   # extraer los procesos que nos interesan 
   awk "/${WRDSLIST}/{print}" ${PIDFILE}.allps > ${PIDFILE}.ps
   log_action "DEBUG" "looking for /${WRDSLIST}/ in ${PIDFILE}.allps owned by ${APUSER}"
-  
+
+  # Contando los procesos encontrados
+  wc -l ${PIDFILE}.ps | awk '{print $1}' > ${PIDFILE}.tpid
+  log_action "DEBUG" "Counting the process owned by ${APUSER} in order to TPID"
+
   # el archivo existe y es mayor a 0 bytes 
   if [ -s ${PIDFILE}.ps ]
   then
@@ -436,6 +448,7 @@ report_status () {
 # filter_in_log
 filter_in_log () {
   local FILTER="${1}"
+  local CUTF=${2}
   local WRDSLIST=`echo "${FILTER}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 
   # la long de la cad no esta vacia
@@ -444,7 +457,7 @@ filter_in_log () {
 
   # extraer los procesos que nos interesan 
   [ ! -f ${APLOGP}.log ] && touch ${APLOGP}.log
-  cut -c1-160 ${APLOGP}.log | awk "BEGIN{res=0}/${WRDSLIST}/{res=1}END{if(res==0){exit 1}}"
+  cut -c1-${CUTF} ${APLOGP}.log | awk "BEGIN{res=0}/${WRDSLIST}/{res=1}END{if(res==0){exit 1}}"
   LASTSTATUS=$?
   log_action "DEBUG" "ok, searching /${WRDSLIST}/ in ${APLOGP}.log: ${LASTSTATUS}"
   
@@ -462,9 +475,6 @@ filter_in_log () {
 printto() {
   local message="$1"
 
-  # TODO
-  # Using builtin echo function supports options like -n -e but for
-  # HP-UX is not a BSD compliance
   _echo=`which echo`
   case "${APSYSO}" in
     "HP-UX")
@@ -478,9 +488,11 @@ printto() {
     "Darwin")
       echo -e -n "$message \n"
     ;;
-      
+    "AIX")
+     echo "$message"
+    ;;
     *)
-      $_echo "$message *"
+      echo "$message *"
     ;;
   esac
 
