@@ -7,7 +7,26 @@
 An small shell for those applications that nobody wants to restart ;)
 =-=
 
+v3.10
+   * rev.202010.13.
+      ENHANCEMENT: Se agrega en la salida de help sobre el uso de disable y enable
+      ENHANCEMENT: Se incorpora la opción de poder colocar aplicaciones en DISABLED
+      DEFECT: Se remedia problema con DISABLED, cuando es usado por primera vez, no creaba carpeta ni hacia correcto el encriptado/desencriptado.
+
 v3.06
+   * rev.201705.30.
+      ENHANCEMENT: Se agrega en la salida del help la opcion "-e, --extend"
+      ENHANCEMENT: Se agregan ejemplos de uso en la salida de "help"
+      ENHANCEMENT: Se modifican algunas opciones en el "help"
+      ENHANCEMENT: Se puede ya instalar en servidores AIX.
+      ENHANCEMENT: Se agrega nueva columna TPID (Total de PID encontrados) para identificar
+      duplicidad
+      TASK: Reinicio de mas de una instancia
+      TASK: Ver configuracion de mas de una instancia.
+      TASK: Se pretende crear grupos de aplicaciones, para poder hacer restart, stop, start sobre
+      un grupo de N instancias, siempre y cuando que existan esas instancias.
+      DEFECT: Se remedia defecto con JBoss para su filtro.
+
    * rev201106.01
       TASK: Registro de Ejecucion
       Implementar funcionalidad para llevar el registro de ejecucion de comandos, para determinar en
