@@ -30,11 +30,13 @@ Documentation
    Tested with
       * Oracle WebLogic 11
       * Oracle WebLogic 10
+      * JBoss EAP 6.x
+      * Jboss EAP 7.x
       * BEA WebLogic 9.2
       * BEA WebLogic 8.1
       * BEA WebLogic 6
       * Targys (install screen)
-      * local applications running on Linux and HP-UX
+      * local applications running on Linux, AIX and HP-UX
 
 
 # vim: set ts=3 sw=3 sts=3 et si ai tw=100 lbr:
