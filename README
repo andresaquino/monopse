@@ -1,18 +1,20 @@
-  _ __ ___   ___  _ __   ___  _ __  ___  ___ 
+  _ __ ___   ___  _ __   ___  _ __  ___  ___
  | '_ ` _ \ / _ \| '_ \ / _ \| '_ \/ __|/ _ \
  | | | | | | (_) | | | | (_) | |_) \__ \  __/
  |_| |_| |_|\___/|_| |_|\___/| .__/|___/\___|
-                             |_|             
-                                
+                             |_|
+
 An small shell for those applications that nobody wants to restart ;)
 =-=
 
 Monopse is a command line tool for start, stop and check status for applications specified by user
-as a parameter, find out how to use and install Monopse by reading man1/monopse.1 
+as a parameter, find out how to use and install Monopse by reading man1/monopse.1
 
+Maintainer
+   Jimmy | @cosvernauta
 
 Developed by
-   Andres Aquino <aquino(at)hp.com>
+   Andrews | @andresaquinom
 
 Source Code
    [GitHub]       http://andresaquino.github.com/monopse
@@ -37,6 +39,3 @@ Documentation
       * BEA WebLogic 6
       * Targys (install screen)
       * local applications running on Linux, AIX and HP-UX
-
-
-# vim: set ts=3 sw=3 sts=3 et si ai tw=100 lbr:
