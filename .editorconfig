@@ -1,0 +1,23 @@
+# (c) 2020, Andres Aquino <andres@aquino.page>
+# This file is licensed under the BSD License version 3 or later.
+# See the LICENSE file.
+#
+
+# EditorConfig is awesome
+# https://EditorConfig.org
+
+# Unix-style newlines with a newline ending every file
+[*]
+charset                  = utf-8
+end_of_line              = lf
+indent_style             = space
+indent_size              = 3
+insert_final_newline     = true
+trim_trailing_whitespace = true
+
+[*.{md,markdown,txt}]
+indent_size              = 4
+indent_style             = space
+max_line_length          = 200
+
+# vim: ft=dosini:
