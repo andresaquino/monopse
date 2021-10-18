@@ -51,8 +51,11 @@ MAXSAMPLES=3
 MAXSLEEP=2
 APVISUALS=false
 APPRCS=
+
 START=false
 STOP=false
+DIS=false
+ENABLE=false
 RESTART=false
 STATUS=false
 ALLAPPLICATIONS=false
@@ -69,6 +72,8 @@ FAST=false
 MAXLOGSIZE=500
 THREADDUMP=false
 VIEWREPORT=false
+VIEWGROUP=false
+VIEWEXTENDED=false
 VIEWHISTORY=false
 MAINTENANCE=false
 SVERSION=false
@@ -80,6 +85,7 @@ OPTIONS=
 VERSION="`cat ${APPATH}/VERSION | sed -e 's/-rev/ Rev./g'`"
 RELEASE=`openssl dgst -md5 ${APPATH}/${APNAME}.sh | rev | cut -c-4 | rev`
 
+typeset -i pos
 #
 # log_backup
 # respaldar logs para que no se generen problemas de espacio.
@@ -290,7 +296,7 @@ make_fullthreaddump() {
 
 
 # *
-# reports_status
+# report_status
 # generar reporte via mail para los administradores
 reports_status () {
   local TYPEOPERATION STATUS STRSTATUS FILESTATUS 
@@ -340,11 +346,14 @@ show_version () {
 # parametros 
 while [ $# -gt 0 ]
 do
+  
   case "${1}" in
     -a=*|--application=*)
       APPRCS=`echo "$1" | sed 's/^--[a-z-]*=//'`
       APPRCS=`echo "${APPRCS}" | sed 's/^-a=//'`
       set_proc "${APPRCS}"
+      APPINST[${pos}]=$(echo $APPRCS)
+      pos=$pos+1
     ;;
     --start|start)
       START=true
@@ -362,6 +371,22 @@ do
         ERROR=true
       fi
     ;;
+    --dis|disable)
+      DIS=true
+      ERROR=false
+      if ${START} || ${STATUS} || ${CHECKCONFIG} || ${STOP} || ${RESTART} || ${ENABLE}
+      then
+        ERROR=true
+      fi
+    ;;
+    --en|enable)
+      ENABLE=true
+      ERROR=false
+      if ${START} || ${STATUS} || ${CHECKCONFIG} || ${STOP} || ${RESTART} || ${DIS}
+      then
+        ERROR=true
+      fi
+    ;;
     --restart|restart)
       RESTART=true
       ERROR=false
@@ -373,7 +398,7 @@ do
     --all|all)
       ALLAPPLICATIONS=true
       ERROR=false
-      if ${DEBUG} || ${VIEWHISTORY} || ${VIEWREPORT} || ${STATUS}
+      if ${DEBUG} || ${VIEWHISTORY} || ${VIEWREPORT} || ${STATUS} || ${VIEWGROUP}
       then
         ERROR=true
       fi
@@ -409,6 +434,18 @@ do
       then
         ERROR=true
       fi
+    ;;
+    --greport|-gr)
+      VIEWGROUP=true
+      ERROR=false
+     # if ${START} || ${STOP} || ${CHECKCONFIG} || ${STATUS}
+     # then
+     #   ERROR=true
+     # fi
+    ;;
+    --extended|-e)
+      VIEWEXTENDED=true
+      ERROR=false
     ;;
     --forced|-f)
       NOTFORCE=false
@@ -461,7 +498,7 @@ do
     --fast|fast)
       FAST=true
       ERROR=false
-      if ${CHECKCONFIG} || ${THREADDUMP} || ${VIEWMLOG} || ${VIEWREPORT} || ${MAINTENANCE}
+      if ${CHECKCONFIG} || ${THREADDUMP} || ${VIEWMLOG} || ${VIEWREPORT} || ${MAINTENANCE} || ${VIEWGROUP}
       then
         ERROR=true
       fi
@@ -492,14 +529,20 @@ do
     ;;
     --help|-h)
       printto  "Usage: ${APNAME} [OPTION]..."
+      printto "Example: "
+      printto "         monopse start [APNAME]"
+      printto "         monopse stop [APNAME]"
+      printto "         monopse restart [APNAME 1] [APPNAME 2]... [APPNAME N]"
       printto  "start up or stop applications like WebLogic, Fuego, Resin, etc."
       printto  "Mandatory arguments in long format."
       printto  "\t-a, --application=APPNAME       use this application, required "
       printto  "\t    --all                       all registered applications "
-      printto  "\t    --start                     start appName "
-      printto  "\t    --stop                      stop appName "
+      printto  "\t    --start, start              start appName "
+      printto  "\t    --stop,  stop               stop appName "
+      printto  "\t    --dis, disable              Disable an AppName (the AppName can not start in this status)"
+      printto  "\t    --en, enable                Enable an AppName in status DISABLED"
       printto  "\t    --restart                   restart appName "
-      printto  "\t    --fast                      send execution to background "
+      printto  "\t    --fast, fast                send execution to background "
       printto  "\t-s, --status                    verify the status of appName "
       printto  "\t    --quiet                     doesn't show execution output of application "
       printto  "\t-v, --verbose                   send output execution to terminal "
@@ -510,6 +553,8 @@ do
       printto  "\t-c, --check-config              check config application (see ${APNAME}-${APNAME}.conf) "
       printto  "\t-vv                             send output execution and ${APNAME} execution to terminal "
       printto  "\t-d, --debug                     debug logs and processes in the system "
+      printto  "\t-gr, --greport                  show the groups configured in order to restart, start, stop"
+      printto  "\t-e, --extended                  show  an extend report about AppName"
       printto  "\t    --version                   show version "
       printto  "\t-h, --help                      show help "
       printto  "Each APPNAME refers to one application on the server. "
@@ -522,17 +567,24 @@ do
       # FEAT
       # ahora ya es posible usar el monopse $APP [options] sin usar el parametro -a o --application
       # cute ^.^!
-      [ ${#APPRCS} -eq 0 ] && APPRCS="${1}"
+      #echo ${#APPRCS}
+      #[ ${#APPRCS} -eq 0 ] && APPRCS="${1}"
+      APPRCS="${1}"
       check_configuration "${APPRCS}" 
       LASTSTATUS=$?
-      if [ ${LASTSTATUS} -eq 0 ]
+      if [ ${ENABLE} = false ]
+      then
+      if [ ${LASTSTATUS} -eq 0 ] 
       then
         log_action "DEBUG" "${APPRCS} seems correct"
         set_proc "${APPRCS}"
+        APPINST[${pos}]=$(echo $APPRCS)
+        pos=$pos+1
       else
         log_action "DEBUG" "${APPRCS} seems corrupted"
         report_status "i" "${APPRCS} does not exist, please check your parameters."
         exit 1
+      fi
       fi
     ;;
   esac
@@ -561,14 +613,13 @@ then
   printto "APLOGS    = ${APLOGS}"
   printto "APLOGP    = ${APLOGP}"
   printto "APTEMP    = ${APTEMP}"
-  for app in ${APPATH}/setup/*-*.conf
+  for app in ${APPATH}/setup/*-monopse.conf
   do
     echo "APSETP   = ${app}"
   done
 
   exit 0
 fi
-
 #
 if ${ERROR}
 then
@@ -577,6 +628,10 @@ then
 else
   #
   # CHECKCONFIG -- Verificar los parámetros del archivo de configuración
+for AP in "${APPINST[@]}"
+do
+  APPRCS=${AP}
+
   if ${CHECKCONFIG}
   then
     check_configuration "${APPRCS}" "YES"
@@ -587,8 +642,12 @@ else
     else
       report_status "?" "${APPRCS} seems corrupted"
     fi
-    exit ${LASTSTATUS}
+    #exit ${LASTSTATUS}
   fi
+
+  #exit ${LASTSTATUS}
+done
+
 
   #
   # verificar que la configuración exista, antes de ejecutar el servicio 
@@ -608,17 +667,20 @@ else
       CANCEL=true
       ${STATUS} && CANCEL=false
       ${VIEWREPORT} && CANCEL=false
+      ${VIEWGROUP} && CANCEL=false
+      ${VIEWEXTENDED} && CANCEL=false
       ${VIEWHISTORY} && CANCEL=false
       ${MAINTENANCE} && CANCEL=false
       ${DEBUG} && CANCEL=false
       if ${CANCEL}
       then
         printto  "Usage: ${APNAME} [OPTION]...[--help]"
+
         exit 1
       fi
     fi
   fi
-
+  
   #
   # RESTART -- guess... ?
   if ${RESTART}
@@ -629,7 +691,7 @@ else
 
     if ${ALLAPPLICATIONS} 
     then
-      for APMAIN in ${APPATH}/setup/*.conf
+      for APMAIN in ${APPATH}/setup/*-monopse.conf
       do
         MAPPFILE=`basename ${APMAIN%-*.conf}`
         log_action "DEBUG" "Executing restart over ${MAPPFILE} "
@@ -640,11 +702,16 @@ else
         [ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${MAPPFILE} start ${OPTIONAL}
       done
     else
+  
+    for AP in "${APPINST[@]}"
+    do
+      APPRCS=${AP}
       wait_for "Stopping ${APPRCS} application" 2
       ${APPATH}/${APNAME} --application=${APPRCS} stop --forced ${OPTIONAL}
       RESULT=$?
       wait_for "Starting ${APPRCS} application" 2
       [ ${RESULT} -eq 0 ] && ${APPATH}/${APNAME} --application=${APPRCS} start ${OPTIONAL}
+    done
     fi
   fi
 
@@ -653,6 +720,8 @@ else
   # START -- Iniciar la aplicación indicada en el archivo de configuración
   if ${START}
   then   
+
+    APPRCS=${AP}
     #
     # que sucede si intentan dar de alta el proceso nuevamente
     # verificamos que no exista un bloqueo (Dummies of Proof) 
@@ -670,7 +739,7 @@ else
       # como ya termino, no tiene caso seguir
       exit 0
     fi
-  
+
     TOSLEEP="$(($TOSLEEP*2))"
     process_running
     LASTSTATUS=$?
@@ -699,7 +768,8 @@ else
         exit 0
       fi
     fi
-    
+   
+
     #
     # ejecutar el shell para iniciar la aplicación y verificar que esta exista
     cd ${PATHAPP}
@@ -742,6 +812,7 @@ else
     # a trabajar ... !
     LASTSTATUS=1
     ONSTOP=1
+    SPECT=200
     LASTLINE=""
     LINE="`tail -n1 ${APLOGP}.log`"
     INWAIT=true
@@ -754,7 +825,7 @@ else
     wait_for "Getting PID's and lock process files ..." 1
     while (${INWAIT})
     do
-      filter_in_log "${UPSTRING}"
+      filter_in_log "${UPSTRING}" ${SPECT}
       LASTSTATUS=$?
       wait_for "Waiting for ${APPRCS} execution, be patient ..." 2
       [ ${LASTSTATUS} -eq 0 ] && report_status "*" "process ${APPRCS} start successfully"
@@ -769,6 +840,7 @@ else
         printto  "   | ${LINE}"
       fi
       ONSTOP="$(($ONSTOP+1))"
+      SPECT="$(($SPECT+100))"
       [ $ONSTOP -ge $TOSLEEP ] && report_status "?" "Uhm, something goes wrong with ${APPRCS}"
       [ $ONSTOP -ge $TOSLEEP ] && INWAIT=false;
       LASTLINE="`tail -n1 ${APLOGP}.log`"
@@ -783,10 +855,10 @@ else
     # FIX
     # SI LA APLPICACION CORRE UNA SOLA VEZ, ELIMINAR EL .lock
     [ ${APPTYPE} = "RUNONCE" ] && rm -f "${APLOGT}.lock" && log_backup
-    exit ${LASTSTATUS}
+    ####exit ${LASTSTATUS}
   fi
-  
 
+  
   #
   # STOP -- Detener la aplicación sea por instrucción o deteniendo el proceso, indicado en el archivo de configuración
   if ${STOP} 
@@ -799,14 +871,19 @@ else
       ${FASTSTOP} && OPTIONAL="${OPTIONAL} --forced"
       ${FAST} && OPTIONAL="${OPTIONAL} --fast"
 
-      for APMAIN in ${APPATH}/setup/*.conf
+      for APMAIN in ${APPATH}/setup/*-monopse.conf
       do
         MAPPFILE=`basename ${APMAIN%-*.conf}`
         ${APPATH}/${APNAME} --application=${MAPPFILE} stop ${OPTIONAL}
       done
       
       # como ya termino, no tiene caso seguir 
-      exit 0
+      if ${DIS}
+      then
+        log_action "DEBUG" "Option Disable, the monopse continue to run it"
+      else
+        exit 0
+      fi
     fi
 
     #
@@ -850,11 +927,12 @@ else
     # si es necesario que el stop sea forzado
     if ${NOTFORCE}
     then
-      # 
-      if [ -r ${STOPAPP} ]
+      #
+      cd ${PATHAPP} 
+      if [ -f ${STOPAPP} ]
       then
         STRSTATUS="NORMAL SHUTDOWN"
-        sh ${STOPAPP} >> ${APLOGP}.log 2>&1 &
+        nohup sh ${PATHAPP}/${STOPAPP} >> ${APLOGP}.log 2>&1 &
         log_action "INFO" "Shutdown application, please wait..."
       fi
          
@@ -946,7 +1024,7 @@ else
         log_backup
       fi
 
-      [ ${LASTSTATUS} -ne 0 ] && exit 0
+      [[ ${LASTSTATUS} -ne 0 ]] && [[ ${DIS} = false ]]  && exit 0
       
       processes_running
     fi
@@ -963,6 +1041,41 @@ else
       kill -15 ${PROCESSES} > /dev/null 2>&1
 
     fi
+    #
+    #
+    # DISABLE -- Deshabilita el appName para no poder ser inicializado (status DISABLED)
+
+    if ${DIS}
+    then
+      count=`ls -l ${APPATH}/setup/${APPRCS}-*.conf 2> ${APLOGD}/monopse.err2| wc -l | sed -e "s/ //g"`
+      log_action "DEBUG" "Wow, we have found $count application(s) with name ${APPRCS}"
+      [ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
+
+      ${APPATH}/${APNAME} --application=${APPRCS} -f stop
+      gzip -f9 ${APPATH}/setup/${APPRCS}-monopse.conf
+      [ -d ${APPATH}/setup/.dis ] && log_action "DEBUG" "The directory DIS is OK" || mkdir ${APPATH}/setup/.dis
+      mv ${APPATH}/setup/${APPRCS}-monopse.conf.gz ${APPATH}/setup/.dis/${APPRCS}-monopse.dis
+      STR="${APPRCS} is disabled right now"
+      report_status "i" "${STR}"
+      exit 0
+    fi
+
+    #
+    #
+    # ENABLE -- Habilita
+
+    if ${ENABLE}
+        then
+          count=`ls -l ${APPATH}/setup/.dis/${APPRCS}-*.dis 2> ${APLOGD}/monopse.err2 | wc -l | sed -e "s/ //g"`
+          log_action "DEBUG" "Wow, we have found $count application(s) with name ${APPRCS}"
+          [ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
+
+          mv ${APPATH}/setup/.dis/${APPRCS}-monopse.dis ${APPATH}/setup/${APPRCS}-monopse.conf.gz
+          gunzip  ${APPATH}/setup/${APPRCS}-monopse.conf.gz
+          STR="${APPRCS} is enabled right now, you can start the appName"
+          report_status "i" "${STR}"
+          exit 0
+    fi
 
     #
     # STATUS -- Verificar el status de la aplicación
@@ -975,7 +1088,7 @@ else
         count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
         log_action "DEBUG" "Wow, we have $count applications in our environment"
         [ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
-        for app in ${APPATH}/setup/*-*.conf
+        for app in ${APPATH}/setup/*-monopse.conf
         do
           app=`basename ${app%-*}`
           ${APPATH}/${APNAME} --application=$app --status ${OPTIONAL}
@@ -1002,6 +1115,135 @@ else
       fi
     fi
 
+    if ${VIEWGROUP}
+    then
+      count=`ls -l ${APPATH}/setup/*-*.conf | grep "group.conf" | wc -l | sed -e "s/ //g"`
+      [ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
+      #processes_running
+      printto  "\n ${APHOST} (${IPADDRESS})"
+      printto  "GROUP:APPLICATIONS" |
+        awk 'BEGIN{FS=":";OFS="| "}
+              {
+                print " "substr($1"               ",1,15),
+                      substr($2"                                                     ",1,66)
+              }'
+      printto  " ---------------+--------------------------------------------------------------------"
+
+      for group in ${APPATH}/setup/*-group.conf
+      do
+      grpconf=`basename ${group}`
+      grpname=$(grep NAMEGROUP ${group} | sed -e 's/NAMEGROUP=//g')
+      grpapp=""
+      grappstat=""
+
+      for gap in $(grep APPNAME ${group} | sed -e 's/APPNAME=//g')
+      do
+         [ ${gap} != "" ] && grpapp=${gap}" "${grpapp}
+      done
+
+      printto "${grpname}:${grpapp}" |
+        awk 'BEGIN{FS=":";OFS="| "}
+            {
+              print " "substr($1"               ",1,15),
+                    substr($2"                                                   ",1,65)
+            }'
+      done
+      printto  "\nTotal $count group(s)"
+    fi
+
+
+    #
+    # REPORT - Generar un reporte de aplicaciones ejecutandose
+    #
+    # PULGOSA
+    #
+    # APPLICATION         | EXECUTED      | PID   | TPID  | STATUS
+    # --------------------+---------------+-------+-------+-----------
+    # test                | 20200801-1328 | 2674  | 1     | RUNNING
+    # ...
+    # Nuevo Reporte: 20/01/2019
+    # Con el fin de averiguar cuantos procesos, se crea otra columna que diga TPID
+    # APPLICATION   | EXECUTED      | PID   |  TPID  | STATS
+    # --------------+---------------+-------+---------
+    # test          | 20080924-0046 |       |        | STOPPED
+    # ...
+
+    if ${VIEWREPORT} 
+    then
+      count=`ls -l ${APPATH}/setup/*-monopse.conf ${APPATH}/setup/.dis/*-monopse.dis 2> ${APLOGD}/monopse.err2| wc -l | sed -e "s/ //g"`
+      [ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
+      processes_running
+      printto  "\n ${APHOST} (${IPADDRESS})"
+      printto  "APPLICATION:EXECUTED:PID:TPID:STATUS" | 
+        awk 'BEGIN{FS=":";OFS="| "}
+              {
+                print " "substr($1"                             ",1,20),
+                      substr($2"              ",1,14),
+                      substr($3"              ",1,6),
+                      substr($4"               ",1,6),
+                      substr($5"               ",1,6)
+              }'
+
+      printto  " --------------------+---------------+-------+-------+-----------"
+      
+      for app in ${APPATH}/setup/*-monopse.conf
+      do
+        appname=`basename ${app%-*.conf}`
+        apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
+        apptpidn=""
+        apppidn=""
+        log_action "DEBUG" "report from ${APTEMP}/${appname}"
+        [ -s ${APTEMP}/${appname}.date ] && appdate=`head -n1 "${APTEMP}/${appname}.date"` || appdate=
+        if [ -s ${APTEMP}/${appname}.pid ]
+        then
+          apppidn=`head -n1 "${APTEMP}/${appname}.pid"`
+          [ ${#apppidn} -gt 0 ] && kill -0 $apppidn > /dev/null 2>&1
+          [ $? -ne 0 ] && rm -f ${APTEMP}/${appname}.p* && apppidn=
+          [ $? -ne 0 ] && rm -f ${APTEMP}/${appname}.inprogress > /dev/null 2>&1
+        fi
+
+        if [ -s ${APTEMP}/${appname}.tpid ]
+        then
+          apptpidn=`cat "${APTEMP}/${appname}.tpid"`
+        else
+          apptpiddn=""
+        fi
+
+        [ ${#apppidn} -gt 0 ] && appstat="RUNNING" || appstat="STOPPED"
+        [ -f ${APTEMP}/${appname}.inprogress ] && appstat="INPROGRESS"
+        
+        printto "${appname}:${appdate}:${apppidn}:${apptpidn}:${appstat}" | 
+          awk 'BEGIN{FS=":";OFS="| "}
+              {
+                print " "substr($1"                             ",1,20),
+                      substr($2"              ",1,14),
+                      substr($3"              ",1,6),
+                      substr($4"              ",1,6),
+                      substr($5"              ",1,9)
+              }'
+      done
+
+      for app in ${APPATH}/setup/.dis/*-monopse.dis
+      do
+        appname=`basename ${app%-*.dis}`
+        apptpidn=""
+        apppidn=""
+        appdate=""
+        appstat="DISABLED"
+        printto "${appname}:${appdate}:${apppidn}:${apptpidn}:${appstat}" |
+          awk 'BEGIN{FS=":";OFS="| "}
+              {
+                print " "substr($1"                             ",1,20),
+                      substr($2"              ",1,14),
+                      substr($3"              ",1,6),
+                      substr($4"              ",1,6),
+                      substr($5"              ",1,9)
+              }'
+      done
+      printto  "\nTotal $count application(s)"
+    fi
+    
+
     #
     # REPORT - Generar un reporte de aplicaciones ejecutandose
     #
@@ -1011,27 +1253,34 @@ else
     # --------------+---------------+-------+---------
     # test          | 20080924-0046 |       | STOPPED
     # ...
-    if ${VIEWREPORT} 
+
+    if ${VIEWEXTENDED} 
     then
-      count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
+      count=`ls -l ${APPATH}/setup/*-monopse.conf | wc -l | sed -e "s/ //g"`
       [ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
       processes_running
       printto  "\n ${APHOST} (${IPADDRESS})"
-      printto  "APPLICATION:EXECUTED:PID:STATUS" | 
+      printto  "APPLICATION:EXECUTED:PID:STATUS:SERVER NAME:PORTS:DOMAIN ROOT" |
         awk 'BEGIN{FS=":";OFS="| "}
               {
                 print " "substr($1"                             ",1,20),
                       substr($2"              ",1,14),
                       substr($3"              ",1,6),
-                      substr($4"              ",1,6)
+                      substr($4"              ",1,8),
+                      substr($5"              ",1,12),
+                      substr($6"                       ",1,50),
+                      substr($7"                                     ",1,50)
               }'
-      printto  " --------------------+---------------+-------+---------"
+      printto  " --------------------+---------------+-------+---------+-------------+-----------------------------+---------------------------------------------------"
       
-      for app in ${APPATH}/setup/*-*.conf
+      for app in ${APPATH}/setup/*-monopse.conf
       do
         appname=`basename ${app%-*.conf}`
         apppath=`awk 'BEGIN{FS="="} /^PATHAPP/{print $2}' ${app}`
         apppidn=""
+        appsrvname=`grep NAME ${app} | sed -e 's/NAME=//g'`
+        appsrvports=`grep PORTS  ${app} | sed -e 's/PORTS=//g'`
+	      appsrvcfg=`grep PATHAPP ${app} | sed -e 's/PATHAPP=//g'`	
         log_action "DEBUG" "report from ${APTEMP}/${appname}"
         [ -s ${APTEMP}/${appname}.date ] && appdate=`head -n1 "${APTEMP}/${appname}.date"` || appdate=
         if [ -s ${APTEMP}/${appname}.pid ]
@@ -1044,68 +1293,69 @@ else
         [ ${#apppidn} -gt 0 ] && appstat="RUNNING" || appstat="STOPPED"
         [ -f ${APTEMP}/${appname}.inprogress ] && appstat="INPROGRESS"
         
-        printto "${appname}:${appdate}:${apppidn}:${appstat}" | 
+        printto "${appname}:${appdate}:${apppidn}:${appstat}:${appsrvname}:${appsrvports}:${appsrvcfg}" |
+
+
           awk 'BEGIN{FS=":";OFS="| "}
               {
                 print " "substr($1"                             ",1,20),
                       substr($2"              ",1,14),
                       substr($3"              ",1,6),
-                      substr($4"              ",1,9)
+                      substr($4"              ",1,8),
+                      substr($5"              ",1,12),
+                      substr($6"                             ",1,28),
+                      substr($7"              ",1,60)
               }'
       done
       printto  "\nTotal $count application(s)"
     fi
-    
-
     #
-    # TASK: Registro de ejecucion
-    #  $> monopse --log
+    # LOG -- enerar un reporte de aplicaciones historico de operaciones realizadas
     #
-    #     macuarrita (192.168.0.27)
-    #     AppName  Action        Day        Time
-    #     --------+-------------+----------+-----
-    #     CCI      STOP          20110520   1530
-    #     CCI      START         20110520   1532
+    # PULGOSA
     #
+    # DATE     | STOP | START | SERVER             | BACKUP
+    # ---------+-------+-------+--------------------+---------------------------
+    # 20080924 | 0046 | 0120  | test               | test_20080924_0120.tar.gz
+    # ...
     if ${VIEWHISTORY} 
     then
-      _TL="\033(0l\033(B"
-      _TR="\033(0k\033(B"
-      _BL="\033(0m\033(B"
-      _BR="\033(0j\033(B"
-      _SL="\033(0t\033(B"
-      _SR="\033(0u\033(B"
-      _VE="\033(0x\033(B"
-      _HE="\033(0q\033(B"
-      _CD="\033(0w\033(B"
-      _CU="\033(0v\033(B"
-      _LH="\033(0p\033(B"
-      count=`ls -l ${APPATH}/setup/*-*.conf | wc -l`
+      count=`ls -l ${APPATH}/setup/*-*.conf | wc -l | sed -e "s/ //g"`
       [ $count -eq 0 ] && report_status "?" "Cannot access any config file " && exit 1
-      printto "\n ${APHOST} (${IPADDRESS})"
-      printto " APPLICATION  $_CD ACTION $_CD DAY      $_CD TIME "
+      printto  "\n ${APHOST} (${IPADDRESS})\n"
+      printto  "START:STOP:APPLICATION:" | 
+        awk 'BEGIN{FS=":";OFS="| "}
+              {
+                print " "substr($1"                     ",1,18),
+                      substr($2"                     ",1,18),
+                      substr($3"                     ",1,28);
+              }'
+      printto  " ------------------+-------------------------------------------------"
       log_action "DEBUG" "report from ${APLOGS}.log "
       tail -n5000 ${APLOGS}.log | tr -d ":[]()-" | sort -r | \
-            awk '
-              BEGIN {OFS="| "}
+            awk 'BEGIN{LAST="";OFS="| "}
                   /successfully/{
-                    if($0~"start"){
-                      STATUS="start";
-                    }else{
-                      STATUS="stop";
-                    }
-                    print " "substr($8"                     ",1,13),
-                             substr(STATUS"                     ",1,7),
-                             substr($1"                     ",1,9),
-                             substr($2"                     ",1,9);
+                  if($0~"start")
+                  {
+                    LDATE=$1;
+                    LTIME=$2;
+                    PROCS=$8;
                   }
-            ' > ${APTEMP}/${APNAME}.history
+                  else
+                  {
+                    print " "substr(LDATE"                     ",1,9),
+                          substr(LTIME"                     ",1,7),
+                          substr($1"                     ",1,9),
+                          substr($2"                     ",1,7),
+                          substr($8"                     ",1,28);
+                  }
+            }' > ${APTEMP}/${APNAME}.history
       
       if [ "${APPRCS}" = "NONSETUP" ]
       then
-        cat ${APTEMP}/${APNAME}.history | head -n25 
+        cat ${APTEMP}/${APNAME}.history | uniq | sort | head -n25
       else
-        cat ${APTEMP}/${APNAME}.history | head -n25 | grep "${APPRCS} "
+        cat ${APTEMP}/${APNAME}.history | uniq | sort | head -n25 | grep "${APPRCS} "
       fi
       printto  ""
     fi
