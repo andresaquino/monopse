@@ -30,12 +30,15 @@ Documentation
       OTHER          : Some other kind of issue
 
    Tested with
-      * Oracle WebLogic 11
+      * Oracle Weblogic 14c
+      * Oracle Weblogic 12c
+      * Oracle WebLogic 11g
       * Oracle WebLogic 10
       * JBoss EAP 6.x
       * Jboss EAP 7.x
       * BEA WebLogic 9.2
       * BEA WebLogic 8.1
       * BEA WebLogic 6
+      * Websphere Application Server
       * Targys (install screen)
       * local applications running on Linux, AIX and HP-UX
