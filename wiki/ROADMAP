@@ -7,6 +7,13 @@
 An small shell for those applications that nobody wants to restart ;)
 =-=
 
+v3.12
+   * rev.202301.11.
+      ENHANCEMENT: Se agrega variable en conf (TOFORCE) para indicar si es posible aplicar reinicio forzado
+      a un proceso instanciado con monopse.
+      ENHANCEMENT: Se agrega variable en conf (PARAMSAPP) para pasar parámetros a las ejecuciones dentro de 
+      un proceso instanciado por monopse.
+
 v3.10
    * rev.202010.13.
       ENHANCEMENT: Se agrega en la salida de help sobre el uso de disable y enable
