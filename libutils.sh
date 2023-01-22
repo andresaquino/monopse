@@ -1,12 +1,12 @@
 #!/bin/sh
-# vim: set ts=2 sw=2 sts=2 si ai et:
+# vim: set ts=2 sw=2 sts=2 si ai et: 
 
 # libutils.sh -- library with some util functions
 # =
 #
 # Developer
 # Andres Aquino <aquino(at)hp.com>
-#
+# 
 
 #
 # constants
@@ -34,14 +34,14 @@ CLTYPE="\e"
 # get the enviroment for the SO running
 set_environment () {
   # terminal line settings
-  stty 2> /dev/null > /dev/null
+  stty 2> /dev/null > /dev/null 
 
   if [ "$?" = "0" ]
   then
     # terminal line settings
     stty erase '^?'
-    stty intr '^C'
-    stty kill '^U'
+    stty intr '^C' 
+    stty kill '^U' 
     stty stop '^S'
     stty susp '^Z'
     stty werase '^W'
@@ -64,7 +64,7 @@ set_environment () {
     BLDPUR="${CLTYPE}[1;35m" # Purple
     BLDCYN="${CLTYPE}[1;36m" # Cyan
     BLDWHT="${CLTYPE}[1;37m" # White
-
+ 
     # DEPRECATED
     CCLEAR="${CLTYPE}[0m"
     CGRAY="${CLTYPE}[01;30m"
@@ -92,7 +92,7 @@ set_environment () {
     BLDPUR="" # Purple
     BLDCYN="" # Cyan
     BLDWHT="${CLTYPE}[1;37m" # White
-
+ 
     # DEPRECATED
     CCLEAR=
     CWHITE=
@@ -102,7 +102,7 @@ set_environment () {
     CBLUE=
     CGRAY=
   fi
-
+  
   # application's structure
   # [monopse]
   # /opt/usrapp/monopse
@@ -120,7 +120,7 @@ set_environment () {
     APPATH=${APHOME}/${APNAME}
   fi
   [ ! -d ${APPATH} ] && mkdir -p ${APPATH}
-  APPROF="(c) Andres Aquino <@andresaquinom>"
+  [ -s ${APPATH}/PROFILE ] && APPROF="`cat ${APPATH}/PROFILE`" || APPROF="(c) 2011, Andres Aquino <andres.aquino(at)gmail.com>"
 
   # log's path
   if [ ${#APLOGD} -eq 0 ]
@@ -133,7 +133,7 @@ set_environment () {
   APLOGP=${APTEMP}/${APNAME}
   [ ! -d ${APLOGD} ] && mkdir -p ${APLOGD}
   [ ! -d ${APTEMP} ] && mkdir -p ${APTEMP}
-
+  
   HOSTNAME=`hostname`
   case "${APSYSO}" in
     "HP-UX")
@@ -153,7 +153,7 @@ set_environment () {
       SCREEN=`which screen`
       IPADDRESS=`${PING} ${HOSTNAME} -n 1 | awk '/icmp_=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
     ;;
-
+      
     "Linux")
       PSOPTS="lax"
       PSPOS=0
@@ -172,7 +172,7 @@ set_environment () {
       #IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
       IPADDRESS=`ip a s | grep inet | grep -v inet6| sed -e 's/^[[:space:]]*//' |cut -d' ' -f2 | cut -d'/' -f1 | grep -v 127.0.0.1 | head -1`
     ;;
-
+    
     "Darwin")
       PSOPTS="-leax"
       PSPOS=-1
@@ -190,13 +190,13 @@ set_environment () {
       SCREEN=`which screen`
       IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
     ;;
-
+     
     "AIX")
       PSOPTS="-fea"
       PSPOS=-1
       PING="`which ping`"
       IPADDRESS=`${PING} -c 1 ${HOSTNAME} | awk '/icmp_seq=/{print $0}' | sed 's/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\).*$/\1/'`
-    ;;
+    ;; 
     *)
       PSOPTS="-l"
       PSPOS=0
@@ -216,7 +216,7 @@ set_name () {
   APNAME=${AP_NAME}
   APPATH=${AP_PATH}
   [ ! -d ${APPATH} ] && mkdir -p ${APPATH}
-
+  
   #APLOGD=${APHOME}/logs
   APLOGS=${APLOGD}/${APNAME}
   [ ! -d ${APLOGD} ] && mkdir -p ${APLOGD}
@@ -225,7 +225,7 @@ set_name () {
   [ ! -d ${APTEMP} ] && mkdir -p ${APTEMP}
 
   APLOGP=${APTEMP}/${APPRCS}
-
+  
 }
 
 
@@ -266,16 +266,16 @@ set_proc () {
 get_process_id () {
   #
   local FILTER="${1}"
-
+  
   [ ${#FILTER} -ne 0 ] && APFLTR=${FILTER}
   PIDFILE=${APLOGT}
-  WRDSLIST=`echo  "${APUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"`
+  WRDSLIST=`echo  "${APUSER},${APFLTR}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
   # extraer procesos existentes y filtrar las cadenas del archivo de configuracion
   ps ${PSOPTS} > ${PIDFILE}.allps
   log_action "DEBUG" "filtering process list with [ps ${PSOPTS}]"
   ${VIEWMLOG} && report_status "i" "Creating of ${PIDFILE}.allps"
-
-  # extraer los procesos que nos interesan
+  
+  # extraer los procesos que nos interesan 
   awk "/${WRDSLIST}/{print}" ${PIDFILE}.allps > ${PIDFILE}.ps
   log_action "DEBUG" "looking for /${WRDSLIST}/ in ${PIDFILE}.allps owned by ${APUSER}"
 
@@ -283,17 +283,17 @@ get_process_id () {
   wc -l ${PIDFILE}.ps | awk '{print $1}' > ${PIDFILE}.tpid
   log_action "DEBUG" "Counting the process owned by ${APUSER} in order to TPID"
 
-  # el archivo existe y es mayor a 0 bytes
+  # el archivo existe y es mayor a 0 bytes 
   if [ -s ${PIDFILE}.ps ]
   then
     ${VIEWMLOG} && report_status "i" "${PIDFILE}.allps < /${WRDSLIST}/ = uju!"
     # extraer los procesos y reordenarlos
     sort -n -k8 ${PIDFILE}.ps > ${PIDFILE}.pss
     log_action "DEBUG" "hey, we have one ${APPRCS} process alive in ${PIDFILE}.ps "
-
-    # extraer los pid de los procesos implicados
+    
+    # extraer los pid de los procesos implicados 
     awk -v P=${PSPOS} '{print $(3+P)}' ${PIDFILE}.pss > ${PIDFILE}.pid
-
+    
     # reodernar los PPID para dejar el proceso raiz al final
     awk -v P=${PSPOS} '{print $(4+P)}' ${PIDFILE}.pss | sort -rn | uniq > ${PIDFILE}.ppid
 
@@ -312,14 +312,14 @@ process_running () {
   local COUNT=0
   local EACH=""
 
-  # toma de base el APPRCS que se encuentra instanciada
+  # toma de base el APPRCS que se encuentra instanciada 
   PIDFILE=${APLOGT}
   log_action "DEBUG" "looking for ${PIDFILE}.pid"
 
-  # si no existe el PID, forzar la busqueda
+  # si no existe el PID, forzar la busqueda 
   [ ! -s ${PIDFILE}.pid ] && get_process_id
 
-  # caso contrario, verificar que sea correcto
+  # caso contrario, verificar que sea correcto 
   if [ -s ${PIDFILE}.pid ]
   then
     PROCESS=`head -n1 ${PIDFILE}.pid`
@@ -366,19 +366,19 @@ processes_running () {
 log_action () {
   local LEVEL="${1}"
   local ACTION="${2}"
-
+  
   # filelog y process id
   local TIME="`date '+%H:%M:%S'`"
   local DATE="`date '+%Y-%m-%d'`"
   local PID="$$"
   # verificar que existe (mayor a 0 bytes) y ademas se cuenta con el process id
-  if [ -s ${APLOGS}.pid ]
-  then
+  if [ -s ${APLOGS}.pid ] 
+  then 
     PID=`head -n1 ${APLOGP}.pid`
   fi
-
+    
   # severity level: http://www.aboutdebian.com/syslog.htm
-  # do you need make something for whatever level on your app ?
+  # do you need make something for whatever level on your app ? 
   LOGTHIS=false
   case "${LEVEL}" in
     "ALERT")
@@ -403,13 +403,13 @@ log_action () {
       [ ${APLEVL} = "NOTICE" ] && LOGTHIS=true
       [ ${APLEVL} = "DEBUG" ] && LOGTHIS=true
     ;;
-  esac
-
+  esac 
+  
   if ${LOGTHIS}
   then
     if [ ${#APLOGS} -eq 0 ]
     then
-      echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}"
+      echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" 
     else
       echo "${DATE} ${TIME} ${APHOST} ${PRNAME}[${PID}]: (${LEVEL}) ${ACTION}" >> ${APLOGS}.log
     fi
@@ -422,12 +422,12 @@ log_action () {
 report_status () {
   local STATUS="${1}"
   local MESSAGE="${2}"
-
+  
   # cadena para indicar proceso correcto o con error
   echo " ${MESSAGE} " | awk -v STATUS=${STATUS} '{print substr($0"                                                                                        ",1,80),STATUS}'
-  if [ "${#TXTBLU}" -ne 0 ]
-  then
-    tput sc
+  if [ "${#TXTBLU}" -ne 0 ] 
+  then 
+    tput sc 
     tput cuu1 && tput cuf 80
     case "${STATUS}" in
       "*")
@@ -449,18 +449,18 @@ report_status () {
 filter_in_log () {
   local FILTER="${1}"
   local CUTF=${2}
-  local WRDSLIST=`echo "${FILTER}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"`
+  local WRDSLIST=`echo "${FILTER}" | sed -e "s/\///g;s/,/\/\&\&\//g;s/;/\/\|\|\//g"` 
 
   # la long de la cad no esta vacia
   [ ${#FILTER} -eq 0 ] && log_action "DEBUG" "Umh, please set the filter (UP or DOWN)String"
   [ ${#FILTER} -eq 0 ] && return 1
 
-  # extraer los procesos que nos interesan
+  # extraer los procesos que nos interesan 
   [ ! -f ${APLOGP}.log ] && touch ${APLOGP}.log
   cut -c1-${CUTF} ${APLOGP}.log | awk "BEGIN{res=0}/${WRDSLIST}/{res=1}END{if(res==0){exit 1}}"
   LASTSTATUS=$?
   log_action "DEBUG" "ok, searching /${WRDSLIST}/ in ${APLOGP}.log: ${LASTSTATUS}"
-
+  
   if [ ${LASTSTATUS} -eq 0 ]
   then
     log_action "DEBUG" "search of /${FILTER}/ was succesfull"
@@ -480,11 +480,11 @@ printto() {
     "HP-UX")
       $_echo "$message"
     ;;
-
+      
     "Linux")
       echo -e -n "$message \n"
     ;;
-
+    
     "Darwin")
       echo -e -n "$message \n"
     ;;
@@ -506,10 +506,10 @@ wait_for () {
   local TIMETO=${2}
   local GOON=true
   local WAITCHAR="-"
-
+  
   [ ${#TIMETO} -eq 0 ] && TIMETO=1
 
-  if [ "${#TXTBLU}" -ne 0 ]
+  if [ "${#TXTBLU}" -ne 0 ] 
   then
     if [ "${STATUS}" != "CLEAR" ]
     then
@@ -520,11 +520,11 @@ wait_for () {
       while(${GOON})
       do
         WAITCHAR=`echo ${WAITSTR} | cut -d" " -f${CHARPOS}`
-        # recuperar la posicion en pantalla, ubicar en la columna 70 y subirse un renglon
+        # recuperar la posicion en pantalla, ubicar en la columna 70 y subirse un renglon 
         tput rc
-        tput cuu1 && tput cuf 80
+        tput cuu1 && tput cuf 80 
         printto "${CRESET}[${TXTYLW} ${WAITCHAR} ${CRESET}]"
-        # incrementar posicion, si es igual a 5 regresar al primer caracter
+        # incrementar posicion, si es igual a 5 regresar al primer caracter 
         CHARPOS=$((${CHARPOS}+1))
         [ ${CHARPOS} -eq 5 ] && CHARPOS=1
         perl -e 'select(undef,undef,undef,.1)'
@@ -533,12 +533,12 @@ wait_for () {
       done
     else
       # limpiar linea de mensajes
-      tput rc
+      tput rc 
       tput cuu1
       tput el
     fi
     # limpiar linea de mensajes
-    tput rc
+    tput rc 
     tput cuu1
     #tput el
   else
@@ -564,7 +564,7 @@ wait_for () {
 # --
 # [ok] test para verificar procesos
 #get_enviroment
-#get_process_id "gvfs,spaw;gnome"
+#get_process_id "gvfs,spaw;gnome" 
 
 #
 # [] test para verificar los procesos asociados a un .pid
